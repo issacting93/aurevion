@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>App Test</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700&family=Geist+Mono:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: #0a0a0a; color: #fafafa;
+    font-family: "Geist", sans-serif; }
+  #root { height: 100%; display: flex; align-items: center; justify-content: center; }
+</style>
+</head>
+<body>
+<div id="root"><p style="color:red">If you see this, React hasn't mounted.</p></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+<script type="text/babel">
+  function Test() {
+    return React.createElement('div', {style:{padding:40,textAlign:'center'}},
+      React.createElement('h1', null, 'React works'),
+      React.createElement('p', {style:{color:'#a1a1a1'}}, 'Babel standalone is compiling JSX')
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(<Test/>);
+</script>
+</body>
+</html>

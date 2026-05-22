@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aurevion · Button Studies</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700&family=Geist+Mono:wght@100;200;300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --line: rgba(201, 201, 201, 0.08);
+      --line-soft: rgba(255, 255, 255, 0.08);
+      --text: #fafafa;
+      --dim: #a1a1a1;
+      --mute: #6b6b6b;
+      --accent: #FF6E50;
+      --accent-hot: #FF5A1F;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Geist", -apple-system, system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .mono {
+      font-family: "Geist Mono", ui-monospace, monospace;
+    }
+
+    .page {
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 72px 56px 120px;
+    }
+
+    .crumb {
+      font-family: "Geist Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 1.4px;
+      color: var(--mute);
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .crumb .dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    h1 {
+      font-size: 72px;
+      font-weight: 200;
+      letter-spacing: -2px;
+      line-height: 0.95;
+      margin: 0 0 20px;
+      max-width: 900px;
+    }
+
+    h1 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+
+    .lead {
+      font-size: 16px;
+      line-height: 1.55;
+      color: var(--dim);
+      max-width: 640px;
+      margin: 0 0 48px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 22px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line-soft);
+      border-radius: 16px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .card .num {
+      font-family: "Geist Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      color: var(--accent);
+    }
+
+    .card h3 {
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: -0.5px;
+      margin: 4px 0 0;
+      line-height: 1.15;
+    }
+
+    .card p {
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--dim);
+      margin: 0;
+    }
+
+    .card .pros {
+      font-family: "Geist Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: var(--mute);
+      text-transform: uppercase;
+    }
+
+    .card .pros b {
+      color: var(--text);
+    }
+
+    .stage {
+      border: 1px dashed var(--line-soft);
+      border-radius: 12px;
+      padding: 26px 20px 20px;
+      background: #0d0d0d;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      align-items: stretch;
+      min-height: 220px;
+      justify-content: flex-end;
+    }
+
+    .stage-label {
+      font-family: "Geist Mono", monospace;
+      font-size: 9px;
+      letter-spacing: 1.4px;
+      color: var(--mute);
+      text-transform: uppercase;
+      margin-bottom: -2px;
+    }
+
+    /* ───── shared mini-screen context ───── */
+    .ctx {
+      flex: 1;
+      padding-bottom: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .ctx .meta {
+      font-family: "Geist Mono", monospace;
+      font-size: 9px;
+      letter-spacing: 1.4px;
+      color: var(--mute);
+      text-transform: uppercase;
+    }
+
+    .ctx .big {
+      font-family: "Geist Mono", monospace;
+      font-size: 32px;
+      font-weight: 200;
+      letter-spacing: -1px;
+      line-height: 0.95;
+    }
+
+    .ctx .big .u {
+      font-size: 11px;
+      color: var(--mute);
+      margin-left: 4px;
+      vertical-align: super;
+      font-weight: 400;
+    }
+
+    /* ───── OPTION 1 · Sharp slab ───── */
+    .b1-primary,
+    .b1-sec,
+    .b1-ghost {
+      height: 52px;
+      padding: 0 22px;
+      font-family: "Geist", system-ui, sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      transition: background .14s, color .14s;
+      border-radius: 4px;
+    }
+
+    .b1-primary {
+      background: var(--accent);
+      color: #1a0f0a;
+      border: none;
+    }
+
+    .b1-primary:hover {
+      background: #FF8166;
+    }
+
+    .b1-primary .arr {
+      font-family: "Geist Mono", monospace;
+      font-size: 18px;
+    }
+
+    .b1-sec {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .b1-sec:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .b1-ghost {
+      background: transparent;
+      color: var(--dim);
+      border: none;
+      padding: 0 4px;
+      font-family: "Geist Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      height: 40px;
+    }
+
+    /* ───── OPTION 2 · Editorial text button ───── */
+    .b2-primary {
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: "Geist", system-ui, sans-serif;
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: -0.2px;
+      cursor: pointer;
+      padding: 14px 0;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .b2-primary .num {
+      font-family: "Geist Mono", monospace;
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 1.4px;
+    }
+
+    .b2-primary .arrow {
+      color: var(--accent);
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .b2-primary:hover .arrow {
+      transform: translateX(4px);
+      transition: transform .15s;
+    }
+
+    .b2-sec {
+      background: transparent;
+      border: none;
+      color: var(--dim);
+      font-family: "Geist", sans-serif;
+      font-size: 15px;
+      padding: 12px 0;
+      cursor: pointer;
+      text-align: left;
+      border-top: 1px solid var(--line-soft);
+    }
+
+    .b2-meta {
+      font-family: "Geist Mono", monospace;
+      font-size: 10px;
+      color: var(--mute);
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+
+    /* ───── OPTION 3 · Directional split ───── */
+    .b3-primary {
+      height: 56px;
+      padding: 0;
+      cursor: pointer;
+      background: var(--accent);
+      color: #1a0f0a;
+      border: none;
+      border-radius: 6px;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr 56px;
+      align-items: stretch;
+      font-family: "Geist Mono", monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+    }
+
+    .b3-primary .lbl {
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+    }
+
+    .b3-primary .iconcell {
+      background: rgba(0, 0, 0, 0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-left: 1px solid rgba(0, 0, 0, 0.18);
+    }
+
+    .b3-primary:hover .iconcell {
+      background: rgba(0, 0, 0, 0.28);
+    }
+
+    .b3-sec {
+      height: 56px;
+      padding: 0 20px;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      font-family: "Geist Mono", monospace;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* ───── OPTION 4 · Outlined precision ───── */
+    .b4-primary {
+      background: transparent;
+      color: var(--accent);
+      border: 1.5px solid var(--accent);
+      padding: 14px 22px;
+      border-radius: 0;
+      cursor: pointer;
+      font-family: "Geist Mono", monospace;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+    }
+
+    .b4-primary::before {
+      content: '';
+      position: absolute;
+      top: -1.5px;
+      left: -1.5px;
+      width: 8px;
+      height: 8px;
+      border-top: 2px solid var(--accent);
+      border-left: 2px solid var(--accent);
+    }
+
+    .b4-primary::after {
+      content: '';
+      position: absolute;
+      bottom: -1.5px;
+      right: -1.5px;
+      width: 8px;
+      height: 8px;
+      border-bottom: 2px solid var(--accent);
+      border-right: 2px solid var(--accent);
+    }
+
+    .b4-primary:hover {
+      background: rgba(255, 110, 80, 0.06);
+    }
+
+    .b4-sec {
+      background: transparent;
+      color: var(--dim);
+      border: 1px solid var(--line-soft);
+      padding: 14px 22px;
+      cursor: pointer;
+      font-family: "Geist Mono", monospace;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+    }
+
+    /* ───── OPTION 5 · Functional bottom bar ───── */
+    .b5-bar {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--line-soft);
+      border-radius: 12px;
+      padding: 6px;
+      display: grid;
+      grid-template-columns: 1fr 1.6fr 1fr;
+      gap: 4px;
+      align-items: stretch;
+      height: 64px;
+    }
+
+    .b5-cell {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      border-radius: 8px;
+      padding: 4px;
+      transition: background .14s;
+    }
+
+    .b5-cell:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .b5-cell.primary {
+      background: var(--accent);
+    }
+
+    .b5-cell.primary:hover {
+      background: #FF8166;
+    }
+
+    .b5-cell .glyph {
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .b5-cell .lbl {
+      font-family: "Geist Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: var(--dim);
+      text-transform: uppercase;
+    }
+
+    .b5-cell.primary .lbl {
+      color: #1a0f0a;
+      font-weight: 700;
+    }
+
+    .b5-cell.primary .glyph {
+      color: #1a0f0a;
+    }
+
+    /* ───── OPTION 6 · Mono-cap pill (CURRENT) ───── */
+    .b6-primary,
+    .b6-sec,
+    .b6-ghost {
+      height: 52px;
+      padding: 0 22px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: "Geist Mono", monospace;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: background .14s;
+    }
+
+    .b6-primary {
+      background: var(--accent);
+      color: #1a0f0a;
+      border: none;
+    }
+
+    .b6-sec {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      border: none;
+    }
+
+    .b6-ghost {
+      background: transparent;
+      color: var(--dim);
+      border: 1px solid var(--line);
+    }
+
+    /* ───── OPTION 7 · Iridescent jewel ───── */
+    .b7-jewel {
+      --jewel-size: 56px;
+      --jewel-pad: 4px;
+      --jewel-ring: 2.5px;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      height: calc(var(--jewel-size) + var(--jewel-pad) * 2);
+      padding: var(--jewel-pad) 28px var(--jewel-pad) var(--jewel-pad);
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #232325 0%, #141416 50%, #0a0a0c 100%);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.6),
+        0 6px 20px rgba(0, 0, 0, 0.45);
+      cursor: pointer;
+      color: #fafafa;
+      font-family: "Geist", system-ui, sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      transition: transform .15s ease;
+    }
+
+    .b7-jewel:hover {
+      transform: translateY(-1px);
+    }
+
+    .b7-jewel:active {
+      transform: translateY(1px) scale(0.99);
+    }
+
+    .b7-icon {
+      position: relative;
+      width: var(--jewel-size);
+      height: var(--jewel-size);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .b7-icon::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      padding: var(--jewel-ring);
+      background: conic-gradient(from 0deg,
+          #000000, #FF6E50, #ffffff, #FF6E50,
+          #000000, #FF6E50, #ffffff, #FF6E50, #000000);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      filter: saturate(1.4) brightness(1.1);
+      animation: jewelSpin 6s linear infinite;
+    }
+
+    .b7-icon::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg,
+          #000000, #FF6E50, #ffffff, #FF6E50,
+          #000000, #FF6E50, #ffffff, #FF6E50, #000000);
+      filter: blur(10px) saturate(1.6);
+      opacity: 0.5;
+      z-index: -1;
+      animation: jewelSpin 6s linear infinite;
+    }
+
+    .b7-face {
+      position: relative;
+      width: calc(100% - var(--jewel-ring) * 2 - 2px);
+      height: calc(100% - var(--jewel-ring) * 2 - 2px);
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 30%, #2a2a2d 0%, #131316 55%, #0a0a0b 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, 0.12),
+        inset 0 -2px 5px rgba(0, 0, 0, 0.7);
+    }
+
+    .b7-glyph {
+      width: 44%;
+      height: 44%;
+      fill: white;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+    }
+
+    .b7-label {
+      margin-left: 14px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+    }
+
+    @keyframes jewelSpin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      .b7-icon::before,
+      .b7-icon::after {
+        animation: none;
+      }
+    }
+
+    /* SVG arrow helper */
+    .arrow-svg {
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .footnote {
+      margin-top: 80px;
+      padding: 24px;
+      border-radius: 12px;
+      background: rgba(255, 110, 80, 0.04);
+      border: 1px solid rgba(255, 110, 80, 0.2);
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--dim);
+    }
+
+    .footnote b {
+      color: var(--text);
+      font-weight: 600;
+    }
+  </style>
+  <script src="../src/system/motion.jsx"></script>
+</head>
+
+<body>
+  <div class="page">
+
+    <div class="crumb"><span class="dot"></span>Aurevion / Button Studies · 6 directions</div>
+    <h1>Pick a <em>silhouette</em>.</h1>
+    <p class="lead">The current mono-cap pill (Option 06) is the default — what we have today. Options 01–05 explore
+      different ways to feel sophisticated. Each shows primary, secondary, and a context strip to read the silhouette in
+      situ.</p>
+
+    <div class="grid">
+
+      <!-- ────────── 01 · Sharp slab ────────── -->
+      <div class="card">
+        <div>
+          <div class="num">01 · SHARP SLAB</div>
+          <h3>Sentence-case sans, hard 4px corners.</h3>
+          <p>Drop mono &amp; uppercase entirely on primary. The chrome stays — radius is just minimal. Reads warm but
+            precise; not a SaaS dashboard.</p>
+        </div>
+        <div class="stage">
+          <div class="ctx">
+            <div class="meta">Step 02 / 04</div>
+            <div class="big">22.4<span class="u">%</span></div>
+          </div>
+          <div class="stage-label">Primary</div>
+          <button class="b1-primary">Generate the brief <span class="arr">→</span></button>
+          <div class="stage-label">Secondary · Ghost</div>
+          <div style="display: flex; gap: 8px;">
+            <button class="b1-sec">Edit goal</button>
+            <button class="b1-ghost">Skip</button>
+          </div>
+        </div>
+        <div class="pros"><b>Best for:</b> friendlier moments. <b>Risk:</b> reads less editorial.</div>
+      </div>
+
+      <!-- ────────── 02 · Editorial text ────────── -->
+      <div class="card">
+        <div>
+          <div class="num">02 · EDITORIAL ROW</div>
+          <h3>Full-bleed row with a divider, a number, and an arrow.</h3>
+          <p>The "button" becomes a section in the document, like a chapter advance. No fill, no border — the rule above
+            and the arrow do the work. Strongest typographic restraint.</p>
+        </div>
+        <div class="stage">
+          <div class="ctx">
+            <div class="meta">Step 02 / 04</div>
+            <div class="big">22.4<span class="u">%</span></div>
+          </div>
+          <div class="stage-label">Primary</div>
+          <button class="b2-primary">
+            <span><span class="num">04 ·</span> &nbsp;Generate the brief</span>
+            <span class="arrow">→</span>
+          </button>
+          <div class="stage-label">Secondary</div>
+          <button class="b2-sec">Edit goal</button>
+        </div>
+        <div class="pros"><b>Best for:</b> linear flows, onboarding. <b>Risk:</b> may not read "tappable" enough.</div>
+      </div>
+
+      <!-- ────────── 03 · Directional split ────────── -->
+      <div class="card">
+        <div>
+          <div class="num">03 · DIRECTIONAL SPLIT</div>
+          <h3>Filled mono pill with a divided arrow well.</h3>
+          <p>Reads like a hardware switch — the right cell is the affordance. Adds character without sacrificing the
+            mono identity. Works especially well for "Continue" / "Start" type actions.</p>
+        </div>
+        <div class="stage">
+          <div class="ctx">
+            <div class="meta">Step 02 / 04</div>
+            <div class="big">22.4<span class="u">%</span></div>
+          </div>
+          <div class="stage-label">Primary</div>
+          <button class="b3-primary">
+            <span class="lbl">Generate the brief</span>
+            <span class="iconcell">
+              <svg width="18" height="18" viewBox="0 0 24 24" class="arrow-svg" style="stroke:#1a0f0a;">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </span>
+          </button>
+          <div class="stage-label">Secondary</div>
+          <button class="b3-sec">Edit</button>
+        </div>
+        <div class="pros"><b>Best for:</b> the brand's strongest moments. <b>Risk:</b> distinctive — may feel heavy on
+          dense screens.</div>
+      </div>
+
+      <!-- ────────── 04 · Outlined precision ────────── -->
+      <div class="card">
+        <div>
+          <div class="num">04 · OUTLINED PRECISION</div>
+          <h3>Outlined orange with corner registration marks.</h3>
+          <p>Square, outlined, with subtle L-shaped corner ticks. Reads like a film viewfinder or technical drawing.
+            Most "instrumentation" of all the options.</p>
+        </div>
+        <div class="stage">
+          <div class="ctx">
+            <div class="meta">Step 02 / 04</div>
+            <div class="big">22.4<span class="u">%</span></div>
+          </div>
+          <div class="stage-label">Primary</div>
+          <button class="b4-primary">
+            Generate the brief
+            <svg width="14" height="14" viewBox="0 0 24 24" class="arrow-svg">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </button>
+          <div class="stage-label">Secondary</div>
+          <button class="b4-sec">Edit</button>
+        </div>
+        <div class="pros"><b>Best for:</b> data-rich screens. <b>Risk:</b> corner marks are an acquired taste — could
+          feel overdesigned.</div>
+      </div>
+
+      <!-- ────────── 05 · Functional toolbar ────────── -->
+      <div class="card">
+        <div>
+          <div class="num">05 · TOOLBAR</div>
+          <h3>Bottom toolbar with primary in the center.</h3>
+          <p>Buttons live in persistent chrome at the bottom of the screen, not on the page. Primary is the wider middle
+            cell. Reads like a camera or a pro app — left/center/right roles, always visible, always reachable.</p>
+        </div>
+        <div class="stage">
+          <div class="ctx">
+            <div class="meta">Step 02 / 04</div>
+            <div class="big">22.4<span class="u">%</span></div>
+          </div>
+          <div class="stage-label">Bottom toolbar</div>
+          <div class="b5-bar">
+            <button class="b5-cell">
+              <svg width="18" height="18" viewBox="0 0 24 24" class="arrow-svg" style="stroke:#a1a1a1;">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+              <span class="lbl">Back</span>
+            </button>
+            <button class="b5-cell primary">
+              <svg width="20" height="20" viewBox="0 0 24 24" class="arrow-svg" style="stroke:#1a0f0a;">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+              <span class="lbl">Generate</span>
+            </button>
+            <button class="b5-cell">
+              <span class="glyph" style="color:#a1a1a1;">···</span>
+              <span class="lbl">More</span>
+            </button>
+          </div>
+        </div>
+        <div class="pros"><b>Best for:</b> action-heavy screens (cook mode, training). <b>Risk:</b> commits a band of
+          real-estate. Doesn't fit onboarding well.</div>
+      </div>
+
+      <!-- ────────── 06 · CURRENT ────────── -->
+      <div class="card" style="opacity: 0.85;">
+        <div>
+          <div class="num" style="color: var(--mute);">06 · CURRENT</div>
+          <h3>Mono-cap pill, 10px radius.</h3>
+          <p>What's in the demo today. Reads competent and consistent, but on a 12-screen flow with one of these at the
+            bottom of every screen, it can feel repetitive and a touch generic.</p>
+        </div>
+        <div class="stage">
+          <div class="ctx">
+            <div class="meta">Step 02 / 04</div>
+            <div class="big">22.4<span class="u">%</span></div>
+          </div>
+          <div class="stage-label">Primary</div>
+          <button class="b6-primary">
+            Generate the brief
+            <svg width="14" height="14" viewBox="0 0 24 24" class="arrow-svg" style="stroke:#1a0f0a;">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </button>
+          <div class="stage-label">Secondary · Ghost</div>
+          <div style="display: flex; gap: 8px;">
+            <button class="b6-sec">Edit</button>
+            <button class="b6-ghost">Skip</button>
+          </div>
+        </div>
+        <div class="pros"><b>Status:</b> baseline. Replace with one of 01–05.</div>
+      </div>
+
+      <!-- ────────── 07 · Iridescent jewel ────────── -->
+      <div class="card" style="grid-column: span 2;">
+        <div>
+          <div class="num">07 · IRIDESCENT JEWEL</div>
+          <h3>Brand moment. One animated jewel for the screens that matter.</h3>
+          <p>Rotating conic-gradient ring locked to our orange + white, glossy dark pill, soft glow spill. Too distinct
+            for every screen, but exactly right for the screens that carry the brand: <b>tab-bar home</b>, <b>start
+              workout</b>, <b>open cook mode</b>, <b>sign on</b>. Use sparingly — one per screen at most.</p>
+        </div>
+        <div class="stage"
+          style="background: linear-gradient(180deg, #0d0d0d, #050505); display: flex; flex-direction: row; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: center; min-height: 200px;">
+          <button class="b7-jewel">
+            <span class="b7-icon">
+              <span class="b7-face">
+                <svg class="b7-glyph" viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M12 3.2 2.5 11.2a1 1 0 0 0 .65 1.76H5v7.04A1 1 0 0 0 6 21h3.5v-6h5v6H18a1 1 0 0 0 1-1v-7.04h1.85a1 1 0 0 0 .65-1.76L12 3.2z" />
+                </svg>
+              </span>
+            </span>
+            <span class="b7-label">Home</span>
+          </button>
+          <button class="b7-jewel">
+            <span class="b7-icon">
+              <span class="b7-face">
+                <svg class="b7-glyph" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 2v6a2 2 0 0 0 2 2v12h2v-7h4v7h2V10a2 2 0 0 0 2-2V2" />
+                  <path d="M6 2h2v6H6zm10 0h2v6h-2z" />
+                </svg>
+              </span>
+            </span>
+            <span class="b7-label">Start workout</span>
+          </button>
+          <button class="b7-jewel">
+            <span class="b7-icon">
+              <span class="b7-face">
+                <svg class="b7-glyph" viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+                </svg>
+              </span>
+            </span>
+            <span class="b7-label">Open cook mode</span>
+          </button>
+        </div>
+        <div class="pros"><b>Best for:</b> hero moments only — tab bar, "sign on", "start workout", "open cook mode".
+          <b>Risk:</b> overuse kills the magic.
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footnote">
+      <b>Recommendation</b> — pair <b>02 (editorial row)</b> for onboarding / contract / brief screens, with <b>03
+        (directional split)</b> for in-product CTAs. They share the mono identity but signal different intents — quiet
+      advance vs. committed action. Top off with <b>07 (iridescent jewel)</b> for the 2-3 hero moments where the brand
+      should sing. Tell me which directions interest you and I'll roll them into the demo.
+    </div>
+
+  </div>
+</body>
+
+</html>

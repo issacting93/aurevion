@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aurevion — AI-Native Fitness Platform</title>
+<meta name="description" content="Goal setting. Nutrition planning. Training execution. Meal prep logistics. One integrated system — precise, transparent, and built for people who actually follow through.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800&family=Geist+Mono:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #050505;
+    --surface: #0a0a0a;
+    --border: rgba(255,255,255,0.06);
+    --text: #fafafa;
+    --dim: #a1a1a1;
+    --mute: #6b6b6b;
+    --accent: #FF6E50;
+    --accent-dark: #c93b1d;
+    --sans: "Geist", -apple-system, system-ui, sans-serif;
+    --mono: "Geist Mono", ui-monospace, monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: #000;
+    color: var(--text);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+    overflow-x: hidden;
+    opacity: 0; /* motion.jsx handles entrance */
+  }
+
+  ::selection { background: var(--accent); color: #000; }
+  a { color: inherit; text-decoration: none; }
+
+  /* ─── Grain ─── */
+  body::after {
+    content: "";
+    position: fixed; inset: 0; z-index: 9999;
+    pointer-events: none; opacity: 0.02;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px;
+  }
+
+  /* ─── Navigation ─── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 24px 48px;
+    transition: background 0.4s, backdrop-filter 0.4s;
+  }
+  nav.scrolled {
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  }
+  .nav-logo {
+    display: flex; align-items: center; gap: 12px;
+    font-weight: 600; font-size: 15px; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .nav-logo .mark {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 16px; color: #1a0f0a;
+  }
+  .nav-links {
+    display: flex; align-items: center; gap: 36px;
+  }
+  .nav-links a {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 1.4px; text-transform: uppercase;
+    color: var(--mute); transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    color: #1a0f0a !important; background: var(--text);
+    padding: 10px 24px; border-radius: 999px;
+    transition: background 0.3s, transform 0.2s;
+  }
+  .nav-cta:hover { background: var(--accent); transform: scale(1.02); }
+
+  /* ─── Typography ─── */
+  .mono {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 1.6px; text-transform: uppercase; color: var(--mute);
+  }
+  .mono.accent { color: var(--accent); }
+  h1 {
+    font-size: clamp(40px, 6vw, 84px); font-weight: 300;
+    letter-spacing: -2px; line-height: 1.05;
+  }
+  h2 {
+    font-size: clamp(32px, 4vw, 56px); font-weight: 300;
+    letter-spacing: -1.5px; line-height: 1.1; margin-bottom: 20px;
+  }
+  h3 { font-size: 22px; font-weight: 400; letter-spacing: -0.5px; margin-bottom: 12px; }
+  .subtitle {
+    font-size: clamp(16px, 2vw, 20px); color: var(--dim);
+    line-height: 1.6; max-width: 560px; font-weight: 300;
+  }
+  .big-number {
+    font-family: var(--mono); font-size: clamp(48px, 8vw, 96px);
+    font-weight: 200; letter-spacing: -3px;
+    color: var(--accent); line-height: 1;
+  }
+
+  /* ─── Layout ─── */
+  .slide {
+    min-height: 100vh; display: flex; flex-direction: column;
+    justify-content: center; padding: 80px 10vw;
+    position: relative; overflow: hidden;
+  }
+  .slide + .slide { border-top: 1px solid var(--border); }
+
+  .row { display: flex; gap: 40px; align-items: flex-start; flex-wrap: wrap; }
+  .col { flex: 1; min-width: 280px; }
+  .gap-lg { gap: 60px; }
+  .mt-lg { margin-top: 48px; }
+  .mt-md { margin-top: 32px; }
+  .mt-sm { margin-top: 16px; }
+  .mb-lg { margin-bottom: 48px; }
+  .center { text-align: center; align-items: center; }
+
+  /* ─── Glow accents ─── */
+  .glow-tl { background-image: radial-gradient(ellipse at 10% 20%, rgba(255,110,80,0.06), transparent 50%); }
+  .glow-br { background-image: radial-gradient(ellipse at 90% 80%, rgba(255,110,80,0.06), transparent 50%); }
+  .glow-center { background-image: radial-gradient(ellipse at 50% 40%, rgba(255,110,80,0.08), transparent 50%); }
+
+  /* ─── Phone mockup ─── */
+  .phone-frame {
+    width: 280px; flex-shrink: 0;
+    border-radius: 40px; overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.03),
+      0 40px 80px rgba(0,0,0,0.6),
+      0 0 120px rgba(255,110,80,0.06);
+    background: #000;
+  }
+  .phone-frame img { width: 100%; height: auto; display: block; }
+  .phone-frame.large { width: 320px; }
+
+  .phone-group {
+    display: flex; gap: 32px; align-items: flex-start;
+    flex-wrap: wrap; justify-content: center;
+  }
+  .phone-group .phone-frame { width: 240px; }
+  .phone-group.trio .phone-frame { width: 220px; }
+
+  /* ─── Feature section ─── */
+  .feature-section {
+    display: flex; gap: 80px; align-items: center; flex-wrap: wrap;
+  }
+  .feature-section .content { flex: 1; min-width: 320px; }
+  .feature-section.reverse { flex-direction: row-reverse; }
+
+  /* ─── Feature card ─── */
+  .feature-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 32px;
+    flex: 1; min-width: 260px;
+    transition: border-color 0.3s, background 0.3s;
+  }
+  .feature-card:hover {
+    border-color: rgba(255,110,80,0.15);
+    background: rgba(255,110,80,0.02);
+  }
+  .feature-card .icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: rgba(255,110,80,0.1);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px; font-size: 22px;
+  }
+
+  /* ─── Bullet list ─── */
+  .bullet-list { list-style: none; margin-top: 20px; }
+  .bullet-list li {
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+    color: var(--dim); font-size: 15px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .bullet-list li::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent); flex-shrink: 0; margin-top: 7px;
+  }
+
+  /* ─── Pill tag ─── */
+  .pill {
+    display: inline-block; padding: 4px 14px; border-radius: 999px;
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 1.2px; text-transform: uppercase;
+    border: 1px solid var(--border); color: var(--dim);
+  }
+  .pill.accent {
+    border-color: rgba(255,110,80,0.3);
+    color: var(--accent);
+    background: rgba(255,110,80,0.06);
+  }
+
+  /* ─── Stat block ─── */
+  .stat-block { text-align: center; flex: 1; min-width: 140px; }
+
+  /* ─── Divider ─── */
+  .divider { width: 60px; height: 2px; background: var(--accent); margin: 24px 0; opacity: 0.6; }
+
+  /* ─── Hero extras ─── */
+  .hero-orb {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px; height: 800px; border-radius: 50%;
+    background: radial-gradient(circle at 40% 40%,
+      rgba(255,110,80,0.12) 0%, rgba(201,59,29,0.06) 30%,
+      rgba(255,110,80,0.02) 50%, transparent 70%);
+    filter: blur(60px);
+    animation: orbFloat 12s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes orbFloat {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    33% { transform: translate(-48%, -52%) scale(1.05); }
+    66% { transform: translate(-52%, -48%) scale(0.95); }
+  }
+
+  .hero-scroll {
+    position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    color: var(--mute); font-family: var(--mono);
+    font-size: 10px; letter-spacing: 1.4px; text-transform: uppercase;
+  }
+  .scroll-line {
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, var(--mute), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 1; transform: scaleY(1); }
+    50% { opacity: 0.3; transform: scaleY(0.6); }
+  }
+
+  /* ─── Modality tags ─── */
+  .mod-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
+  .mod-tag {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 1px;
+    text-transform: uppercase; padding: 10px 20px;
+    border: 1px solid var(--border); border-radius: 999px;
+    color: var(--dim); transition: all 0.3s; cursor: default;
+  }
+  .mod-tag:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(255,110,80,0.04);
+  }
+
+  /* ─── CTA button ─── */
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 16px 32px; border-radius: 999px;
+    background: var(--accent); color: #1a0f0a;
+    font-family: var(--mono); font-size: 12px;
+    letter-spacing: 1.4px; text-transform: uppercase;
+    text-decoration: none; font-weight: 600;
+    border: none; cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 20px 60px rgba(255,110,80,0.25);
+  }
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-size: 12px;
+    letter-spacing: 1.4px; text-transform: uppercase;
+    background: transparent; color: var(--dim);
+    padding: 16px 32px; border-radius: 999px;
+    border: 1px solid var(--border); cursor: pointer;
+    transition: color 0.3s, border-color 0.3s;
+  }
+  .btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+
+  /* ─── Waitlist form ─── */
+  .cta-input {
+    font-family: var(--sans); font-size: 15px;
+    padding: 16px 24px; border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.04); color: var(--text);
+    outline: none; width: 320px; transition: border-color 0.3s;
+  }
+  .cta-input::placeholder { color: var(--mute); }
+  .cta-input:focus { border-color: var(--accent); }
+
+  /* ─── Scroll reveal ─── */
+  .reveal {
+    opacity: 0; transform: translateY(30px);
+    transition: opacity 0.7s cubic-bezier(0,0,0.2,1), transform 0.7s cubic-bezier(0,0,0.2,1);
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-d1 { transition-delay: 0.08s; }
+  .reveal-d2 { transition-delay: 0.16s; }
+  .reveal-d3 { transition-delay: 0.24s; }
+  .reveal-d4 { transition-delay: 0.32s; }
+
+  /* ─── Footer ─── */
+  footer {
+    padding: 48px; border-top: 1px solid var(--border);
+  }
+  .footer-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-left { font-family: var(--mono); font-size: 11px; color: var(--mute); letter-spacing: 1px; text-transform: uppercase; }
+  .footer-links { display: flex; gap: 32px; }
+  .footer-links a {
+    font-family: var(--mono); font-size: 11px; color: var(--mute);
+    letter-spacing: 1px; text-transform: uppercase; transition: color 0.3s;
+  }
+  .footer-links a:hover { color: var(--text); }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 1024px) {
+    .feature-section { gap: 48px; }
+    .phone-group .phone-frame { width: 200px; }
+    .phone-group.trio .phone-frame { width: 180px; }
+  }
+  @media (max-width: 768px) {
+    nav { padding: 20px 24px; }
+    .nav-links a:not(.nav-cta) { display: none; }
+    .slide { padding: 60px 6vw; }
+    .feature-section, .feature-section.reverse { flex-direction: column; gap: 40px; }
+    .phone-group { gap: 16px; }
+    .phone-group .phone-frame, .phone-group.trio .phone-frame { width: 160px; }
+    .phone-frame.large { width: 260px; }
+    .hero-actions { flex-direction: column; }
+    .footer-inner { flex-direction: column; gap: 24px; text-align: center; }
+    .footer-links { flex-wrap: wrap; justify-content: center; }
+    .cta-form { flex-direction: column; align-items: center; }
+    .cta-input { width: 100%; max-width: 320px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav id="nav">
+  <a href="#hero" class="nav-logo">
+    <div class="mark">A</div>
+    Aurevion
+  </a>
+  <div class="nav-links">
+    <a href="#problem">Problem</a>
+    <a href="#product">Product</a>
+    <a href="#intelligence">Intelligence</a>
+    <a href="#cta" class="nav-cta">Get Early Access</a>
+  </div>
+</nav>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- HERO -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="slide glow-center" id="hero" style="justify-content: center; align-items: center; text-align: center;">
+  <div class="hero-orb"></div>
+  <div style="position: relative; z-index: 1;">
+    <div style="display: inline-flex; align-items: center; gap: 16px; margin-bottom: 48px;">
+      <div style="width: 56px; height: 56px; border-radius: 16px; background: linear-gradient(135deg, var(--accent), var(--accent-dark)); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 26px; color: #1a0f0a;">A</div>
+    </div>
+
+    <h1 style="max-width: 820px; margin: 0 auto;">
+      Your personal
+      <span style="color: var(--accent); font-family: var(--mono);">looksmaxxing</span>
+      tool.
+    </h1>
+
+    <p class="subtitle mt-lg" style="margin-left: auto; margin-right: auto; text-align: center;">
+      Goal setting. Nutrition planning. Training execution. Meal prep logistics. One integrated system — precise, transparent, and built for people who actually follow through.
+    </p>
+
+    <div class="mt-lg" style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+      <span class="pill accent">AI-Native</span>
+      <span class="pill accent">iOS + Android</span>
+      <span class="pill">Wearable-first</span>
+    </div>
+
+    <div class="mt-lg" style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;" class="hero-actions">
+      <a href="#cta" class="btn-primary">Join the Waitlist</a>
+      <a href="#product" class="btn-ghost">See the Product</a>
+    </div>
+  </div>
+
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    Scroll
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STATEMENT -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="slide" style="justify-content: center; align-items: center; text-align: center; border-top: 1px solid var(--border);">
+  <p class="reveal" style="font-size: clamp(24px, 3.5vw, 44px); font-weight: 200; letter-spacing: -1px; line-height: 1.4; max-width: 860px; color: var(--dim);">
+    Most fitness apps track what you already did.
+    <strong style="font-weight: 400; color: var(--text);">Aurevion predicts what you should do next</strong> —
+    adapting your training, meals, and recovery using wearable data, body metrics, and machine learning.
+  </p>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- THE PROBLEM -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="slide glow-tl" id="problem">
+  <span class="mono accent mb-lg reveal">01 — The Problem</span>
+  <h2 class="reveal reveal-d1">Fitness apps treat your<br>body like a <span style="color: var(--mute); text-decoration: line-through;">form to fill out</span>.</h2>
+
+  <div class="row mt-lg gap-lg" data-motion="stagger-in">
+    <div class="feature-card">
+      <h3 style="color: var(--accent);">Fragmented tools</h3>
+      <p style="color: var(--dim); font-size: 15px;">One app for macros. Another for training. A spreadsheet for meal prep. A notes app for the shopping list. Nothing talks to anything else.</p>
+    </div>
+    <div class="feature-card">
+      <h3 style="color: var(--accent);">Fake precision</h3>
+      <p style="color: var(--dim); font-size: 15px;">TDEE calculators give you a single number like it's gospel. No confidence bands. No acknowledgment that the model improves over time with your data.</p>
+    </div>
+    <div class="feature-card">
+      <h3 style="color: var(--accent);">Meal prep as afterthought</h3>
+      <p style="color: var(--dim); font-size: 15px;">Apps give you recipes but ignore the logistics — batch cooking, parallel timers, ingredient conflicts. They stop at the plan and leave execution to you.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- THE SOLUTION -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="slide glow-br">
+  <span class="mono accent mb-lg reveal">02 — The Solution</span>
+  <h2 class="reveal reveal-d1">One integrated system.<br>From goal to fork to barbell.</h2>
+  <p class="subtitle reveal reveal-d2">Aurevion treats fitness as a contract — not a casual form. Set a measurable goal, get a real plan, and execute with tools that close the loop from planning through the kitchen and the gym.</p>
+
+  <div class="row mt-lg gap-lg" data-motion="stagger-in">
+    <div class="stat-block">
+      <div class="big-number">8</div>
+      <p class="mono mt-sm">Core Modules</p>
+      <p style="color: var(--dim); font-size: 13px; margin-top: 6px;">Goal, TDEE, planning, training, macros, fridge, meal prep, profile</p>
+    </div>
+    <div class="stat-block">
+      <div class="big-number">22</div>
+      <p class="mono mt-sm">Screens Designed</p>
+      <p style="color: var(--dim); font-size: 13px; margin-top: 6px;">Every workflow mapped end-to-end with full interactive prototypes</p>
+    </div>
+    <div class="stat-block">
+      <div class="big-number">1</div>
+      <p class="mono mt-sm">Unified System</p>
+      <p style="color: var(--dim); font-size: 13px; margin-top: 6px;">Plan, shop, cook, train, check in — no context switching</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- PRODUCT: ONBOARDING -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="slide glow-tl" id="product">
+  <span class="mono accent mb-lg reveal">03 — Onboarding</span>
+
+  <div class="feature-section">
+    <div class="content">
+      <h2 class="reveal">Onboarding as a contract,<br>not a form.</h2>
+      <p class="subtitle reveal reveal-d1">Set a measurable target, choose a timeline, and get real-time sustainability feedback. The result isn't a profile — it's a brief.</p>
+      <ul class="bullet-list reveal reveal-d2">
+        <li>Interactive slider for target body fat percentage</li>
+        <li>Timeline selection with pace calculation</li>
+        <li>Sustainability badge: SUSTAINABLE / AGGRESSIVE / TOO FAST</li>
+        <li>Contract summary with weekly rate of change</li>
+      </ul>
+    </div>
+
+    <div class="phone-group reveal reveal-d3">
+      <div>
+        <div class="phone-frame"><img src="pitch-deck/screenshots/00-welcome.png" alt="Welcome"></div>
+        <p class="mono mt-sm" style="text-align: center;">Welcome</p>
+      </div>
+      <div>
+        <div class="phone-frame"><img src="pitch-deck/screenshots/01-goal-input.png" alt="Goal input"></div>
+        <p class="mono mt-sm" style="text-align: center;">Set the Goal</p>
+      </div>
+      <div>
+        <div class="phone-frame"><img src="pitch-deck/screenshots/02-goal-contract.png" alt="Goal contract"></div>
+        <p class="mono mt-sm" style="text-align: center;">The Brief</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- PRODUCT: TDEE MODEL -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="slide glow-br">
+  <span class="mono accent mb-lg reveal">04 — TDEE Model</span>
+
+  <div class="feature-section reverse">
+    <div class="content">
+      <h2 class="reveal">A living graph.<br>Uncertainty visible,<br>narrowing with use.</h2>
+      <p class="subtitle reveal reveal-d1">Unlike static calculators, Aurevion shows your energy expenditure as a confidence band that narrows over time. Visible uncertainty builds trust.</p>
+      <ul class="bullet-list reveal reveal-d2">
+        <li>7-day rolling average of total daily energy expenditure</li>
+        <li>Confidence bands via bezier curves — wide at first, narrow with consistency</li>
+        <li>Training day vs. rest day differentiation</li>
+        <li>Model adapts automatically as your body changes</li>
+      </ul>
+    </div>
+
+    <div class="phone-group reveal reveal-d3">
+      <div>
+        <div class="phone-frame"><img src="pitch-deck/screenshots/03-tdee-today.png" alt="TDEE today"></div>
+        <p class="mono mt-sm" style="text-align: center;">Today's TDEE</p>
+      </div>
+      <div>
+        <div class="phone-frame"><img src="pitch-deck/screenshots/04-tdee-compare.png" alt="TDEE trend"></div>
+        <p class="mono mt-sm" style="text-align: center;">Trust Over Time</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- PRODUCT: PLANNING -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="slide glow-tl">
+  <span class="mono accent mb-lg reveal">05 — Plan Calendar</span>
+
+  <div class="feature-section">
+    <div class="content">
+      <h2 class="reveal">Month, week, day —<br>switchable inline.</h2>
+      <p class="subtitle reveal reveal-d1">Your entire plan — training days, meal prep windows, check-ins — laid out in a calendar that switches between perspectives without leaving the screen.</p>
+      <ul class="bullet-list reveal reveal-d2">
+        <li>Month view with color-coded day types</li>
+        <li>Week view showing meal and training blocks</li>
+        <li>Day view with detailed session breakdown</li>
+        <li>Progress tracking: events completed this cycle</li>
+      </ul>
+    </div>
+
+    <div class="phone-group trio reveal reveal-d3">
+      <div>
+        <div class="phone-frame"><img src="pitch-deck/screenshots/05-plan-month.png" alt="Month"></div>
+        <p class="mono mt-sm" style="text-align: center;">Month</p>
+      </div>
+      <div>
+        <div class="phone-frame"><img src="pitch-deck/screenshots/06-plan-week.png" alt="Week"></div>
+        <p class="mono mt-sm" style="text-align: center;">Week</p>
+      </div>
+      <div>
+        <div class="phone-frame"><img src="pitch-deck/screenshots/07-plan-day.png" alt="Day"></div>
+        <p class="mono mt-sm" style="text-align: center;">Day</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- PRODUCT: TRAINING -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="slide glow-br">
+  <span class="mono accent mb-lg reveal">06 — Training</span>
+
+  <div class="feature-section reverse">
+    <div class="content">
+      <h2 class="reveal">Warm up. Lift. Log. Done.</h2>
+      <p class="subtitle reveal reveal-d1">A session timeline that guides you through each exercise with form cues, set tracking, and RPE logging. No chrome, no distractions — just the work.</p>
+
+      <div class="mod-list reveal reveal-d2">
+        <div class="mod-tag">Lifting</div>
+        <div class="mod-tag">Calisthenics</div>
+        <div class="mod-tag">Cardio</div>
+        <div class="mod-tag">HIIT</div>
+        <div class="mod-tag">Mobility</div>
+        <div class="mod-tag">Combat</div>
+        <div class="mod-tag">Plyometrics</div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-d3">
+      <div class="phone-frame large"><img src="pitch-deck/screenshots/08-training-session.png" alt="Training session"></div>
+      <p class="mono mt-sm" style="text-align: center;">Active Session</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- PRODUCT: NUTRITION CHAIN -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="slide glow-tl">
+  <span class="mono accent mb-lg reveal">07 — Nutrition</span>
+
+  <div class="feature-section">
+    <div class="content">
+      <h2 class="reveal">Plan &rarr; meals &rarr; shopping.<br>The chain that actually closes.</h2>
+      <p class="subtitle reveal reveal-d1">Weekly macro targets flow into a meal queue, which generates a shopping list, which feeds batch prep. Each step connects to the next.</p>
+      <ul class="bullet-list reveal reveal-d2">
+        <li>Weekly calorie and macro targets from your goal contract</li>
+        <li>14 meals across 3 batches — the full week at a glance</li>
+        <li>Auto-fit deviation: stays within &plusmn;3% of macro targets</li>
+        <li>Delta-focused shopping: what you need vs. what you have</li>
+      </ul>
+    </div>
+
+    <div class="phone-group trio reveal reveal-d3">
+      <div>
+        <div class="phone-frame"><img src="pitch-deck/screenshots/09-macro-targets.png" alt="Macro targets"></div>
+        <p class="mono mt-sm" style="text-align: center;">Weekly Targets</p>
+      </div>
+      <div>
+        <div class="phone-frame"><img src="pitch-deck/screenshots/10-macro-meals.png" alt="Meal queue"></div>
+        <p class="mono mt-sm" style="text-align: center;">Meal Queue</p>
+      </div>
+      <div>
+        <div class="phone-frame"><img src="pitch-deck/screenshots/12-shopping-list.png" alt="Shopping list"></div>
+        <p class="mono mt-sm" style="text-align: center;">Shopping List</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- PRODUCT: MEAL PREP + COOK MODE -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="slide glow-br">
+  <span class="mono accent mb-lg reveal">08 — Meal Prep & Cook Mode</span>
+
+  <div class="feature-section reverse">
+    <div class="content">
+      <h2 class="reveal">A kitchen is a parallel process.<br>The UI reflects that.</h2>
+      <p class="subtitle reveal reveal-d1">Most apps show cooking as a sequential recipe. Aurevion shows it as a Gantt chart — multiple recipes, multiple timers, one timeline. Designed for greasy hands and hot pans.</p>
+      <ul class="bullet-list reveal reveal-d2">
+        <li>Pre-cook merge: combined ingredient audit across recipes</li>
+        <li>Conflict detection (oven temperature clashes)</li>
+        <li>Parallel timeline showing all recipes simultaneously</li>
+        <li>Full-screen cook mode with active timers and step-by-step</li>
+      </ul>
+    </div>
+
+    <div class="phone-group reveal reveal-d3">
+      <div>
+        <div class="phone-frame"><img src="pitch-deck/screenshots/16-meal-prep-timeline.png" alt="Parallel timeline"></div>
+        <p class="mono mt-sm" style="text-align: center;">Timeline</p>
+      </div>
+      <div>
+        <div class="phone-frame"><img src="pitch-deck/screenshots/17-cook-mode.png" alt="Cook mode"></div>
+        <p class="mono mt-sm" style="text-align: center;">Cook Mode</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- AI INTELLIGENCE -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="slide glow-center" id="intelligence" style="align-items: center; text-align: center;">
+  <span class="mono accent mb-lg reveal">The AI Edge</span>
+  <h2 class="reveal reveal-d1" style="max-width: 700px;">Not a chatbot bolted on.<br><strong style="font-weight: 500;">Intelligence through every layer.</strong></h2>
+
+  <div class="row mt-lg gap-lg" style="max-width: 1000px; margin-left: auto; margin-right: auto;" data-motion="stagger-in">
+    <div class="feature-card" style="text-align: left;">
+      <h3 style="color: var(--accent);">Expenditure Prediction</h3>
+      <p style="color: var(--dim); font-size: 14px;">Adaptive energy models that learn from your weight trend, activity, and intake — not static TDEE calculators.</p>
+    </div>
+    <div class="feature-card" style="text-align: left;">
+      <h3 style="color: var(--accent);">Recovery-Aware Planning</h3>
+      <p style="color: var(--dim); font-size: 14px;">Workout scheduling that factors in muscle recovery, sleep data, and wearable signals before suggesting your next session.</p>
+    </div>
+    <div class="feature-card" style="text-align: left;">
+      <h3 style="color: var(--accent);">Adaptive Meals</h3>
+      <p style="color: var(--dim); font-size: 14px;">AI generates, ranks, and filters meals around your preferences, macros, cooking schedule, and pantry inventory.</p>
+    </div>
+    <div class="feature-card" style="text-align: left;">
+      <h3 style="color: var(--accent);">Body Composition</h3>
+      <p style="color: var(--dim); font-size: 14px;">Serious body fat estimation combining scans, scale data, weight trends, and training behavior into a confidence-rated metric.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- DESIGN PRINCIPLES -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="slide glow-tl">
+  <span class="mono accent mb-lg reveal">Design Principles</span>
+  <h2 class="reveal reveal-d1">Built for trust, not engagement.</h2>
+
+  <div class="row mt-lg gap-lg" data-motion="stagger-in">
+    <div class="feature-card">
+      <p class="mono accent" style="margin-bottom: 16px;">01</p>
+      <h3>Visible uncertainty</h3>
+      <p style="color: var(--dim); font-size: 14px;">Confidence bands on TDEE graphs. Auto-fit deviation on macro plans. We show what the system doesn't know — and how it learns.</p>
+    </div>
+    <div class="feature-card">
+      <p class="mono accent" style="margin-bottom: 16px;">02</p>
+      <h3>Delta-first interfaces</h3>
+      <p style="color: var(--dim); font-size: 14px;">The fridge shows what's missing, not what you have. The shopping list shows the gap. Every screen answers "what changed?"</p>
+    </div>
+    <div class="feature-card">
+      <p class="mono accent" style="margin-bottom: 16px;">03</p>
+      <h3>Parallel, not sequential</h3>
+      <p style="color: var(--dim); font-size: 14px;">Meal prep is a Gantt chart. Cooking is concurrent. The UI reflects the actual physics of a kitchen.</p>
+    </div>
+    <div class="feature-card">
+      <p class="mono accent" style="margin-bottom: 16px;">04</p>
+      <h3>Mono-instrumentation</h3>
+      <p style="color: var(--dim); font-size: 14px;">Dark surfaces. Monospace labels. Hatching patterns. Data is the visual language — not gradients, illustrations, or mascots.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- CTA -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="slide glow-center" id="cta" style="justify-content: center; align-items: center; text-align: center;">
+  <div class="hero-orb" style="width: 600px; height: 600px; opacity: 0.7;"></div>
+  <div style="position: relative; z-index: 1;">
+    <div style="margin-bottom: 40px;">
+      <div style="width: 56px; height: 56px; border-radius: 16px; background: linear-gradient(135deg, var(--accent), var(--accent-dark)); display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 26px; color: #1a0f0a;">A</div>
+    </div>
+
+    <h1 class="reveal" style="max-width: 700px; margin: 0 auto;">
+      Set a real goal.<br>
+      Get a real plan.<br>
+      <span style="color: var(--accent);">Execute.</span>
+    </h1>
+
+    <p class="subtitle mt-lg reveal reveal-d1" style="margin: 0 auto; text-align: center;">
+      Be first in line when Aurevion launches.
+    </p>
+
+    <form class="cta-form mt-lg reveal reveal-d2" style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;" onsubmit="event.preventDefault(); this.querySelector('button').textContent='You\'re in'; this.querySelector('input').disabled=true;">
+      <input type="email" class="cta-input" placeholder="your@email.com" required>
+      <button type="submit" class="btn-primary">Get Early Access</button>
+    </form>
+
+    <div class="mt-lg reveal reveal-d3" style="display: flex; gap: 16px; justify-content: center;">
+      <a href="pages/demo" class="btn-ghost">Try the Interactive Demo &rarr;</a>
+    </div>
+
+    <div class="mt-lg">
+      <span class="mono">Aurevion &middot; 2026</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- Footer -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-left">&copy; 2026 Aurevion</div>
+    <div class="footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Instagram</a>
+      <a href="#">X / Twitter</a>
+    </div>
+  </div>
+</footer>
+
+
+<!-- Motion system handles page entrance + scroll stagger -->
+<script src="/src/system/motion.jsx"></script>
+<script>
+  // Scroll reveal (supplement motion.jsx stagger for .reveal elements)
+  const reveals = document.querySelectorAll('.reveal');
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(el => revealObserver.observe(el));
+
+  // Nav scroll state
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  }, { passive: true });
+</script>
+</body>
+</html>

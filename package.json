@@ -1,0 +1,13 @@
+{
+  "name": "aurevion",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "serve -l 3000 .",
+    "start": "serve -l 3000 ."
+  },
+  "devDependencies": {
+    "playwright": "^1.60.0",
+    "serve": "^14.2.6"
+  }
+}
