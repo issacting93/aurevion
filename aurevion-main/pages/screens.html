@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AUREVI0N · All Screens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700&family=Geist+Mono:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0a0a0a; color: #fafafa;
+    font-family: "Geist", -apple-system, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  #root { min-height: 100vh; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+  button:focus { outline: none; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="../src/system/motion.jsx"></script>
+<script type="text/babel" src="../src/features/shared.jsx"></script>
+<script type="text/babel" src="../src/features/cook-icons.jsx"></script>
+<script type="text/babel" src="../src/features/00-welcome.jsx"></script>
+<script type="text/babel" src="../src/features/01-goal-setting.jsx"></script>
+<script type="text/babel" src="../src/features/02-tdee.jsx"></script>
+<script type="text/babel" src="../src/features/03-macros.jsx"></script>
+<script type="text/babel" src="../src/features/04-fridge.jsx"></script>
+<script type="text/babel" src="../src/features/05-meal-prep.jsx"></script>
+<script type="text/babel" src="../src/features/06-plan-calendar.jsx"></script>
+<script type="text/babel" src="../src/features/07-training.jsx"></script>
+<script type="text/babel" src="../src/features/08-profile.jsx"></script>
+<script type="text/babel" src="../src/features/09-feature-card-morph.jsx"></script>
+<script type="text/babel" src="../src/features/10-batch-prep.jsx"></script>
+
+<script type="text/babel">
+
+// Override Phone shell to 428×926 (iPhone 15 Pro)
+const _OriginalPhone = Phone;
+window.Phone = function Phone428({ children, label, group, statusTime = '9:41' }) {
+  return (
+    <div style={{
+      width: 428, height: 926, borderRadius: 60,
+      background: '#000', color: '#fafafa', overflow: 'hidden',
+      fontFamily: '"Geist", -apple-system, system-ui, sans-serif',
+      position: 'relative',
+      boxShadow: '0 30px 80px rgba(0,0,0,0.4), 0 0 0 9px #1a1a1a, 0 0 0 10px #2a2a2a',
+      display: 'flex', flexDirection: 'column'
+    }}>
+      {/* Status bar */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, height: 58,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '20px 38px 0', fontFamily: '"Geist", -apple-system, system-ui, sans-serif',
+        fontSize: 16, fontWeight: 600, zIndex: 50, pointerEvents: 'none'
+      }}>
+        <span>{statusTime}</span>
+        <span style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor">
+            <rect x="0" y="7" width="3" height="4" rx="0.5" />
+            <rect x="4.5" y="5" width="3" height="6" rx="0.5" />
+            <rect x="9" y="2.5" width="3" height="8.5" rx="0.5" />
+            <rect x="13.5" y="0" width="3" height="11" rx="0.5" />
+          </svg>
+          <svg width="25" height="12" viewBox="0 0 25 12">
+            <rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="currentColor" strokeOpacity="0.4" fill="none" />
+            <rect x="2" y="2" width="18" height="8" rx="1.5" fill="currentColor" />
+            <path d="M23 4v4c.8-.3 1.5-1.3 1.5-2s-.7-1.7-1.5-2z" fill="currentColor" fillOpacity="0.4" />
+          </svg>
+        </span>
+      </div>
+      {/* Dynamic island */}
+      <div style={{
+        position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)',
+        width: 126, height: 38, borderRadius: 23, background: '#000', zIndex: 60
+      }} />
+      <div style={{ flex: 1, minHeight: 0, paddingTop: 58, display: 'flex', flexDirection: 'column' }}>
+        {children}
+      </div>
+      {/* Home indicator */}
+      <div style={{
+        position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)',
+        width: 140, height: 5, borderRadius: 999, background: 'rgba(255,255,255,0.35)'
+      }} />
+    </div>
+  );
+};
+
+const SCREENS = [
+  { id: 'welcome',   flow: '00', feature: 'Welcome',      label: 'Begin',              C: () => window.WelcomeScreen },
+  { id: 'goal-a',    flow: '01', feature: 'Goal Setting',  label: 'Set the goal',       C: () => window.GoalInputScreen },
+  { id: 'goal-b',    flow: '01', feature: 'Goal Setting',  label: 'The brief',          C: () => window.GoalContractScreen },
+  { id: 'tdee-a',    flow: '02', feature: 'TDEE Model',    label: 'Today',              C: () => window.TDEEScreen },
+  { id: 'tdee-b',    flow: '02', feature: 'TDEE Model',    label: 'Trust over time',    C: () => window.TDEECompareScreen },
+  { id: 'plan-m',    flow: '03', feature: 'Plan',          label: 'Calendar \u00b7 month', C: () => window.PlanCalendarMonthScreen },
+  { id: 'plan-w',    flow: '03', feature: 'Plan',          label: 'Calendar \u00b7 week',  C: () => window.PlanCalendarWeekScreen },
+  { id: 'plan-d',    flow: '03', feature: 'Plan',          label: 'Calendar \u00b7 day',   C: () => window.PlanCalendarDayScreen },
+  { id: 'train-a',   flow: '04', feature: 'Training',      label: 'Session \u00b7 timeline', C: () => window.TrainingSessionScreen },
+  { id: 'macro-a',   flow: '05', feature: 'Macros',        label: 'Weekly targets',     C: () => window.MacroTargetsScreen },
+  { id: 'macro-b',   flow: '05', feature: 'Macros',        label: 'Meal queue',         C: () => window.MacroMealsScreen },
+  { id: 'batch-a',   flow: '05', feature: 'Macros',        label: 'Batch strategy',     C: () => window.BatchPrepScreen },
+  { id: 'macro-c',   flow: '05', feature: 'Macros',        label: 'Shopping',           C: () => window.ShoppingListScreen },
+  { id: 'fridge-a',  flow: '06', feature: 'Fridge',        label: 'Pantry \u00b7 delta',   C: () => window.FridgeScreen },
+  { id: 'prep-a',    flow: '07', feature: 'Meal Prep',     label: 'Pre-cook merge',     C: () => window.MealPrepMergeScreen },
+  { id: 'morph',     flow: '07', feature: 'Meal Prep',     label: 'Card \u2192 cook morph', C: () => window.FeatureCardMorphScreen },
+  { id: 'prep-b',    flow: '07', feature: 'Meal Prep',     label: 'Parallel timeline',  C: () => window.MealPrepTimelineScreen },
+  { id: 'prep-c',    flow: '07', feature: 'Meal Prep',     label: 'Active cook mode',   C: () => window.MealPrepCookModeScreen },
+  { id: 'profile',   flow: '08', feature: 'Profile',       label: 'Account hub',        C: () => window.ProfileScreen },
+];
+
+const S = {
+  bg:      '#0a0a0a',
+  surface: '#0f0f0f',
+  border:  'rgba(255,255,255,0.06)',
+  text:    '#fafafa',
+  dim:     '#a1a1a1',
+  mute:    '#6b6b6b',
+  faint:   '#3a3a3a',
+  accent:  '#FF6E50',
+};
+
+function ScreensPage() {
+  return (
+    <div style={{ minHeight: '100vh' }}>
+
+      {/* ── Header ── */}
+      <header style={{ padding: '48px 48px 0' }}>
+        <div style={{
+          fontFamily: '"Geist Mono", monospace', fontSize: 10, letterSpacing: 1.4,
+          color: S.accent, textTransform: 'uppercase', marginBottom: 8,
+        }}>ALL SCREENS · 428 \u00d7 926</div>
+        <h1 style={{ fontSize: 36, fontWeight: 300, letterSpacing: -0.8, margin: 0 }}>
+          AUREVI0N Demo Flow
+        </h1>
+        <p style={{ fontSize: 15, color: S.dim, marginTop: 8, marginBottom: 0 }}>
+          {SCREENS.length} screens · iPhone 15 Pro · ready for export.
+        </p>
+      </header>
+
+      {/* ── Screen grid ── */}
+      <div style={{
+        padding: '40px 48px 80px',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, 428px)',
+        gap: 48,
+        justifyContent: 'center',
+      }}>
+        {SCREENS.map(s => {
+          const Cmp = s.C();
+          if (!Cmp) return (
+            <div key={s.id} style={{
+              width: 428, height: 926, borderRadius: 60,
+              border: `1px dashed ${S.faint}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: S.faint, fontFamily: '"Geist Mono", monospace', fontSize: 10,
+            }}>NOT LOADED</div>
+          );
+          return (
+            <div key={s.id}>
+              <Cmp />
+              <div style={{ marginTop: 12, paddingLeft: 4 }}>
+                <div style={{
+                  fontFamily: '"Geist Mono", monospace', fontSize: 9,
+                  letterSpacing: 1, color: S.mute, textTransform: 'uppercase',
+                  marginBottom: 3,
+                }}>{s.flow} \u00b7 {s.feature.toUpperCase()}</div>
+                <div style={{ fontSize: 13, color: S.dim }}>{s.label}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<ScreensPage />);
+</script>
+</body>
+</html>

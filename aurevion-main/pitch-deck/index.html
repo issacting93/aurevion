@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AUREVI0N — Pitch Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800&family=Geist+Mono:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #050505;
+    --surface: #0a0a0a;
+    --border: rgba(255,255,255,0.06);
+    --text: #fafafa;
+    --dim: #a1a1a1;
+    --mute: #6b6b6b;
+    --accent: #FF6E50;
+    --accent-dark: #c93b1d;
+    --sans: "Geist", -apple-system, system-ui, sans-serif;
+    --mono: "Geist Mono", ui-monospace, monospace;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+
+  /* ---- Slide system ---- */
+  .slide {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 10vw;
+    position: relative;
+    overflow: hidden;
+  }
+  .slide + .slide { border-top: 1px solid var(--border); }
+
+  /* ---- Typography ---- */
+  .mono {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: var(--mute);
+  }
+  .mono.accent { color: var(--accent); }
+  h1 {
+    font-size: clamp(40px, 6vw, 80px);
+    font-weight: 300;
+    letter-spacing: -2px;
+    line-height: 1.05;
+  }
+  h2 {
+    font-size: clamp(32px, 4vw, 56px);
+    font-weight: 300;
+    letter-spacing: -1.5px;
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+  h3 {
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: -0.5px;
+    margin-bottom: 12px;
+  }
+  .subtitle {
+    font-size: clamp(16px, 2vw, 22px);
+    color: var(--dim);
+    line-height: 1.55;
+    max-width: 640px;
+    font-weight: 300;
+  }
+  .big-number {
+    font-family: var(--mono);
+    font-size: clamp(48px, 8vw, 96px);
+    font-weight: 200;
+    letter-spacing: -3px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  /* ---- Layout helpers ---- */
+  .row { display: flex; gap: 40px; align-items: flex-start; flex-wrap: wrap; }
+  .col { flex: 1; min-width: 280px; }
+  .gap-lg { gap: 60px; }
+  .gap-sm { gap: 20px; }
+  .mt-lg { margin-top: 48px; }
+  .mt-md { margin-top: 32px; }
+  .mt-sm { margin-top: 16px; }
+  .mb-lg { margin-bottom: 48px; }
+  .center { text-align: center; align-items: center; }
+  .spacer { height: 40px; }
+
+  /* ---- Phone mockup ---- */
+  .phone-frame {
+    width: 280px;
+    flex-shrink: 0;
+    border-radius: 40px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.03),
+      0 40px 80px rgba(0,0,0,0.6),
+      0 0 120px rgba(255,110,80,0.06);
+    background: #000;
+  }
+  .phone-frame img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .phone-frame.large {
+    width: 320px;
+  }
+
+  /* ---- Phone group (side by side) ---- */
+  .phone-group {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .phone-group .phone-frame { width: 240px; }
+  .phone-group.trio .phone-frame { width: 220px; }
+
+  /* ---- Feature card ---- */
+  .feature-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    flex: 1;
+    min-width: 260px;
+  }
+  .feature-card .icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    background: rgba(255,110,80,0.1);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px;
+    font-size: 22px;
+  }
+
+  /* ---- Stats row ---- */
+  .stat-block {
+    text-align: center;
+    flex: 1;
+    min-width: 140px;
+  }
+
+  /* ---- Pill tag ---- */
+  .pill {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 999px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    color: var(--dim);
+  }
+  .pill.accent {
+    border-color: rgba(255,110,80,0.3);
+    color: var(--accent);
+    background: rgba(255,110,80,0.06);
+  }
+
+  /* ---- Divider ---- */
+  .divider {
+    width: 60px;
+    height: 2px;
+    background: var(--accent);
+    margin: 24px 0;
+    opacity: 0.6;
+  }
+
+  /* ---- Glow accents ---- */
+  .glow-tl { background-image: radial-gradient(ellipse at 10% 20%, rgba(255,110,80,0.06), transparent 50%); }
+  .glow-br { background-image: radial-gradient(ellipse at 90% 80%, rgba(255,110,80,0.06), transparent 50%); }
+  .glow-center { background-image: radial-gradient(ellipse at 50% 40%, rgba(255,110,80,0.08), transparent 50%); }
+
+  /* ---- Feature section layout ---- */
+  .feature-section {
+    display: flex;
+    gap: 80px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .feature-section .content { flex: 1; min-width: 320px; }
+  .feature-section.reverse { flex-direction: row-reverse; }
+
+  .bullet-list {
+    list-style: none;
+    margin-top: 20px;
+  }
+  .bullet-list li {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--dim);
+    font-size: 15px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .bullet-list li::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+    margin-top: 7px;
+  }
+
+  /* ---- Progress bar ---- */
+  .progress-track {
+    height: 3px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  /* ---- Navigation dots ---- */
+  .nav-dots {
+    position: fixed;
+    right: 28px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 100;
+  }
+  .nav-dots a {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    display: block;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .nav-dots a:hover, .nav-dots a.active {
+    background: var(--accent);
+    transform: scale(1.3);
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 900px) {
+    .slide { padding: 60px 6vw; }
+    .feature-section { gap: 40px; }
+    .phone-group .phone-frame { width: 200px; }
+    .nav-dots { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Navigation dots -->
+<nav class="nav-dots" id="nav">
+  <a href="#title" title="Title"></a>
+  <a href="#problem" title="Problem"></a>
+  <a href="#solution" title="Solution"></a>
+  <a href="#onboarding" title="Onboarding"></a>
+  <a href="#tdee" title="TDEE"></a>
+  <a href="#planning" title="Planning"></a>
+  <a href="#training" title="Training"></a>
+  <a href="#nutrition" title="Nutrition"></a>
+  <a href="#kitchen" title="Kitchen"></a>
+  <a href="#fridge" title="Fridge"></a>
+  <a href="#cookmode" title="Cook Mode"></a>
+  <a href="#profile" title="Profile"></a>
+  <a href="#market" title="Market"></a>
+  <a href="#principles" title="Principles"></a>
+  <a href="#cta" title="CTA"></a>
+</nav>
+
+
+<!-- ============================================================ -->
+<!-- SLIDE 1: TITLE -->
+<!-- ============================================================ -->
+<section class="slide glow-center" id="title" style="justify-content: center; align-items: center; text-align: center;">
+  <div>
+    <div style="display: inline-flex; align-items: center; gap: 16px; margin-bottom: 40px;">
+      <img src="/logo.svg" width="48" height="48" alt="" style="border-radius: 14px;">
+      <span style="font-family: var(--mono); font-size: 28px; font-weight: 200; letter-spacing: 0.02em;">AUREVI0N</span>
+    </div>
+
+    <h1 style="max-width: 800px; margin: 0 auto;">
+      A health system that reads like
+      <span style="color: var(--accent); font-family: var(--mono); font-style: normal;">instrumentation</span>,
+      not a brochure.
+    </h1>
+
+    <p class="subtitle mt-lg" style="margin-left: auto; margin-right: auto; text-align: center;">
+      Goal setting. Nutrition planning. Training execution. Meal prep logistics. One integrated system — precise, transparent, and built for people who actually follow through.
+    </p>
+
+    <div class="mt-lg" style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+      <span class="pill accent">MOBILE APP</span>
+      <span class="pill accent">iOS + ANDROID</span>
+      <span class="pill">V0.1 DEMO</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SLIDE 2: THE PROBLEM -->
+<!-- ============================================================ -->
+<section class="slide glow-tl" id="problem">
+  <span class="mono accent mb-lg">01 — THE PROBLEM</span>
+  <h2>Fitness apps treat your<br>body like a <span style="color: var(--mute); text-decoration: line-through;">form to fill out</span>.</h2>
+
+  <div class="row mt-lg gap-lg">
+    <div class="feature-card">
+      <h3 style="color: var(--accent);">Fragmented tools</h3>
+      <p style="color: var(--dim); font-size: 15px;">One app for macros. Another for training. A spreadsheet for meal prep. A notes app for the shopping list. Nothing talks to anything else.</p>
+    </div>
+    <div class="feature-card">
+      <h3 style="color: var(--accent);">Fake precision</h3>
+      <p style="color: var(--dim); font-size: 15px;">TDEE calculators give you a single number like it's gospel. No confidence bands. No acknowledgment that the model improves over time with your data.</p>
+    </div>
+    <div class="feature-card">
+      <h3 style="color: var(--accent);">Meal prep as afterthought</h3>
+      <p style="color: var(--dim); font-size: 15px;">Apps give you recipes but ignore the logistics — batch cooking, parallel timers, ingredient conflicts. They stop at the plan and leave execution to you.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SLIDE 3: THE SOLUTION -->
+<!-- ============================================================ -->
+<section class="slide glow-br" id="solution">
+  <span class="mono accent mb-lg">02 — THE SOLUTION</span>
+  <h2>One integrated system.<br>From goal to fork to barbell.</h2>
+  <p class="subtitle">AUREVI0N treats fitness as a contract — not a casual form. Set a measurable goal, get a real plan, and execute with tools that close the loop from planning through the kitchen and the gym.</p>
+
+  <div class="row mt-lg gap-lg">
+    <div class="stat-block">
+      <div class="big-number">8</div>
+      <p class="mono mt-sm">Core Modules</p>
+      <p style="color: var(--dim); font-size: 13px; margin-top: 6px;">Goal setting, TDEE, planning, training, macros, fridge, meal prep, profile</p>
+    </div>
+    <div class="stat-block">
+      <div class="big-number">19</div>
+      <p class="mono mt-sm">Screens Designed</p>
+      <p style="color: var(--dim); font-size: 13px; margin-top: 6px;">Every workflow mapped end-to-end with full interactive prototypes</p>
+    </div>
+    <div class="stat-block">
+      <div class="big-number">1</div>
+      <p class="mono mt-sm">Unified System</p>
+      <p style="color: var(--dim); font-size: 13px; margin-top: 6px;">Plan, shop, cook, train, check in — no context switching</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SLIDE 4: ONBOARDING — Goal as Contract -->
+<!-- ============================================================ -->
+<section class="slide glow-tl" id="onboarding">
+  <span class="mono accent mb-lg">03 — ONBOARDING</span>
+
+  <div class="feature-section">
+    <div class="content">
+      <h2>Onboarding as a contract,<br>not a form.</h2>
+      <p class="subtitle">Users set a measurable target (body fat %), choose a timeline (8–24 weeks), and receive real-time sustainability feedback. The result isn't a profile — it's a brief.</p>
+
+      <ul class="bullet-list">
+        <li>Current body composition from DEXA or estimate</li>
+        <li>Interactive slider for target body fat percentage</li>
+        <li>Timeline selection with pace calculation</li>
+        <li>Sustainability badge: SUSTAINABLE / AGGRESSIVE / TOO FAST</li>
+        <li>Contract summary with weekly rate of change</li>
+      </ul>
+    </div>
+
+    <div class="phone-group">
+      <div>
+        <div class="phone-frame">
+          <img src="screenshots/00-welcome.png" alt="Welcome screen">
+        </div>
+        <p class="mono mt-sm" style="text-align: center;">Welcome</p>
+      </div>
+      <div>
+        <div class="phone-frame">
+          <img src="screenshots/01-goal-input.png" alt="Goal input screen">
+        </div>
+        <p class="mono mt-sm" style="text-align: center;">Set the Goal</p>
+      </div>
+      <div>
+        <div class="phone-frame">
+          <img src="screenshots/02-goal-contract.png" alt="Goal contract screen">
+        </div>
+        <p class="mono mt-sm" style="text-align: center;">The Brief</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SLIDE 5: TDEE MODEL -->
+<!-- ============================================================ -->
+<section class="slide glow-br" id="tdee">
+  <span class="mono accent mb-lg">04 — TDEE MODEL</span>
+
+  <div class="feature-section reverse">
+    <div class="content">
+      <h2>A living graph.<br>Uncertainty visible,<br>narrowing with use.</h2>
+      <p class="subtitle">Unlike static TDEE calculators, Aurevion shows your energy expenditure as a confidence band that narrows over time as more data comes in. Visible uncertainty builds trust.</p>
+
+      <ul class="bullet-list">
+        <li>7-day rolling average of total daily energy expenditure</li>
+        <li>Confidence bands via bezier curves — wide at first, narrow with consistency</li>
+        <li>Historical comparison view to track model accuracy</li>
+        <li>Training day vs. rest day expenditure differentiation</li>
+        <li>Model adapts automatically as your body changes</li>
+      </ul>
+    </div>
+
+    <div class="phone-group">
+      <div>
+        <div class="phone-frame">
+          <img src="screenshots/03-tdee-today.png" alt="TDEE today">
+        </div>
+        <p class="mono mt-sm" style="text-align: center;">Today's TDEE</p>
+      </div>
+      <div>
+        <div class="phone-frame">
+          <img src="screenshots/04-tdee-compare.png" alt="TDEE trend">
+        </div>
+        <p class="mono mt-sm" style="text-align: center;">Trust Over Time</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SLIDE 6: PLAN CALENDAR -->
+<!-- ============================================================ -->
+<section class="slide glow-tl" id="planning">
+  <span class="mono accent mb-lg">05 — PLAN CALENDAR</span>
+
+  <div class="feature-section">
+    <div class="content">
+      <h2>The hub — month, week,<br>and day views,<br>switchable inline.</h2>
+      <p class="subtitle">Your entire plan — training days, meal prep windows, check-ins — laid out in a calendar that switches between perspectives without leaving the screen.</p>
+
+      <ul class="bullet-list">
+        <li>Month view with color-coded day types</li>
+        <li>Week view showing meal and training blocks</li>
+        <li>Day view with detailed session breakdown</li>
+        <li>Progress tracking: 11/14 events completed this cycle</li>
+        <li>Quick-switch between M / W / D inline</li>
+      </ul>
+    </div>
+
+    <div class="phone-group trio">
+      <div>
+        <div class="phone-frame">
+          <img src="screenshots/05-plan-month.png" alt="Plan month view">
+        </div>
+        <p class="mono mt-sm" style="text-align: center;">Month</p>
+      </div>
+      <div>
+        <div class="phone-frame">
+          <img src="screenshots/06-plan-week.png" alt="Plan week view">
+        </div>
+        <p class="mono mt-sm" style="text-align: center;">Week</p>
+      </div>
+      <div>
+        <div class="phone-frame">
+          <img src="screenshots/07-plan-day.png" alt="Plan day view">
+        </div>
+        <p class="mono mt-sm" style="text-align: center;">Day</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SLIDE 7: TRAINING -->
+<!-- ============================================================ -->
+<section class="slide glow-br" id="training">
+  <span class="mono accent mb-lg">06 — TRAINING</span>
+
+  <div class="feature-section reverse">
+    <div class="content">
+      <h2>The execution rail.<br>Warm up. Lift. Log. Done.</h2>
+      <p class="subtitle">A session timeline that guides you through each exercise with form cues, set tracking, and RPE logging. No chrome, no distractions — just the work.</p>
+
+      <ul class="bullet-list">
+        <li>Timeline rail: warm-up → primary → posterior → cooldown</li>
+        <li>Active exercise card with form cues and muscle groups</li>
+        <li>Set-by-set input: reps, weight, RPE</li>
+        <li>Elapsed time with planned duration comparison</li>
+        <li>Visual progress through the session (3/6 exercises)</li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="phone-frame large">
+        <img src="screenshots/08-training-session.png" alt="Training session">
+      </div>
+      <p class="mono mt-sm" style="text-align: center;">Active Session</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SLIDE 8: MACRO TRACKING -->
+<!-- ============================================================ -->
+<section class="slide glow-tl" id="nutrition">
+  <span class="mono accent mb-lg">07 — MACRO TRACKING</span>
+
+  <div class="feature-section">
+    <div class="content">
+      <h2>Plan → meals → shopping.<br>The chain that<br>actually closes.</h2>
+      <p class="subtitle">Weekly macro targets flow into a meal queue, which generates a shopping list, which feeds batch prep. Each step connects to the next — no manual bridging.</p>
+
+      <ul class="bullet-list">
+        <li>Weekly calorie and macro targets derived from your goal contract</li>
+        <li>14 meals across 3 batches — the full week planned at a glance</li>
+        <li>Auto-fit deviation tracking: stays within ±3% of macro targets</li>
+        <li>Meal queue with swap options for flexibility</li>
+        <li>Delta-focused shopping: shows exactly what you need vs. what you have</li>
+      </ul>
+    </div>
+
+    <div class="phone-group trio">
+      <div>
+        <div class="phone-frame">
+          <img src="screenshots/09-macro-targets.png" alt="Macro targets">
+        </div>
+        <p class="mono mt-sm" style="text-align: center;">Weekly Targets</p>
+      </div>
+      <div>
+        <div class="phone-frame">
+          <img src="screenshots/10-macro-meals.png" alt="Meal queue">
+        </div>
+        <p class="mono mt-sm" style="text-align: center;">Meal Queue</p>
+      </div>
+      <div>
+        <div class="phone-frame">
+          <img src="screenshots/12-shopping-list.png" alt="Shopping list">
+        </div>
+        <p class="mono mt-sm" style="text-align: center;">Shopping List</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SLIDE 9: KITCHEN / MEAL PREP -->
+<!-- ============================================================ -->
+<section class="slide glow-br" id="kitchen">
+  <span class="mono accent mb-lg">08 — MEAL PREP</span>
+
+  <div class="feature-section reverse">
+    <div class="content">
+      <h2>A kitchen is a<br>parallel process — the UI<br>should reflect that.</h2>
+      <p class="subtitle">Most apps show cooking as a sequential recipe. Aurevion shows it as a Gantt chart — because that's what batch cooking actually is. Multiple recipes, multiple timers, one timeline.</p>
+
+      <ul class="bullet-list">
+        <li>Pre-cook merge: combined ingredient audit across recipes</li>
+        <li>Conflict detection (e.g., oven temperature clashes)</li>
+        <li>Parallel timeline showing all recipes simultaneously</li>
+        <li>Focused step card with active timer and countdown</li>
+        <li>One-tap transition from card view to full cook mode</li>
+      </ul>
+    </div>
+
+    <div class="phone-group">
+      <div>
+        <div class="phone-frame">
+          <img src="screenshots/14-meal-prep-merge.png" alt="Pre-cook merge">
+        </div>
+        <p class="mono mt-sm" style="text-align: center;">Pre-Cook Merge</p>
+      </div>
+      <div>
+        <div class="phone-frame">
+          <img src="screenshots/16-meal-prep-timeline.png" alt="Parallel timeline">
+        </div>
+        <p class="mono mt-sm" style="text-align: center;">Parallel Timeline</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SLIDE 10: FRIDGE + BATCH -->
+<!-- ============================================================ -->
+<section class="slide glow-tl" id="fridge">
+  <span class="mono accent mb-lg">09 — FRIDGE & BATCH STRATEGY</span>
+
+  <div class="feature-section">
+    <div class="content">
+      <h2>A list. The value<br>is the delta.</h2>
+      <p class="subtitle">The fridge tracker doesn't just list ingredients — it shows what you need vs. what you have. Filter by missing or expiring items. Every ingredient links to which recipes require it.</p>
+
+      <ul class="bullet-list">
+        <li>Categorized inventory: Produce, Protein, Pantry</li>
+        <li>Filter modes: ALL / MISSING / EXPIRING</li>
+        <li>Delta view: need vs. have for each ingredient</li>
+        <li>Recipe linkage — see which meals need each item</li>
+        <li>Batch strategy view: meals organized into production batches</li>
+      </ul>
+    </div>
+
+    <div class="phone-group">
+      <div>
+        <div class="phone-frame">
+          <img src="screenshots/13-fridge.png" alt="Fridge tracker">
+        </div>
+        <p class="mono mt-sm" style="text-align: center;">Pantry Delta</p>
+      </div>
+      <div>
+        <div class="phone-frame">
+          <img src="screenshots/11-batch-prep.png" alt="Batch strategy">
+        </div>
+        <p class="mono mt-sm" style="text-align: center;">Batch Strategy</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SLIDE 11: COOK MODE -->
+<!-- ============================================================ -->
+<section class="slide glow-center" id="cookmode">
+  <span class="mono accent mb-lg">10 — ACTIVE COOK MODE</span>
+
+  <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+    <h2>Hands-free.<br>Step-by-step.<br>Multiple timers running.</h2>
+    <p class="subtitle" style="text-align: center; margin: 0 auto;">Full-screen cook mode with active timers, step-by-step instructions, and a visual transition from the card view. Designed for greasy hands and hot pans.</p>
+
+    <div class="phone-group mt-lg">
+      <div>
+        <div class="phone-frame">
+          <img src="screenshots/15-card-morph.png" alt="Card morph transition">
+        </div>
+        <p class="mono mt-sm" style="text-align: center;">Card → Cook Morph</p>
+      </div>
+      <div>
+        <div class="phone-frame large">
+          <img src="screenshots/17-cook-mode.png" alt="Active cook mode">
+        </div>
+        <p class="mono mt-sm" style="text-align: center;">Active Cook Mode</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SLIDE 12: PROFILE -->
+<!-- ============================================================ -->
+<section class="slide glow-br" id="profile">
+  <span class="mono accent mb-lg">11 — PROFILE & CHECK-INS</span>
+
+  <div class="feature-section reverse">
+    <div class="content">
+      <h2>Your contract,<br>your progress,<br>your streak.</h2>
+      <p class="subtitle">The profile isn't a settings dump — it's your contract dashboard. Active goal with progress bar, recent check-ins with weight and body fat trends, and quick access to adjust your plan.</p>
+
+      <ul class="bullet-list">
+        <li>Active goal card with progress toward target</li>
+        <li>Recent check-ins: weight, body fat %, trend direction</li>
+        <li>Streak tracking for consistency motivation</li>
+        <li>Quick access: Goal, Training, Diet, Reminders, Account</li>
+        <li>Contract-first design — the goal is always visible</li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="phone-frame large">
+        <img src="screenshots/18-profile.png" alt="Profile screen">
+      </div>
+      <p class="mono mt-sm" style="text-align: center;">Account Hub</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SLIDE 13: MARKET -->
+<!-- ============================================================ -->
+<section class="slide glow-tl" id="market">
+  <span class="mono accent mb-lg">12 — MARKET OPPORTUNITY</span>
+
+  <h2>The fitness app market is saturated.<br>The <em style="color: var(--accent); font-style: normal;">system</em> market is empty.</h2>
+
+  <div class="row mt-lg gap-lg">
+    <div class="feature-card">
+      <p class="mono accent" style="margin-bottom: 12px;">TRACKING APPS</p>
+      <h3>MyFitnessPal, Lose It!, Cronometer</h3>
+      <p style="color: var(--dim); font-size: 14px;">Log calories. That's it. No training integration, no meal prep logistics, no goal contracts. The user is the system integrator.</p>
+    </div>
+    <div class="feature-card">
+      <p class="mono accent" style="margin-bottom: 12px;">TRAINING APPS</p>
+      <h3>Strong, Hevy, JEFIT</h3>
+      <p style="color: var(--dim); font-size: 14px;">Great for logging sets. Zero nutrition awareness. No concept of how training days should change your calorie targets.</p>
+    </div>
+    <div class="feature-card">
+      <p class="mono accent" style="margin-bottom: 12px;">MEAL PREP APPS</p>
+      <h3>Mealime, Eat This Much</h3>
+      <p style="color: var(--dim); font-size: 14px;">Generate a meal plan and shopping list. No parallel cooking timeline. No fridge inventory. No connection to macro targets or training schedule.</p>
+    </div>
+  </div>
+
+  <div class="feature-card mt-lg" style="border-color: rgba(255,110,80,0.15); background: rgba(255,110,80,0.03);">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <img src="/logo.svg" width="40" height="40" alt="" style="border-radius: 10px; flex-shrink: 0;">
+      <div>
+        <h3 style="margin-bottom: 4px;">AUREVI0N fills the gap</h3>
+        <p style="color: var(--dim); font-size: 14px;">Goal → TDEE model → macro plan → meal queue → shopping → fridge → batch prep → cook mode → training → check-in. One chain. No gaps.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SLIDE 14: DESIGN PRINCIPLES -->
+<!-- ============================================================ -->
+<section class="slide glow-br" id="principles">
+  <span class="mono accent mb-lg">13 — DESIGN PRINCIPLES</span>
+
+  <h2>Built for trust, not engagement.</h2>
+
+  <div class="row mt-lg gap-lg">
+    <div class="feature-card">
+      <p class="mono accent" style="margin-bottom: 16px;">01</p>
+      <h3>Visible uncertainty</h3>
+      <p style="color: var(--dim); font-size: 14px;">Confidence bands on TDEE graphs. Auto-fit deviation on macro plans. We show what the system doesn't know — and how it learns.</p>
+    </div>
+    <div class="feature-card">
+      <p class="mono accent" style="margin-bottom: 16px;">02</p>
+      <h3>Delta-first interfaces</h3>
+      <p style="color: var(--dim); font-size: 14px;">The fridge shows what's missing, not what you have. The shopping list shows the gap. Every screen answers "what changed?" before "what is?"</p>
+    </div>
+    <div class="feature-card">
+      <p class="mono accent" style="margin-bottom: 16px;">03</p>
+      <h3>Parallel, not sequential</h3>
+      <p style="color: var(--dim); font-size: 14px;">Meal prep is a Gantt chart. Cooking is concurrent. The UI reflects the actual physics of a kitchen — multiple burners, one cook.</p>
+    </div>
+    <div class="feature-card">
+      <p class="mono accent" style="margin-bottom: 16px;">04</p>
+      <h3>Mono-instrumentation aesthetic</h3>
+      <p style="color: var(--dim); font-size: 14px;">Dark surfaces. Monospace labels. Hatching patterns for filled states. Data is the visual language — not gradients, illustrations, or mascots.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SLIDE 15: CTA -->
+<!-- ============================================================ -->
+<section class="slide glow-center" id="cta" style="justify-content: center; align-items: center; text-align: center;">
+  <div>
+    <div style="display: inline-flex; align-items: center; gap: 16px; margin-bottom: 40px;">
+      <img src="/logo.svg" width="56" height="56" alt="" style="border-radius: 16px;">
+    </div>
+
+    <h1 style="max-width: 700px; margin: 0 auto;">
+      Set a real goal.<br>
+      Get a real plan.<br>
+      <span style="color: var(--accent);">Execute.</span>
+    </h1>
+
+    <p class="subtitle mt-lg" style="margin: 0 auto; text-align: center;">
+      AUREVI0N is ready for its next phase. The design system is built. The interactive demo is live. The vision is clear.
+    </p>
+
+    <div class="mt-lg" style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+      <a href="../pages/demo.html" style="
+        display: inline-flex; align-items: center; gap: 10px;
+        padding: 16px 32px; border-radius: 999px;
+        background: var(--accent); color: #1a0f0a;
+        font-family: var(--mono); font-size: 12px;
+        letter-spacing: 1.4px; text-transform: uppercase;
+        text-decoration: none; font-weight: 600;
+        transition: transform 0.15s, box-shadow 0.15s;
+      " onmouseover="this.style.transform='scale(1.04)'; this.style.boxShadow='0 0 40px rgba(255,110,80,0.3)'"
+         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">
+        Try the Interactive Demo →
+      </a>
+    </div>
+
+    <div class="mt-lg">
+      <span class="mono">AUREVI0N · V0.1 · 2025</span>
+    </div>
+  </div>
+</section>
+
+
+<script>
+  // Active dot tracking
+  const sections = document.querySelectorAll('.slide[id]');
+  const dots = document.querySelectorAll('.nav-dots a');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        dots.forEach(d => d.classList.remove('active'));
+        const dot = document.querySelector(`.nav-dots a[href="#${entry.target.id}"]`);
+        if (dot) dot.classList.add('active');
+      }
+    });
+  }, { threshold: 0.4 });
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
