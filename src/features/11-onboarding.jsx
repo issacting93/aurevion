@@ -801,10 +801,10 @@ function OB_TDEE({ onNext, onBack, data }) {
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
       <OBNav title="Your Estimate" onBack={onBack}/>
       <OBProgress current={7} total={9}/>
-      <div style={{ flex: 1, padding: '12px 24px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ flex: 1, padding: '12px 24px', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
 
-        {/* Ring + number */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8, marginTop: 12 }}>
+        {/* Ring + number — centered in available space */}
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 180 }}>
           <div style={{ position: 'relative', width: ringSize, height: ringSize, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg width={ringSize} height={ringSize} style={{ position: 'absolute', top: 0, left: 0, transform: 'rotate(-90deg)' }}>
               <circle cx={ringSize/2} cy={ringSize/2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={strokeW}/>
@@ -821,6 +821,8 @@ function OB_TDEE({ onNext, onBack, data }) {
           </div>
         </div>
 
+        {/* Info bubbles — stacked at bottom */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {phase >= 1 && <div style={{
           padding: '14px 18px', borderRadius: 14,
           background: Color.surface, border: `1px solid ${Color.border}`,
@@ -851,6 +853,7 @@ function OB_TDEE({ onNext, onBack, data }) {
           </div>
           This number refines itself as you log data. After ~6 weeks, expect accuracy within ±80 kcal.
         </div>}
+        </div>
       </div>
       <OBNextBtn onClick={onNext} disabled={phase < 3} label="Continue"/>
     </div>
