@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AUREVI0N · Onboarding</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700&family=Geist+Mono:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #000; color: #fafafa;
+    font-family: "Geist", -apple-system, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  #root { min-height: 100vh; }
+
+  /* Range input styling for dark theme */
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(255,255,255,0.08);
+    height: 4px;
+    border-radius: 2px;
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #FF6E50;
+    cursor: pointer;
+    border: 3px solid #000;
+    box-shadow: 0 2px 8px rgba(255,110,80,0.3);
+    transition: transform 0.1s ease;
+  }
+  input[type="range"]::-webkit-slider-thumb:active {
+    transform: scale(1.15);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #FF6E50;
+    cursor: pointer;
+    border: 3px solid #000;
+    box-shadow: 0 2px 8px rgba(255,110,80,0.3);
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="../src/system/motion.jsx"></script>
+<script type="text/babel" src="../src/system/tokens.jsx"></script>
+<script type="text/babel" src="../src/system/components.jsx"></script>
+<script type="text/babel" src="../src/features/shared.jsx"></script>
+<script type="text/babel" src="../src/features/11-onboarding.jsx"></script>
+
+<script type="text/babel">
+
+function OnboardingPage() {
+  const sampleData = {
+    sex: 'male', birthMonth: 5, birthDay: 15, birthYear: 2000,
+    height: 175, heightUnit: 'cm', weight: 70, weightUnit: 'kg',
+    bodyFat: '18-23%', exerciseFreq: '4-6', activityLevel: 'active',
+    liftingExp: 'intermediate', cardioExp: 'intermediate', goal: 'lose'
+  };
+
+  return (
+    <div style={{
+      maxWidth: 1200, margin: '0 auto',
+      padding: `${Space[16]}px ${Space[8]}px ${Space[20]}px`
+    }}>
+      {/* Header */}
+      <div style={{ marginBottom: Space[12] }}>
+        <div style={{ ...Type.labelMd, color: Color.accent, marginBottom: Space[3] }}>ONBOARDING FLOW</div>
+        <h1 style={{
+          ...Type.displayMd, margin: 0, color: Color.text,
+          fontWeight: 300, letterSpacing: -1.2
+        }}>
+          AUREVI0N · First Run
+        </h1>
+        <p style={{
+          ...Type.bodyLg, color: Color.dim,
+          marginTop: Space[3], maxWidth: 600
+        }}>
+          Interactive 10-step onboarding flow. Click through the screens below — all state is preserved between steps. Integrates jewel ring, segmented gauges, textured fills, and directional transitions.
+        </p>
+      </div>
+
+      {/* Phone with interactive flow */}
+      <div style={{
+        display: 'flex', justifyContent: 'center',
+        marginBottom: Space[16]
+      }}>
+        <OnboardingScreen />
+      </div>
+
+      <Divider label="INDIVIDUAL SCREENS" />
+
+      <p style={{
+        ...Type.bodyMd, color: Color.mute,
+        marginBottom: Space[8], maxWidth: 500
+      }}>
+        Each step rendered in isolation for review. The interactive flow above connects all screens with shared state.
+      </p>
+
+      {/* Static preview grid */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+        gap: Space[5]
+      }}>
+        {[
+          { label: 'Welcome', C: () => <Phone statusTime="9:41"><OB_Welcome onNext={() => {}}/></Phone> },
+          { label: 'Sex', C: () => <Phone statusTime="9:41"><OB_Sex onNext={() => {}} onBack={() => {}} data={{ sex: 'male' }} setData={() => {}}/></Phone> },
+          { label: 'Birthday', C: () => <Phone statusTime="9:41"><OB_Birthday onNext={() => {}} onBack={() => {}} data={{ birthMonth: 5, birthDay: 15, birthYear: 2000 }} setData={() => {}}/></Phone> },
+          { label: 'Height + Weight', C: () => <Phone statusTime="9:42"><OB_BodyMetrics onNext={() => {}} onBack={() => {}} data={sampleData} setData={() => {}}/></Phone> },
+          { label: 'Body Fat', C: () => <Phone statusTime="9:42"><OB_BodyFat onNext={() => {}} onBack={() => {}} data={sampleData} setData={() => {}}/></Phone> },
+          { label: 'Activity', C: () => <Phone statusTime="9:43"><OB_Activity onNext={() => {}} onBack={() => {}} data={sampleData} setData={() => {}}/></Phone> },
+          { label: 'Experience', C: () => <Phone statusTime="9:43"><OB_Experience onNext={() => {}} onBack={() => {}} data={sampleData} setData={() => {}}/></Phone> },
+          { label: 'Goal', C: () => <Phone statusTime="9:43"><OB_Goal onNext={() => {}} onBack={() => {}} data={sampleData} setData={() => {}}/></Phone> },
+          { label: 'TDEE Result', C: () => <Phone statusTime="9:44"><OB_TDEE onNext={() => {}} onBack={() => {}} data={sampleData}/></Phone> },
+          { label: 'Ready', C: () => <Phone statusTime="9:44"><OB_Ready data={sampleData}/></Phone> },
+        ].map((s, i) => (
+          <div key={i} style={{
+            borderRadius: Radius.lg,
+            border: `1px solid ${Color.borderSoft}`,
+            overflow: 'hidden',
+            display: 'flex', flexDirection: 'column',
+            transition: `border-color ${Duration.normal} ${Ease.default}`
+          }}
+          onMouseEnter={e => e.currentTarget.style.borderColor = Color.accent}
+          onMouseLeave={e => e.currentTarget.style.borderColor = Color.borderSoft}
+          >
+            <div style={{
+              height: 280, overflow: 'hidden', position: 'relative',
+              display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
+              background: '#000'
+            }}>
+              <div style={{
+                transform: 'scale(0.38)', transformOrigin: 'top center',
+                pointerEvents: 'none', width: 402,
+                position: 'absolute', top: 0
+              }}>
+                {s.C()}
+              </div>
+            </div>
+            <div style={{
+              padding: `${Space[3]}px ${Space[4]}px`,
+              background: Color.surface
+            }}>
+              <div style={{ ...Type.labelSm, color: Color.accent, marginBottom: 2 }}>
+                STEP {String(i + 1).padStart(2, '0')}
+              </div>
+              <div style={{ ...Type.bodySm, color: Color.dim }}>{s.label}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<OnboardingPage />);
+</script>
+</body>
+</html>
