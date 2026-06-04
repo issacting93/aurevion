@@ -173,7 +173,7 @@ function DetailHeader({ title, onBack }) {
   return (
     <div style={{
       padding: '12px 16px 12px 12px', display: 'flex',
-      alignItems: 'center', gap: 8, flexShrink: 0,
+      alignItems: 'center', gap: Space[2], flexShrink: 0,
     }}>
       <button
         onClick={onBack}
@@ -233,7 +233,7 @@ function AppSheet({ config, onClose }) {
           }} />
           <div style={{
             width: '100%', display: 'flex', alignItems: 'center',
-            justifyContent: 'space-between', marginBottom: 16,
+            justifyContent: 'space-between', marginBottom: Space[4],
           }}>
             <FLabel size={11} mb={0} letter={1.2}>{title}</FLabel>
             <button
@@ -324,13 +324,13 @@ function HomeTab({ nav }) {
       </div>
 
       {/* Next action card */}
-      <div style={{ padding: '0 20px', marginBottom: 16 }}>
+      <div style={{ padding: '0 20px', marginBottom: Space[4] }}>
         <div
           onClick={() => nav.switchTab('train')}
           style={{
             background: 'linear-gradient(135deg, rgba(255,110,80,0.12), rgba(255,110,80,0.04))',
             border: '1px solid rgba(255,110,80,0.2)',
-            borderRadius: 14, padding: 16,
+            borderRadius: 14, padding: Space[4],
             display: 'flex', alignItems: 'center', gap: 14,
             cursor: 'pointer',
           }}
@@ -397,9 +397,9 @@ function TrainTab({ nav }) {
       </div>
 
       {/* Active/next session */}
-      <div style={{ padding: '0 20px', marginBottom: 20 }}>
+      <div style={{ padding: '0 20px', marginBottom: Space[5] }}>
         <FSection label="This week's sessions">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: Space[2] }}>
             {workouts.map((w, i) => (
               <div
                 key={i}
@@ -408,7 +408,7 @@ function TrainTab({ nav }) {
                   background: i === 0 ? 'rgba(255,110,80,0.06)' : F.surface,
                   border: `1px solid ${i === 0 ? 'rgba(255,110,80,0.2)' : F.borderSoft}`,
                   borderRadius: 12, padding: 14,
-                  display: 'flex', alignItems: 'center', gap: 12,
+                  display: 'flex', alignItems: 'center', gap: Space[3],
                   cursor: i === 0 ? 'pointer' : 'default',
                 }}
               >
@@ -436,7 +436,7 @@ function TrainTab({ nav }) {
       </div>
 
       {/* Muscle recovery */}
-      <div style={{ padding: '0 20px', marginBottom: 20 }}>
+      <div style={{ padding: '0 20px', marginBottom: Space[5] }}>
         <FSection label="Recovery status" action={<FMono size={10} color={F.accent}>View all</FMono>}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {muscleGroups.map((m, i) => {
@@ -532,7 +532,7 @@ function WorkoutModeDetail({ nav }) {
   return (
     <div style={{ padding: '0 20px 40px', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
       {/* Progress indicator */}
-      <div style={{ display: 'flex', gap: 3, marginBottom: 24 }}>
+      <div style={{ display: 'flex', gap: 3, marginBottom: Space[6] }}>
         {exercises.map((_, i) => (
           <div key={i} style={{
             flex: 1, height: 3, borderRadius: 2,
@@ -542,7 +542,7 @@ function WorkoutModeDetail({ nav }) {
       </div>
 
       {/* Current exercise */}
-      <div style={{ textAlign: 'center', marginBottom: 32 }}>
+      <div style={{ textAlign: 'center', marginBottom: Space[8] }}>
         <FLabel size={9} mb={8} color={F.accent}>
           EXERCISE {currentEx + 1} OF {exercises.length}
         </FLabel>
@@ -550,7 +550,7 @@ function WorkoutModeDetail({ nav }) {
           {ex.name}
         </div>
         {!isWarmup && (
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 12 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: Space[4], marginTop: Space[3] }}>
             <div style={{ textAlign: 'center' }}>
               <FMono size={10} color={F.dim}>SETS</FMono>
               <div style={{ fontSize: 20, fontWeight: 300, marginTop: 4 }}>{currentSet}/{ex.sets}</div>
@@ -650,7 +650,7 @@ function ExerciseLibraryDetail({ nav }) {
       <div style={{
         background: F.surface, border: `1px solid ${F.borderSoft}`,
         borderRadius: 10, padding: '10px 14px',
-        display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16,
+        display: 'flex', alignItems: 'center', gap: 10, marginBottom: Space[4],
       }}>
         <FIcon path={ICONS.search} size={16} color={F.mute} stroke={1.8} />
         <span style={{ fontSize: 13, color: F.mute }}>Search exercises...</span>
@@ -684,7 +684,7 @@ function ExerciseLibraryDetail({ nav }) {
           <div key={i} style={{
             padding: '12px 0',
             borderBottom: `1px solid ${F.borderSoft}`,
-            display: 'flex', alignItems: 'center', gap: 12,
+            display: 'flex', alignItems: 'center', gap: Space[3],
           }}>
             <div style={{
               width: 36, height: 36, borderRadius: 8,
@@ -695,7 +695,7 @@ function ExerciseLibraryDetail({ nav }) {
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 13, fontWeight: 500 }}>{ex.name}</div>
-              <div style={{ display: 'flex', gap: 8, marginTop: 3 }}>
+              <div style={{ display: 'flex', gap: Space[2], marginTop: 3 }}>
                 <FMono size={9} color={F.dim}>{ex.muscle}</FMono>
                 <FMono size={9} color={F.faint}>·</FMono>
                 <FMono size={9} color={F.dim}>{ex.equipment}</FMono>
@@ -742,13 +742,13 @@ function EatTab({ nav }) {
       </div>
 
       {/* Macro rings / summary */}
-      <div style={{ padding: '0 20px', marginBottom: 20 }}>
+      <div style={{ padding: '0 20px', marginBottom: Space[5] }}>
         <div style={{
           background: F.surface, border: `1px solid ${F.borderSoft}`,
           borderRadius: 14, padding: 18,
         }}>
           {/* Calories hero */}
-          <div style={{ textAlign: 'center', marginBottom: 16 }}>
+          <div style={{ textAlign: 'center', marginBottom: Space[4] }}>
             <FNum size={44} weight={200} unit="kcal">{macros.kcal}</FNum>
             <div style={{ fontSize: 12, color: F.dim, marginTop: 6 }}>
               {macros.kcalTarget - macros.kcal} remaining
@@ -759,7 +759,7 @@ function EatTab({ nav }) {
           </div>
 
           {/* P / C / F row */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: Space[3] }}>
             {[
               { label: 'Protein', val: macros.protein, target: macros.proteinTarget, color: '#4ade80' },
               { label: 'Carbs', val: macros.carbs, target: macros.carbsTarget, color: '#60a5fa' },
@@ -794,7 +794,7 @@ function EatTab({ nav }) {
                 padding: '12px 14px', borderRadius: 10,
                 background: m.logged ? F.surface : 'transparent',
                 border: `1px solid ${m.logged ? F.borderSoft : 'rgba(255,255,255,0.04)'}`,
-                display: 'flex', alignItems: 'center', gap: 12,
+                display: 'flex', alignItems: 'center', gap: Space[3],
                 opacity: m.logged ? 1 : 0.6,
               }}>
                 <FMono size={10} color={F.mute}>{m.time}</FMono>
@@ -813,11 +813,11 @@ function EatTab({ nav }) {
       </div>
 
       {/* Water */}
-      <div style={{ padding: '0 20px', marginTop: 16 }}>
+      <div style={{ padding: '0 20px', marginTop: Space[4] }}>
         <div style={{
           background: F.surface, border: `1px solid ${F.borderSoft}`,
           borderRadius: 12, padding: '12px 14px',
-          display: 'flex', alignItems: 'center', gap: 12,
+          display: 'flex', alignItems: 'center', gap: Space[3],
         }}>
           <span style={{ fontSize: 18 }}>💧</span>
           <div style={{ flex: 1 }}>
@@ -850,12 +850,12 @@ function LogFoodSheet({ nav }) {
   return (
     <div>
       {/* Quick actions grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: Space[2], marginBottom: Space[5] }}>
         {quickActions.map((a, i) => (
           <div key={i} style={{
             background: 'rgba(255,255,255,0.04)', border: `1px solid ${F.borderSoft}`,
             borderRadius: 12, padding: 14,
-            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: Space[2],
             cursor: 'pointer',
           }}>
             <div style={{
@@ -875,18 +875,18 @@ function LogFoodSheet({ nav }) {
 
       {/* Quick-add */}
       <div style={{
-        display: 'flex', gap: 8, marginBottom: 20,
+        display: 'flex', gap: Space[2], marginBottom: Space[5],
       }}>
         <div style={{
           flex: 1, background: F.surface2, borderRadius: 8, padding: '10px 12px',
-          display: 'flex', alignItems: 'center', gap: 8,
+          display: 'flex', alignItems: 'center', gap: Space[2],
         }}>
           <FIcon path={ICONS.plus} size={12} color={F.mute} stroke={2} />
           <span style={{ fontSize: 12, color: F.dim }}>Quick-add cals</span>
         </div>
         <div style={{
           flex: 1, background: F.surface2, borderRadius: 8, padding: '10px 12px',
-          display: 'flex', alignItems: 'center', gap: 8,
+          display: 'flex', alignItems: 'center', gap: Space[2],
         }}>
           <FIcon path={ICONS.plus} size={12} color={F.mute} stroke={2} />
           <span style={{ fontSize: 12, color: F.dim }}>Quick-add protein</span>
@@ -933,7 +933,7 @@ function PlanTab({ nav }) {
 
       {/* Week strip */}
       <div style={{
-        padding: '0 20px', marginBottom: 20,
+        padding: '0 20px', marginBottom: Space[5],
         display: 'flex', gap: 6,
       }}>
         {days.map((d, i) => (
@@ -958,7 +958,7 @@ function PlanTab({ nav }) {
       {/* Day breakdown */}
       <div style={{ padding: '0 20px' }}>
         <FSection label="Thursday · Today">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: Space[2] }}>
             {days[3].events.map((ev, i) => (
               <div key={i} style={{
                 background: F.surface, border: `1px solid ${F.borderSoft}`,
@@ -979,7 +979,7 @@ function PlanTab({ nav }) {
 
         {/* Upcoming */}
         <FSection label="Friday" mt={16}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: Space[2] }}>
             {days[4].events.map((ev, i) => (
               <div key={i} style={{
                 background: F.surface, border: `1px solid ${F.borderSoft}`,
@@ -998,7 +998,7 @@ function PlanTab({ nav }) {
         </FSection>
 
         {/* Planning controls */}
-        <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ marginTop: Space[5], display: 'flex', flexDirection: 'column', gap: Space[2] }}>
           <FBtn variant="ghost" full iconLeading={ICONS.swap}>Move meals</FBtn>
           <FBtn variant="ghost" full iconLeading={ICONS.sparkle}>AI suggest plan</FBtn>
         </div>
@@ -1038,8 +1038,8 @@ function YouTab({ nav }) {
       </div>
 
       {/* Key metrics grid */}
-      <div style={{ padding: '0 20px', marginBottom: 20 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+      <div style={{ padding: '0 20px', marginBottom: Space[5] }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: Space[2] }}>
           {metrics.map((m, i) => {
             const trendColor = m.trendDir === 'down' ? F.green : m.trendDir === 'up' ? F.accent : F.dim;
             return (
@@ -1062,7 +1062,7 @@ function YouTab({ nav }) {
       </div>
 
       {/* Adherence bar */}
-      <div style={{ padding: '0 20px', marginBottom: 20 }}>
+      <div style={{ padding: '0 20px', marginBottom: Space[5] }}>
         <FSection label="Adherence · This week">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
@@ -1107,7 +1107,7 @@ function YouTab({ nav }) {
       </div>
 
       {/* Body scan CTA */}
-      <div style={{ padding: '0 20px', marginTop: 12 }}>
+      <div style={{ padding: '0 20px', marginTop: Space[3] }}>
         <FBtn variant="ghost" full iconLeading={ICONS.expand}>
           Body scan & progress photos
         </FBtn>

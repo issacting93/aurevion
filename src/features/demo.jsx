@@ -175,14 +175,9 @@ function Sidebar({ groups, currentId, onPick }) {
     }}>
       <div style={{ padding: '0 24px 22px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
-          <div style={{
-            width: 30, height: 30, borderRadius: 8,
-            background: `linear-gradient(135deg, ${D.accent}, #c93b1d)`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontWeight: 800, fontSize: 14, color: '#1a0f0a',
-          }}>A</div>
+          <img src="/logo.svg" width="30" height="30" alt="AUREVI0N" style={{ borderRadius: 8 }}/>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 600 }}>Aurevion</div>
+            <div style={{ fontFamily: '"Geist Mono", monospace', fontSize: 14, fontWeight: 200 }}>AUREVI0N</div>
             <Mono color={D.mute}>DEMO · v0.1</Mono>
           </div>
         </div>
@@ -268,4 +263,4 @@ function ArrowBtn({ dir, disabled, onClick, style }) {
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+ReactDOM.createRoot(document.getElementById('root')).render(<ErrorBoundary><Demo/></ErrorBoundary>);

@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aurevion · Logo &amp; Micro-graphics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<style>
+:root {
+  /* grays */
+  --black:      #000000;
+  --ink-900:    #0d0d0d;
+  --ink-800:    #161616;
+  --white:      #fafafa;
+  --gray-400:   #a1a1a1;
+  --gray-500:   #6b6b6b;
+  --gray-600:   #3f3f3f;
+
+  /* brand */
+  --ember-400:  #FF8166;
+  --ember-500:  #FF6E50;
+  --ember-600:  #FF5A1F;
+  --ember-700:  #E85A3E;
+  --ember-ink:  #1a0f0a;
+
+  /* status */
+  --green-400:  #4ade80;
+  --red-400:    #f87171;
+
+  --alpha-02:   rgba(255,255,255,0.02);
+  --alpha-04:   rgba(255,255,255,0.04);
+  --alpha-05:   rgba(255,255,255,0.05);
+  --alpha-06:   rgba(255,255,255,0.06);
+  --alpha-08:   rgba(255,255,255,0.08);
+  --alpha-10:   rgba(255,255,255,0.10);
+  --alpha-14:   rgba(255,255,255,0.14);
+  --alpha-35:   rgba(255,255,255,0.35);
+
+  /* semantic surfaces */
+  --color-bg:             var(--black);
+  --color-surface:        var(--ink-900);
+  --color-surface-raised: var(--ink-800);
+  --color-track:          var(--alpha-05);
+  --color-track-strong:   var(--alpha-08);
+
+  /* lines */
+  --color-border:         var(--alpha-08);
+  --color-border-soft:    var(--alpha-04);
+
+  /* text */
+  --color-text:           var(--white);
+  --color-text-dim:       var(--gray-400);
+  --color-text-mute:      var(--gray-500);
+  --color-text-faint:     var(--gray-600);
+
+  /* accent */
+  --color-accent:         var(--ember-500);
+  --color-accent-hover:   var(--ember-400);
+  --color-accent-hot:     var(--ember-600);
+  --color-accent-press:   var(--ember-700);
+  --color-on-accent:      var(--ember-ink);
+
+  /* status */
+  --color-positive:       var(--green-400);
+  --color-negative:       var(--red-400);
+
+  /* spacing */
+  --space-hair:  2px;
+  --space-xs:    4px;
+  --space-sm:    8px;
+  --space-md:   12px;
+  --space-lg:   16px;
+  --space-xl:   20px;
+  --space-2xl:  24px;
+  --space-3xl:  32px;
+  --space-4xl:  48px;
+  --gutter:     24px;
+
+  /* radii */
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:  10px;
+  --radius-xl:  12px;
+  --radius-2xl: 14px;
+  --radius-pill: 999px;
+  --radius-phone: 56px;
+
+  /* typography */
+  --font-sans: "Geist", -apple-system, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+
+  /* mono scale */
+  --type-mono-micro: 9px;
+  --type-mono-label: 10px;
+  --type-mono-val:   11px;
+  --type-mono-sm:    12px;
+
+  /* sans scale */
+  --type-body-sm:    13px;
+  --type-body:       14px;
+  --type-body-lg:    15px;
+
+  /* display */
+  --type-display-sm: 30px;
+  --type-display:    40px;
+  --type-numeral:    52px;
+  --type-display-lg: 56px;
+
+  --weight-display:  200;
+  --weight-light:    300;
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+
+  --tracking-mono:   1.4px;
+  --tracking-tag:    0.8px;
+  --tracking-tight: -0.3px;
+}
+</style>
+<style>/* ============================================================================
+   AUREVION DESIGN TOKENS — single source of truth
+   ----------------------------------------------------------------------------
+   Three tiers:
+     1. PRIMITIVES  raw values. Never reference these directly from a component.
+     2. SEMANTIC    role-based aliases that point at primitives. Use these.
+     3. COMPONENT   scoped overrides. Only when a component genuinely diverges.
+
+   The JS mirror of this file is design/tokens.jsx (the `T` object + `F`/`FF`
+   back-compat aliases used by the React screens). Keep them in sync.
+   ========================================================================== */
+
+:root {
+  /* ── 1. PRIMITIVES ──────────────────────────────────────────────────────
+     Raw, appearance-named. A redesign rewrites the SEMANTIC layer below,
+     not these. */
+
+  /* grayscale — dark-first */
+  --black:      #000000;
+  --ink-900:    #0d0d0d;
+  --ink-800:    #161616;
+  --white:      #fafafa;
+  --gray-400:   #a1a1a1;
+  --gray-500:   #6b6b6b;
+  --gray-600:   #3f3f3f;
+
+  /* brand — ember (the single accent) */
+  --ember-400:  #FF8166;   /* hover */
+  --ember-500:  #FF6E50;   /* base  */
+  --ember-600:  #FF5A1F;   /* hot   */
+  --ember-700:  #E85A3E;   /* press */
+  --ember-ink:  #1a0f0a;   /* text/icon ON ember */
+
+  /* status — used small + contextual, never co-equal with ember */
+  --green-400:  #4ade80;
+  --red-400:    #f87171;
+
+  /* white alphas — lines, tracks, raised fills on black */
+  --alpha-02:   rgba(255,255,255,0.02);
+  --alpha-04:   rgba(255,255,255,0.04);
+  --alpha-05:   rgba(255,255,255,0.05);
+  --alpha-06:   rgba(255,255,255,0.06);
+  --alpha-08:   rgba(255,255,255,0.08);
+  --alpha-10:   rgba(255,255,255,0.10);
+  --alpha-14:   rgba(255,255,255,0.14);
+  --alpha-35:   rgba(255,255,255,0.35);
+
+  /* ── 2. SEMANTIC ────────────────────────────────────────────────────────
+     Role-based. THIS is what components reference. Survives a repaint. */
+
+  /* surfaces (lift order: bg → surface → surface-raised) */
+  --color-bg:             var(--black);
+  --color-surface:        var(--ink-900);
+  --color-surface-raised: var(--ink-800);
+  --color-track:          var(--alpha-05);  /* empty portion of any gauge   */
+  --color-track-strong:   var(--alpha-08);  /* unlit segments               */
+
+  /* lines */
+  --color-border:         var(--alpha-08);  /* default hairline             */
+  --color-border-soft:    var(--alpha-04);  /* whisper divider              */
+
+  /* text (4-step ramp — high → low emphasis) */
+  --color-text:           var(--white);
+  --color-text-dim:       var(--gray-400);  /* secondary copy               */
+  --color-text-mute:      var(--gray-500);  /* mono labels, units           */
+  --color-text-faint:     var(--gray-600);  /* placeholders, ghosts         */
+
+  /* accent (the only brand color) */
+  --color-accent:         var(--ember-500);
+  --color-accent-hover:   var(--ember-400);
+  --color-accent-hot:     var(--ember-600);
+  --color-accent-press:   var(--ember-700);
+  --color-on-accent:      var(--ember-ink); /* always use ON an ember fill  */
+
+  /* status roles */
+  --color-positive:       var(--green-400);
+  --color-negative:       var(--red-400);
+
+  /* confidence ramp — semantic to the model/onboarding work.
+     Pick by threshold: >=0.80 high · 0.65–0.79 med · <0.65 low.
+     (helper: T.confidence(c) in tokens.jsx) */
+  --conf-high:            var(--green-400);
+  --conf-med:             var(--ember-500);
+  --conf-low:             var(--gray-500);
+
+  /* ── SPACING ────────────────────────────────────────────────────────────
+     8-based with two sub-steps for instrument density. Off-scale is illegal —
+     no 13px, no 18px. `--gutter` is the standard screen side-padding. */
+  --space-hair:  2px;
+  --space-xs:    4px;
+  --space-sm:    8px;
+  --space-md:   12px;
+  --space-lg:   16px;
+  --space-xl:   20px;
+  --space-2xl:  24px;
+  --space-3xl:  32px;
+  --space-4xl:  48px;
+  --gutter:     24px;
+
+  /* ── RADII ──────────────────────────────────────────────────────────────
+     sm chips · md buttons · lg/​xl/2xl cards · pill tags+bars · phone shell */
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:  10px;
+  --radius-xl:  12px;
+  --radius-2xl: 14px;
+  --radius-pill: 999px;
+  --radius-phone: 56px;
+
+  /* ── TYPE ───────────────────────────────────────────────────────────────
+     Two families. Mono carries instrumentation (labels, values, numerals);
+     sans carries human copy only. */
+  --font-sans: "Geist", -apple-system, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+
+  /* mono scale — UPPERCASE, tracked */
+  --type-mono-micro: 9px;    /* footnotes, "skipped" ghosts        */
+  --type-mono-label: 10px;   /* FLabel section eyebrows            */
+  --type-mono-val:   11px;   /* inline values, nav titles, tags    */
+  --type-mono-sm:    12px;   /* button text, denser values         */
+
+  /* sans scale — sentence case, human copy */
+  --type-body-sm:    13px;
+  --type-body:       14px;
+  --type-body-lg:    15px;
+
+  /* display numerals — Geist Mono, weight 200, negative tracking */
+  --type-display-sm: 30px;
+  --type-display:    40px;
+  --type-numeral:    52px;
+  --type-display-lg: 56px;
+
+  /* weights */
+  --weight-display:  200;
+  --weight-light:    300;
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+
+  /* letter-spacing */
+  --tracking-mono:   1.4px;   /* mono labels/buttons               */
+  --tracking-tag:    0.8px;   /* tag chips                         */
+  --tracking-tight: -0.3px;   /* display numerals                  */
+
+  /* ── MOTION ─────────────────────────────────────────────────────────────
+     Short and mechanical. One easing. Nothing decorative loops on content. */
+  --motion-fast: 0.12s;   /* color/hover state                    */
+  --motion-base: 0.14s;   /* background, transform taps           */
+  --motion-slow: 0.40s;   /* entrance reveals (gate behind active) */
+  --ease: ease;
+
+  /* ── ELEVATION ──────────────────────────────────────────────────────────
+     One real shadow (the phone). Cards lift by surface + border, not shadow. */
+  --shadow-phone: 0 30px 80px rgba(0,0,0,0.4), 0 0 0 9px #1a1a1a, 0 0 0 10px #2a2a2a;
+}
+
+/* ── 3. COMPONENT TOKENS (opt-in) ───────────────────────────────────────────
+   Only for a component that diverges from the semantic layer. Reference
+   semantic tokens, never primitives. Most components need nothing here. */
+:root {
+  --button-primary-bg:   var(--color-accent);
+  --button-primary-fg:   var(--color-on-accent);
+  --tag-accent-bg:       var(--color-accent);
+  --tag-accent-fg:       var(--color-on-accent);
+  --gauge-fill:          var(--color-accent);
+  --gauge-track:         var(--color-track);
+}
+</style>
+<style>
+  /* ── Loader Overlay & Reveal CSS ── */
+  #loader-overlay {
+    position: fixed; inset: 0; width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    background: #000000; z-index: 9999;
+    opacity: 1;
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  #loader-overlay.loaded {
+    opacity: 0;
+    pointer-events: none;
+  }
+  #loader-overlay svg {
+    width: 100%; height: 100%; object-fit: contain;
+  }
+
+  @keyframes drawLogoPath {
+    0% { stroke-dashoffset: 240; fill-opacity: 0; stroke: #FF6E50; }
+    40% { stroke-dashoffset: 0; fill-opacity: 0; stroke: #FF6E50; }
+    80% { stroke-dashoffset: 0; fill-opacity: 1; stroke: transparent; }
+    100% { stroke-dashoffset: 0; fill-opacity: 1; stroke: transparent; }
+  }
+  @keyframes fillLogoBg {
+    0%, 40% { fill-opacity: 0; }
+    80%, 100% { fill-opacity: 1; }
+  }
+  @keyframes spinClockwise {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes spinCounter {
+    to { transform: rotate(-360deg); }
+  }
+  @keyframes textFadeIn {
+    0%, 30% { opacity: 0; letter-spacing: 2px; }
+    70%, 100% { opacity: 1; letter-spacing: 8px; }
+  }
+  
+  .logo-path-r {
+    animation: drawLogoPath 2.2s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+  }
+  .logo-path-l {
+    animation: drawLogoPath 2.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .logo-bg {
+    animation: fillLogoBg 2.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .spin-clockwise {
+    animation: spinClockwise 20s linear infinite;
+    transform-origin: 0px 0px;
+  }
+  .spin-counter {
+    animation: spinCounter 12s linear infinite;
+    transform-origin: 0px 0px;
+  }
+  .text-reveal {
+    animation: textFadeIn 2.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  /* ── Interactive Brand Plate Animations ── */
+  .wrap {
+    max-width: 1120px;
+    margin: 0 auto;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .wrap.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .plate {
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s, box-shadow 0.4s, background-color 0.4s;
+  }
+  
+  .plate:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-accent);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 40px rgba(255, 110, 80, 0.04);
+  }
+
+  .plate.dark:hover {
+    background: #0f0f12;
+  }
+
+  .plate.ember:hover {
+    background: #ff7e63;
+    border-color: #131316;
+  }
+
+  .ic {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s, background-color 0.3s;
+  }
+  .ic:hover {
+    transform: scale(1.1) rotate(4deg);
+    border-color: var(--plate-ink);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .pill {
+    transition: transform 0.25s, border-color 0.25s, background-color 0.25s;
+    cursor: default;
+  }
+  .pill:hover {
+    transform: translateY(-1.5px) scale(1.03);
+    border-color: var(--plate-ink);
+    background: rgba(255,255,255,0.06);
+  }
+
+  .warn {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .p-caution:hover .warn {
+    transform: scale(1.1) rotate(-8deg);
+  }
+  .p-caution:hover .warn:last-child {
+    transform: scale(1.1) rotate(8deg);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--color-bg); color: var(--color-text);
+    font-family: var(--font-sans); -webkit-font-smoothing: antialiased;
+    padding: var(--space-4xl) var(--gutter) 96px;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+
+  /* default mark colors — overridden inside .ember */
+  :root { --mk-tile: var(--color-accent); --mk-glyph: #131316; }
+
+  .kicker {
+    font-family: var(--font-mono); font-size: var(--type-mono-label);
+    letter-spacing: var(--tracking-mono); text-transform: uppercase;
+    color: var(--color-accent); margin-bottom: var(--space-lg);
+    display: flex; align-items: center; gap: var(--space-sm);
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--color-accent); }
+  h1 { font-size: var(--type-display-lg); font-weight: var(--weight-display); letter-spacing: -1.5px; line-height: 0.98; }
+  .lede { color: var(--color-text-dim); font-size: var(--type-body-lg); max-width: 62ch; margin-top: var(--space-lg); line-height: 1.5; }
+
+  section { margin-top: var(--space-4xl); border-top: 1px solid var(--color-border); padding-top: var(--space-2xl); }
+  .sec-head { display: flex; align-items: baseline; gap: var(--space-md); margin-bottom: var(--space-2xl); }
+  .sec-num { font-family: var(--font-mono); font-size: var(--type-mono-val); color: var(--color-accent); letter-spacing: var(--tracking-mono); }
+  .sec-head h2 { font-size: 26px; font-weight: var(--weight-light); letter-spacing: -0.5px; }
+  .sec-head .meta { margin-left: auto; font-family: var(--font-mono); font-size: var(--type-mono-label); color: var(--color-text-mute); letter-spacing: var(--tracking-mono); text-transform: uppercase; }
+  .label { font-family: var(--font-mono); font-size: var(--type-mono-label); letter-spacing: var(--tracking-mono); text-transform: uppercase; color: var(--color-text-mute); }
+
+  /* ── shared mono micro-type ───────────────────────────────────────────── */
+  .mono { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: var(--tracking-mono); }
+  .m9  { font-size: 9px;  letter-spacing: 1px; }
+  .m10 { font-size: var(--type-mono-label); }
+  .m11 { font-size: var(--type-mono-val); }
+  .m12 { font-size: var(--type-mono-sm); }
+
+  /* ── the wordmark — Geist Mono · 200 · -0.01em ────────────────────────── */
+  .lockup { display: inline-flex; align-items: center; gap: 0.46em; }
+  .wordmark {
+    font-family: var(--font-mono); font-weight: 200; letter-spacing: -0.01em;
+    text-transform: uppercase; line-height: 1; white-space: nowrap;
+  }
+  .mk { display: block; }
+  .mk .tile { fill: var(--mk-tile); }
+  .mk .glyph { fill: var(--mk-glyph); }
+
+  /* ════════════════ BRAND PLATE ═══════════════════════════════════════════ */
+  .plate {
+    position: relative; border: 1px solid var(--plate-line); border-radius: var(--radius-md);
+    padding: 30px 34px; background: var(--plate-bg);
+    --bc-ink: var(--plate-ink); --qr-ink: var(--plate-ink);
+  }
+  .plate.dark  { --plate-bg: #0a0a0a; --plate-line: var(--color-border); --plate-ink: var(--color-text); --plate-dim: var(--color-text-dim); --plate-mute: var(--color-text-mute); }
+  .plate.ember { --plate-bg: var(--color-accent); --plate-line: rgba(19,19,22,0.28); --plate-ink: #131316; --plate-dim: rgba(19,19,22,0.78); --plate-mute: rgba(19,19,22,0.55); --mk-tile: #131316; --mk-glyph: var(--color-accent); }
+  .plate, .plate .mono, .plate p { color: var(--plate-ink); }
+
+  /* corner registration crosshairs */
+  .reg { position: absolute; width: 11px; height: 11px; opacity: 0.55; }
+  .reg::before, .reg::after { content: ""; position: absolute; background: var(--plate-ink); }
+  .reg::before { left: 50%; top: 0; width: 1px; height: 100%; transform: translateX(-0.5px); }
+  .reg::after  { top: 50%; left: 0; height: 1px; width: 100%; transform: translateY(-0.5px); }
+  .reg.tl { top: 10px; left: 10px; } .reg.tr { top: 10px; right: 10px; }
+  .reg.bl { bottom: 10px; left: 10px; } .reg.br { bottom: 10px; right: 10px; }
+
+  /* plate header */
+  .p-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2xl); padding-bottom: var(--space-lg); border-bottom: 1px solid var(--plate-line); }
+  .p-ver { display: flex; align-items: flex-start; gap: 18px; }
+  .verstack { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+  .verstack .big { font-family: var(--font-mono); font-weight: 300; font-size: 22px; letter-spacing: -0.5px; line-height: 1; }
+
+  /* plate body grid */
+  .p-body { display: grid; grid-template-columns: 1.05fr 1fr 0.82fr; gap: 0; margin-top: var(--space-lg); }
+  .p-col { padding: 0 22px; border-right: 1px solid var(--plate-line); }
+  .p-col:first-child { padding-left: 0; } .p-col:last-child { padding-right: 0; border-right: none; }
+
+  /* spec rows */
+  .spec { display: flex; flex-direction: column; gap: 13px; }
+  .spec .row .k { color: var(--plate-mute); margin-bottom: 5px; }
+  .spec .row .v { font-family: var(--font-mono); font-size: var(--type-mono-val); letter-spacing: 0.6px; color: var(--plate-ink); }
+
+  /* scope icon marks */
+  .scope-marks { display: flex; gap: 8px; margin-bottom: 14px; }
+  .scope-marks .ic { width: 34px; height: 34px; border: 1px solid var(--plate-line); border-radius: var(--radius-sm); display: grid; place-items: center; }
+  .scope-marks .ic svg { width: 17px; height: 17px; stroke: var(--plate-ink); fill: none; stroke-width: 1.6; }
+  .descr { font-size: 12.5px; line-height: 1.5; color: var(--plate-dim); font-family: var(--font-sans); }
+  .badge { width: 30px; height: 30px; border-radius: 50%; background: var(--plate-ink); color: var(--plate-bg); display: grid; place-items: center; font-family: var(--font-mono); font-weight: 600; font-size: 12px; }
+
+  /* barcode + qr + coords */
+  .barcode { display: flex; align-items: stretch; height: 44px; width: 100%; }
+  .barcode i { display: block; height: 100%; }
+  .qr { display: grid; grid-template-columns: repeat(21, 1fr); width: 82px; height: 82px; }
+  .qr i { width: 100%; height: 100%; }
+  .coord { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.6px; color: var(--plate-dim); line-height: 1.7; }
+
+  /* integration strip */
+  .p-strip { display: flex; align-items: center; gap: var(--space-lg); margin-top: var(--space-lg); padding: 13px 0 0; border-top: 1px solid var(--plate-line); }
+  .pill { display: inline-flex; align-items: center; gap: 7px; padding: 6px 13px; border: 1px solid var(--plate-line); border-radius: var(--radius-pill); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--plate-ink); }
+  .pill .pdot { width: 5px; height: 5px; border-radius: 50%; background: var(--plate-ink); }
+
+  /* caution strip */
+  .p-caution { display: flex; align-items: stretch; gap: 14px; margin-top: var(--space-lg); }
+  .warn { flex-shrink: 0; width: 46px; border: 1px solid var(--plate-line); border-radius: var(--radius-sm); display: grid; place-items: center; }
+  .warn svg { width: 22px; height: 22px; stroke: var(--plate-ink); fill: none; stroke-width: 1.6; }
+  .caution-body { flex: 1; border: 1px solid var(--plate-line); border-radius: var(--radius-sm); overflow: hidden; }
+  .caution-bar { background: var(--plate-ink); color: var(--plate-bg); text-align: center; padding: 7px; font-family: var(--font-mono); font-weight: 600; font-size: var(--type-mono-sm); letter-spacing: 3px; }
+  .caution-msg { padding: 11px 16px; text-align: center; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.5px; line-height: 1.7; color: var(--plate-dim); }
+
+  /* footer */
+  .p-foot { display: flex; align-items: center; justify-content: space-between; margin-top: var(--space-lg); padding-top: var(--space-md); border-top: 1px solid var(--plate-line); }
+  .p-foot .mono { font-size: 10px; letter-spacing: 1.2px; color: var(--plate-mute); }
+
+  /* timecode log */
+  .log { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.4px; line-height: 1.85; color: var(--plate-dim); }
+  .log b { color: var(--plate-ink); font-weight: 500; }
+
+  /* clean lockup stages */
+  .stage { background: var(--color-surface); border: 1px solid var(--color-border-soft); border-radius: var(--radius-2xl); padding: 64px var(--space-4xl); display: grid; place-items: center; min-height: 200px; }
+  .stage.light { background: #fafafa; } .stage.light .wordmark { color: #131316; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-md); }
+
+  /* micro-kit reference */
+  .panel { background: var(--color-surface); border: 1px solid var(--color-border-soft); border-radius: var(--radius-2xl); padding: var(--space-xl); --bc-ink: var(--color-text); --qr-ink: var(--color-text); }
+  .panel .label { margin-bottom: var(--space-lg); }
+  .panel.center { display: grid; place-items: center; min-height: 150px; }
+  .kit-cap { font-family: var(--font-mono); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--color-text-faint); margin-top: var(--space-md); }
+
+  .spec-row { display: flex; align-items: baseline; gap: var(--space-md); padding: var(--space-md) 0; border-bottom: 1px solid var(--color-border-soft); }
+  .spec-row:last-child { border-bottom: none; }
+  .spec-row .k { font-family: var(--font-mono); font-size: var(--type-mono-label); letter-spacing: var(--tracking-mono); text-transform: uppercase; color: var(--color-text-mute); width: 168px; flex-shrink: 0; }
+  .spec-row .v { font-family: var(--font-mono); font-size: var(--type-mono-sm); color: var(--color-text); }
+  .note { font-family: var(--font-mono); font-size: var(--type-mono-micro); color: var(--color-text-faint); letter-spacing: 0.4px; margin-top: var(--space-md); }
+</style>
+</head>
+<body>
+
+  <!-- Splash Screen Logo Reveal Overlay -->
+  <div id="loader-overlay">
+    <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#FF6E50" stop-opacity="0.03" />
+          <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+      
+      <rect width="1200" height="800" fill="#000000"></rect>
+      <rect width="1200" height="800" fill="url(#bgGlow)"></rect>
+      
+      <!-- Blueprint circular reticles & tech lines -->
+      <g transform="translate(600, 360)">
+        <circle r="140" fill="none" stroke="rgba(255, 110, 80, 0.15)" stroke-width="1" stroke-dasharray="4 8" class="spin-counter"></circle>
+        <circle r="160" fill="none" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1.5" stroke-dasharray="100 20 40 10" class="spin-clockwise"></circle>
+        <circle r="120" fill="none" stroke="rgba(255, 110, 80, 0.05)" stroke-width="1"></circle>
+        
+        <line x1="-180" y1="0" x2="180" y2="0" stroke="rgba(255,255,255,0.03)" stroke-width="1"></line>
+        <line x1="0" y1="-180" x2="0" y2="180" stroke="rgba(255,255,255,0.03)" stroke-width="1"></line>
+        
+        <!-- Corner ticks -->
+        <path d="M -100 -100 L -90 -100 M -100 -100 L -100 -90" stroke="rgba(255, 110, 80, 0.3)" stroke-width="1.5" fill="none"></path>
+        <path d="M 100 -100 L 90 -100 M 100 -100 L 100 -90" stroke="rgba(255, 110, 80, 0.3)" stroke-width="1.5" fill="none"></path>
+        <path d="M -100 100 L -90 100 M -100 100 L -100 90" stroke="rgba(255, 110, 80, 0.3)" stroke-width="1.5" fill="none"></path>
+        <path d="M 100 100 L 90 100 M 100 100 L 100 90" stroke="rgba(255, 110, 80, 0.3)" stroke-width="1.5" fill="none"></path>
+        
+        <!-- The logo glyph container -->
+        <g transform="translate(-84, -84) scale(4.0)">
+          <rect class="logo-bg" width="42" height="42" rx="8" fill="#FF6E50" fill-opacity="0"></rect>
+          <path class="logo-path-r" fill="#131316" fill-opacity="0" stroke="#FF6E50" stroke-width="0.3" stroke-dasharray="240" stroke-dashoffset="240" d="M19.9152 34.9523C19.7386 34.9042 19.616 34.743 19.616 34.559L19.616 22.9266C19.616 22.7016 19.7973 22.5192 20.021 22.5192H22.4509C22.6745 22.5192 22.8559 22.7016 22.8559 22.9266V28.5167C22.8559 28.8954 23.3245 29.0692 23.5689 28.7812L29.2786 22.0511C29.3556 21.9604 29.4681 21.9082 29.5867 21.9082H32.3914C32.7212 21.9082 32.9127 22.2834 32.7205 22.553L23.3987 35.6264C23.3003 35.7645 23.1269 35.8266 22.9638 35.7822L19.9152 34.9523Z"></path>
+          <path class="logo-path-l" fill="#131316" fill-opacity="0" stroke="#FF6E50" stroke-width="0.3" stroke-dasharray="240" stroke-dashoffset="240" d="M9.60841 23.0191C9.29717 23.0191 9.10226 22.6806 9.25711 22.4091L18.3802 6.40847C18.4687 6.25331 18.6475 6.17435 18.8209 6.21381L22.5402 7.05996C22.7248 7.10196 22.8558 7.26694 22.8558 7.4573L22.8558 26.2342C22.8558 26.4011 22.7546 26.5511 22.6004 26.6128L20.1705 27.584C19.9046 27.6903 19.616 27.4933 19.616 27.2054V21.8042C19.616 21.5764 19.4303 21.3929 19.2039 21.3969L14.6125 21.4775C14.5256 21.4791 14.4415 21.5087 14.3727 21.562L12.5986 22.9346C12.5278 22.9894 12.441 23.0191 12.3516 23.0191H9.60841ZM19.5311 12.8761C19.5365 12.4416 18.9523 12.3017 18.7624 12.692L16.3969 17.5548C16.2653 17.8255 16.4612 18.1413 16.7607 18.1413L19.0665 18.1413C19.2882 18.1413 19.4687 17.9619 19.4714 17.7389L19.5311 12.8761Z"></path>
+        </g>
+      </g>
+      
+      <text x="600" y="580" font-family="monospace" font-size="28" font-weight="200" letter-spacing="2" fill="#fafafa" text-anchor="middle" class="text-reveal">AUREVI0N</text>
+      
+      <text x="600" y="630" font-family="monospace" font-size="10" fill="#55555c" text-anchor="middle" letter-spacing="1.5" class="telemetry-text">INITIALIZING TELEMETRY LINK...</text>
+    </svg>
+  </div>
+
+
+<!-- mark defined once, reused via <use> ; recolors through CSS vars -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="aur-mark" viewBox="0 0 42 42">
+    <rect class="tile" style="fill: var(--mk-tile)" width="42" height="42" rx="8"></rect>
+    <path class="glyph" style="fill: var(--mk-glyph)" d="M19.9152 34.9523C19.7386 34.9042 19.616 34.743 19.616 34.559L19.616 22.9266C19.616 22.7016 19.7973 22.5192 20.021 22.5192H22.4509C22.6745 22.5192 22.8559 22.7016 22.8559 22.9266V28.5167C22.8559 28.8954 23.3245 29.0692 23.5689 28.7812L29.2786 22.0511C29.3556 21.9604 29.4681 21.9082 29.5867 21.9082H32.3914C32.7212 21.9082 32.9127 22.2834 32.7205 22.553L23.3987 35.6264C23.3003 35.7645 23.1269 35.8266 22.9638 35.7822L19.9152 34.9523Z"></path>
+    <path class="glyph" style="fill: var(--mk-glyph)" d="M9.60841 23.0191C9.29717 23.0191 9.10226 22.6806 9.25711 22.4091L18.3802 6.40847C18.4687 6.25331 18.6475 6.17435 18.8209 6.21381L22.5402 7.05996C22.7248 7.10196 22.8558 7.26694 22.8558 7.4573L22.8558 26.2342C22.8558 26.4011 22.7546 26.5511 22.6004 26.6128L20.1705 27.584C19.9046 27.6903 19.616 27.4933 19.616 27.2054V21.8042C19.616 21.5764 19.4303 21.3929 19.2039 21.3969L14.6125 21.4775C14.5256 21.4791 14.4415 21.5087 14.3727 21.562L12.5986 22.9346C12.5278 22.9894 12.441 23.0191 12.3516 23.0191H9.60841ZM19.5311 12.8761C19.5365 12.4416 18.9523 12.3017 18.7624 12.692L16.3969 17.5548C16.2653 17.8255 16.4612 18.1413 16.7607 18.1413L19.0665 18.1413C19.2882 18.1413 19.4687 17.9619 19.4714 17.7389L19.5311 12.8761Z"></path>
+  </symbol>
+</svg>
+
+
+
+<div class="wrap">
+
+  <div class="kicker"><span class="dot"></span> AUREVI0N · LOGO + MICRO-GRAPHICS · v1</div>
+  <h1 data-comment-anchor="826d8236a8-h1">The brand plate.</h1>
+  <p class="lede">The mark and the <span style="font-family: var(--font-mono); color: var(--color-text);">Geist Mono</span> wordmark, wrapped in a micro-graphics system — spec box, scope marks, barcode, registration crosshairs, integration strip and caution bar. It reads like instrumentation, which is the whole point.</p>
+
+  <!-- ════ 01 · BRAND PLATE — DARK ════ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2>Brand plate · primary</h2><span class="meta">on black</span></div>
+    <div class="plate dark">
+      <span class="reg tl"></span><span class="reg tr"></span><span class="reg bl"></span><span class="reg br"></span>
+
+      <div class="p-head">
+        <div class="lockup">
+          <svg class="mk" width="44" height="44"><use href="#aur-mark"></use></svg>
+          <span class="wordmark" style="font-size: 34px; font-family: &quot;Geist Mono&quot;">AUREVI0N</span>
+        </div>
+        <div class="p-ver">
+          <div class="log">
+            [00:00:48] <b>INTAKE COMPLETE</b><br>
+            [00:01:02] <b>MODEL BUILT · CONF 0.79</b><br>
+            [00:01:05] <b>WEEK 1 GENERATED</b>
+          </div>
+          <div class="verstack">
+            <span class="mono m9" style="color:var(--plate-mute)">VER</span>
+            <span class="big">01</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-body">
+        <div class="p-col">
+          <div class="spec">
+            <div class="row"><div class="mono m9 k">SIGNAL IN</div><div class="v">GOALS / FRIDGE / TRAINING</div></div>
+            <div class="row"><div class="mono m9 k">PLAN OUT</div><div class="v">MACROS / WEEK / WORKOUTS</div></div>
+            <div class="row"><div class="mono m9 k">ID</div><div class="v">AUR-2026-Σ</div></div>
+          </div>
+        </div>
+
+        <div class="p-col">
+          <div class="scope-marks">
+            <div class="ic" title="nutrition"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v7a3 3 0 0 0 6 0V3M7 3v18M17 3c-1.5 0-3 1.5-3 5s1.5 5 3 5V3zM17 13v8"></path></svg></div>
+            <div class="ic" title="training"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11M4 9l-1 1 1 1M7 4l1-1 1 1M20 15l1-1-1-1M17 20l-1 1-1-1M5 5l2 2M17 17l2 2"></path></svg></div>
+            <div class="ic" title="model"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18M6 20v-6M11 20V8M16 20v-9M21 20V5"></path></svg></div>
+            <div class="ic" title="ai"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"></path></svg></div>
+          </div>
+          <p class="descr">An AI-native nutrition &amp; training OS. Every plan is <em style="color:var(--plate-ink);font-style:normal">inferred from intent</em>, never templated — and sharpens weekly against your real signals.</p>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:14px">
+            <span class="badge">A</span>
+            <span class="mono m9" style="color:var(--plate-mute)">ALSO LISTED AS<br>ADAPTIVE COACH</span>
+          </div>
+        </div>
+
+        <div class="p-col">
+          <div class="barcode" data-barcode="aur"></div>
+          <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:14px;gap:12px">
+            <div class="coord">40.7128°N<br>74.0060°W<br>—<br>ADAPTIVE · LIVE</div>
+            <div class="qr" data-qr="aur"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-strip">
+        <span class="mono m9" style="color:var(--plate-mute);flex-shrink:0">READS FROM</span>
+        <span class="pill"><span class="pdot"></span>APPLE HEALTH</span>
+        <span class="pill"><span class="pdot"></span>DEXA</span>
+        <span class="pill"><span class="pdot"></span>WHOOP</span>
+        <span class="mono m10" style="color:var(--plate-mute);margin-left:auto">+6 MORE</span>
+      </div>
+
+      <div class="p-caution">
+        <div class="warn"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L2 20h20L12 3zM12 10v5M12 18h.01"></path></svg></div>
+        <div class="caution-body">
+          <div class="caution-bar">CAUTION</div>
+          <div class="caution-msg">PLANS ADAPT WEEKLY · NOTHING HERE IS FIXED AT SIGNUP ·<br>LOW-CONFIDENCE SIGNALS ARE TESTED, NOT TRUSTED.</div>
+        </div>
+        <div class="warn"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L2 20h20L12 3zM12 10v5M12 18h.01"></path></svg></div>
+      </div>
+
+      <div class="p-foot">
+        <span class="mono">©2026</span>
+        <span class="mono">MADE WITH PRECISION · AUREVI0N LABS</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 02 · BRAND PLATE — EMBER ════ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>Brand plate · ember</h2><span class="meta">inverted</span></div>
+    <div class="plate ember">
+      <span class="reg tl"></span><span class="reg tr"></span><span class="reg bl"></span><span class="reg br"></span>
+
+      <div class="p-head">
+        <div class="lockup">
+          <svg class="mk" width="44" height="44"><use href="#aur-mark"></use></svg>
+          <span class="wordmark" style="font-size: 34px;">AUREVI0N</span>
+        </div>
+        <div class="verstack">
+          <span class="mono m9" style="color:var(--plate-mute)">VER</span>
+          <span class="big">01</span>
+        </div>
+      </div>
+
+      <div class="p-body">
+        <div class="p-col">
+          <div class="spec">
+            <div class="row"><div class="mono m9 k">SIGNAL IN</div><div class="v">GOALS / FRIDGE / TRAINING</div></div>
+            <div class="row"><div class="mono m9 k">PLAN OUT</div><div class="v">MACROS / WEEK / WORKOUTS</div></div>
+            <div class="row"><div class="mono m9 k">ID</div><div class="v">AUR-2026-Σ</div></div>
+          </div>
+        </div>
+        <div class="p-col">
+          <div class="scope-marks">
+            <div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v7a3 3 0 0 0 6 0V3M7 3v18M17 3c-1.5 0-3 1.5-3 5s1.5 5 3 5V3zM17 13v8"></path></svg></div>
+            <div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11M4 9l-1 1 1 1M7 4l1-1 1 1M20 15l1-1-1-1M17 20l-1 1-1-1M5 5l2 2M17 17l2 2"></path></svg></div>
+            <div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18M6 20v-6M11 20V8M16 20v-9M21 20V5"></path></svg></div>
+            <div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"></path></svg></div>
+          </div>
+          <p class="descr">An AI-native nutrition &amp; training OS. Every plan is <em style="color:var(--plate-ink);font-style:normal">inferred from intent</em>, never templated — and sharpens weekly against your real signals.</p>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:14px">
+            <span class="badge">A</span>
+            <span class="mono m9" style="color:var(--plate-mute)">ALSO LISTED AS<br>ADAPTIVE COACH</span>
+          </div>
+        </div>
+        <div class="p-col">
+          <div class="barcode" data-barcode="aur2"></div>
+          <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:14px;gap:12px">
+            <div class="coord">40.7128°N<br>74.0060°W<br>—<br>ADAPTIVE · LIVE</div>
+            <div class="qr" data-qr="aur2"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-caution">
+        <div class="warn"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L2 20h20L12 3zM12 10v5M12 18h.01"></path></svg></div>
+        <div class="caution-body">
+          <div class="caution-bar">CAUTION</div>
+          <div class="caution-msg">PLANS ADAPT WEEKLY · NOTHING HERE IS FIXED AT SIGNUP ·<br>LOW-CONFIDENCE SIGNALS ARE TESTED, NOT TRUSTED.</div>
+        </div>
+        <div class="warn"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L2 20h20L12 3zM12 10v5M12 18h.01"></path></svg></div>
+      </div>
+
+      <div class="p-foot">
+        <span class="mono">©2026</span>
+        <span class="mono">MADE WITH PRECISION · AUREVI0N LABS</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 03 · CLEAN LOCKUP ════ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h2>Clean lockup</h2><span class="meta">black · light</span></div>
+    <div class="grid2">
+      <div class="stage">
+        <div class="lockup">
+          <svg class="mk" width="52" height="52"><use href="#aur-mark"></use></svg>
+          <span class="wordmark" style="font-size: 36px; color: var(--color-text);" data-comment-anchor="044cfde1ad-span">AUREVI0N</span>
+        </div>
+      </div>
+      <div class="stage light">
+        <div class="lockup">
+          <svg class="mk" width="52" height="52"><use href="#aur-mark"></use></svg>
+          <span class="wordmark" style="font-size: 36px;">AUREVI0N</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 04 · MICRO-GRAPHIC KIT ════ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h2>Micro-graphic kit</h2><span class="meta">the components</span></div>
+    <div class="grid3">
+      <div class="panel">
+        <div class="label">Barcode</div>
+        <div class="barcode" data-barcode="kit"></div>
+        <div class="kit-cap">DETERMINISTIC · DECORATIVE</div>
+      </div>
+      <div class="panel">
+        <div class="label">QR mark</div>
+        <div class="qr" data-qr="kit" style="margin:0 auto"></div>
+        <div class="kit-cap" style="text-align:center">SCANS TO AUREVI0N.APP</div>
+      </div>
+      <div class="panel">
+        <div class="label">Registration</div>
+        <div style="position:relative;height:82px;border:1px dashed var(--color-border);border-radius:var(--radius-md)">
+          <span class="reg tl" style="--plate-ink:var(--color-text)"></span>
+          <span class="reg tr" style="--plate-ink:var(--color-text)"></span>
+          <span class="reg bl" style="--plate-ink:var(--color-text)"></span>
+          <span class="reg br" style="--plate-ink:var(--color-text)"></span>
+        </div>
+        <div class="kit-cap">CORNER CROSSHAIRS</div>
+      </div>
+      <div class="panel">
+        <div class="label">Pills</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;--plate-line:var(--color-border);--plate-ink:var(--color-text)">
+          <span class="pill"><span class="pdot" style="background:var(--color-accent)"></span>APPLE HEALTH</span>
+          <span class="pill"><span class="pdot" style="background:var(--color-accent)"></span>DEXA</span>
+          <span class="pill"><span class="pdot" style="background:var(--color-accent)"></span>WHOOP</span>
+        </div>
+        <div class="kit-cap">INTEGRATION TAGS</div>
+      </div>
+      <div class="panel">
+        <div class="label">Scope marks</div>
+        <div class="scope-marks" style="--plate-line:var(--color-border);--plate-ink:var(--color-text)">
+          <div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v7a3 3 0 0 0 6 0V3M7 3v18M17 3c-1.5 0-3 1.5-3 5s1.5 5 3 5V3zM17 13v8"></path></svg></div>
+          <div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11M4 9l-1 1 1 1M7 4l1-1 1 1M20 15l1-1-1-1M17 20l-1 1-1-1M5 5l2 2M17 17l2 2"></path></svg></div>
+          <div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18M6 20v-6M11 20V8M16 20v-9M21 20V5"></path></svg></div>
+          <div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"></path></svg></div>
+        </div>
+        <div class="kit-cap">NUTRITION · TRAINING · MODEL · AI</div>
+      </div>
+      <div class="panel">
+        <div class="label">Timecode log</div>
+        <div class="log" style="--plate-dim:var(--color-text-dim);--plate-ink:var(--color-text)">
+          [00:00:48] <b>INTAKE COMPLETE</b><br>
+          [00:01:02] <b>MODEL BUILT · 0.79</b><br>
+          [00:01:05] <b>WEEK 1 GENERATED</b>
+        </div>
+        <div class="kit-cap">ONBOARDING TELEMETRY</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 05 · WORDMARK SPEC ════ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">05</span><h2>Wordmark spec</h2><span class="meta">type</span></div>
+    <div class="panel">
+      <div class="spec-row"><span class="k">Typeface</span><span class="v">Geist Mono — monospace</span></div>
+      <div class="spec-row"><span class="k">Weight</span><span class="v">200 — Extra Light</span></div>
+      <div class="spec-row"><span class="k">Tracking</span><span class="v">−0.01em</span></div>
+      <div class="spec-row"><span class="k">Case</span><span class="v">Uppercase</span></div>
+      <div class="spec-row"><span class="k">Mark gap</span><span class="v">0.46em of wordmark size</span></div>
+    </div>
+    <p class="note">Monospaced by design — even advance keeps the wordmark reading as instrumentation, in step with the micro-graphics around it.</p>
+  </section>
+
+</div>
+
+<script>
+  // deterministic LCG so barcode/QR are stable across reloads
+  function lcg(seed) { let s = seed >>> 0; return () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; }; }
+
+  document.querySelectorAll('[data-barcode]').forEach((el, idx) => {
+    const rnd = lcg(91 + idx * 17);
+    let html = '';
+    for (let i = 0; i < 64; i++) {
+      const w = 1 + Math.floor(rnd() * 4);
+      const on = rnd() > 0.4;
+      html += `<i style="width:${w}px;background:${on ? 'var(--bc-ink)' : 'transparent'}"></i>`;
+    }
+    el.innerHTML = html;
+  });
+
+  document.querySelectorAll('[data-qr]').forEach((el, idx) => {
+    const N = 21, rnd = lcg(7 + idx * 31);
+    const finder = (r, c) => {
+      for (const [R, C] of [[0, 0], [0, 14], [14, 0]]) {
+        if (r >= R && r < R + 7 && c >= C && c < C + 7) {
+          const rr = r - R, cc = c - C;
+          const border = rr === 0 || rr === 6 || cc === 0 || cc === 6;
+          const core = rr >= 2 && rr <= 4 && cc >= 2 && cc <= 4;
+          return border || core;
+        }
+      }
+      return undefined;
+    };
+    let html = '';
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+      const f = finder(r, c);
+      const on = f !== undefined ? f : rnd() > 0.55;
+      html += `<i style="background:${on ? 'var(--qr-ink)' : 'transparent'}"></i>`;
+    }
+    el.innerHTML = html;
+  });
+</script>
+
+
+
+  <script>
+    // Live loader diagnostics telemetry logs
+    const telemetryMessages = [
+      "ESTABLISHING HOST CONNECTION...",
+      "CALIBRATING IDENTITY SCALES...",
+      "CHECKING DENSITY BOUNDS...",
+      "LOADING SPECIFICATION PLATES...",
+      "UNPACKING INTERACTION SYSTEM...",
+      "SYSTEM ALIGNED · ACTIVE"
+    ];
+    let msgIndex = 0;
+    const telemetryEl = document.querySelector('.telemetry-text');
+    
+    function updateTelemetry() {
+      if (telemetryEl && msgIndex < telemetryMessages.length) {
+        telemetryEl.textContent = telemetryMessages[msgIndex];
+        msgIndex++;
+        setTimeout(updateTelemetry, 250 + Math.random() * 200);
+      }
+    }
+    setTimeout(updateTelemetry, 200);
+
+    // Fade out overlay after draw-in plays
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        const overlay = document.getElementById('loader-overlay');
+        const contentWrap = document.querySelector('.wrap');
+        
+        if (overlay) {
+          overlay.classList.add('loaded');
+          setTimeout(() => {
+            overlay.remove();
+          }, 800);
+        }
+        if (contentWrap) {
+          contentWrap.classList.add('visible');
+        }
+      }, 2400); // Allow logo reveal animation to settle
+    });
+  </script>
+
+</body></html>

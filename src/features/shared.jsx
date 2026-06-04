@@ -702,9 +702,59 @@ if (typeof document !== 'undefined' && !document.getElementById('f-stagger-css')
   document.head.appendChild(s);
 }
 
+// ─────────── Error Boundary ───────────
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+  render() {
+    if (this.state.error) {
+      return (
+        <div style={{
+          padding: 32, display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          height: '100%', textAlign: 'center', color: F.text,
+          fontFamily: FF.sans
+        }}>
+          <div style={{
+            width: 48, height: 48, borderRadius: 12,
+            background: 'rgba(248,113,113,0.15)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            marginBottom: 16
+          }}>
+            <FIcon path={ICONS.close} size={20} color={F.red} stroke={2.4} />
+          </div>
+          <div style={{ fontSize: 15, fontWeight: 500, marginBottom: 8 }}>Something went wrong</div>
+          <div style={{
+            fontFamily: FF.mono, fontSize: 11, color: F.mute,
+            maxWidth: 300, wordBreak: 'break-word'
+          }}>
+            {this.state.error.message}
+          </div>
+          <button
+            onClick={() => this.setState({ error: null })}
+            style={{
+              marginTop: 20, padding: '8px 16px', borderRadius: 8,
+              background: 'rgba(255,255,255,0.06)', border: 'none',
+              color: F.dim, cursor: 'pointer',
+              fontFamily: FF.mono, fontSize: 11, letterSpacing: 1,
+              textTransform: 'uppercase'
+            }}
+          >Retry</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 Object.assign(window, {
   F, FF, ICONS,
   Phone, FNavBar, FLabel, FMono, FNum,
   FTexBar, FSegBar, FScale, FIcon, FTag, FBtn, FIconBtn, FTabBar, FSection,
-  FToolbar, FJewel, FStagger, FPulseBtn
+  FToolbar, FJewel, FStagger, FPulseBtn, ErrorBoundary
 });

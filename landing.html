@@ -3,8 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Aurevion — AI-Native Fitness Platform</title>
+<title>AUREVI0N — AI-Native Fitness Platform</title>
 <meta name="description" content="Goal setting. Nutrition planning. Training execution. Meal prep logistics. One integrated system — precise, transparent, and built for people who actually follow through.">
+<meta property="og:title" content="AUREVI0N — AI-Native Fitness Platform">
+<meta property="og:description" content="Goal setting. Nutrition planning. Training execution. Meal prep logistics. One integrated system — precise, transparent, and built for people who actually follow through.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AUREVI0N — AI-Native Fitness Platform">
+<meta name="twitter:description" content="Goal setting. Nutrition planning. Training execution. Meal prep logistics. One integrated system.">
+<link rel="icon" href="/logo.svg" type="image/svg+xml">
+<meta name="theme-color" content="#FF6E50">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800&family=Geist+Mono:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
@@ -20,6 +28,14 @@
     --mute: #6b6b6b;
     --accent: #FF6E50;
     --accent-dark: #c93b1d;
+    --accent-glow: rgba(255,110,80,0.06);
+    --accent-glow-strong: rgba(255,110,80,0.08);
+    --accent-tint: rgba(255,110,80,0.15);
+    --accent-tint-soft: rgba(255,110,80,0.02);
+    --accent-hint: rgba(255,110,80,0.04);
+    --accent-icon-bg: rgba(255,110,80,0.1);
+    --accent-badge: rgba(255,110,80,0.3);
+    --accent-shadow: rgba(255,110,80,0.25);
     --sans: "Geist", -apple-system, system-ui, sans-serif;
     --mono: "Geist Mono", ui-monospace, monospace;
   }
@@ -62,14 +78,23 @@
   }
   .nav-logo {
     display: flex; align-items: center; gap: 12px;
-    font-weight: 600; font-size: 15px; letter-spacing: 0.05em; text-transform: uppercase;
+    font-family: var(--mono); font-weight: 200; font-size: 15px; letter-spacing: 0.05em; text-transform: uppercase;
   }
-  .nav-logo .mark {
-    width: 32px; height: 32px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 16px; color: #1a0f0a;
+  .nav-logo img {
+    width: 32px; height: 32px; border-radius: 8px;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s;
+  }
+  .nav-logo:hover img {
+    transform: rotate(6deg) scale(1.08);
+    filter: drop-shadow(0 0 8px rgba(255,110,80,0.5));
+  }
+  .logo-large {
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s, filter 0.4s;
+  }
+  .logo-large:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 20px 60px rgba(201,59,29,0.5);
+    filter: drop-shadow(0 0 16px rgba(255,110,80,0.4));
   }
   .nav-links {
     display: flex; align-items: center; gap: 36px;
@@ -130,9 +155,9 @@
   .center { text-align: center; align-items: center; }
 
   /* ─── Glow accents ─── */
-  .glow-tl { background-image: radial-gradient(ellipse at 10% 20%, rgba(255,110,80,0.06), transparent 50%); }
-  .glow-br { background-image: radial-gradient(ellipse at 90% 80%, rgba(255,110,80,0.06), transparent 50%); }
-  .glow-center { background-image: radial-gradient(ellipse at 50% 40%, rgba(255,110,80,0.08), transparent 50%); }
+  .glow-tl { background-image: radial-gradient(ellipse at 10% 20%, var(--accent-glow), transparent 50%); }
+  .glow-br { background-image: radial-gradient(ellipse at 90% 80%, var(--accent-glow), transparent 50%); }
+  .glow-center { background-image: radial-gradient(ellipse at 50% 40%, var(--accent-glow-strong), transparent 50%); }
 
   /* ─── Phone mockup ─── */
   .phone-frame {
@@ -142,7 +167,7 @@
     box-shadow:
       0 0 0 1px rgba(255,255,255,0.03),
       0 40px 80px rgba(0,0,0,0.6),
-      0 0 120px rgba(255,110,80,0.06);
+      0 0 120px var(--accent-glow);
     background: #000;
   }
   .phone-frame img { width: 100%; height: auto; display: block; }
@@ -171,12 +196,12 @@
     transition: border-color 0.3s, background 0.3s;
   }
   .feature-card:hover {
-    border-color: rgba(255,110,80,0.15);
-    background: rgba(255,110,80,0.02);
+    border-color: var(--accent-tint);
+    background: var(--accent-tint-soft);
   }
   .feature-card .icon {
     width: 48px; height: 48px; border-radius: 12px;
-    background: rgba(255,110,80,0.1);
+    background: var(--accent-icon-bg);
     display: flex; align-items: center; justify-content: center;
     margin-bottom: 20px; font-size: 22px;
   }
@@ -201,9 +226,9 @@
     border: 1px solid var(--border); color: var(--dim);
   }
   .pill.accent {
-    border-color: rgba(255,110,80,0.3);
+    border-color: var(--accent-badge);
     color: var(--accent);
-    background: rgba(255,110,80,0.06);
+    background: var(--accent-glow);
   }
 
   /* ─── Stat block ─── */
@@ -256,7 +281,7 @@
   }
   .mod-tag:hover {
     border-color: var(--accent); color: var(--accent);
-    background: rgba(255,110,80,0.04);
+    background: var(--accent-hint);
   }
 
   /* ─── CTA button ─── */
@@ -272,7 +297,7 @@
   }
   .btn-primary:hover {
     transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 20px 60px rgba(255,110,80,0.25);
+    box-shadow: 0 20px 60px var(--accent-shadow);
   }
   .btn-ghost {
     display: inline-flex; align-items: center; gap: 8px;
@@ -317,7 +342,7 @@
   }
   .footer-left { font-family: var(--mono); font-size: 11px; color: var(--mute); letter-spacing: 1px; text-transform: uppercase; }
   .footer-links { display: flex; gap: 32px; }
-  .footer-links a {
+  .footer-links a, .footer-links span {
     font-family: var(--mono); font-size: 11px; color: var(--mute);
     letter-spacing: 1px; text-transform: uppercase; transition: color 0.3s;
   }
@@ -350,8 +375,8 @@
 <!-- Navigation -->
 <nav id="nav">
   <a href="#hero" class="nav-logo">
-    <div class="mark">A</div>
-    Aurevion
+    <img src="/logo.svg" width="32" height="32" alt="AUREVI0N">
+    AUREVI0N
   </a>
   <div class="nav-links">
     <a href="#problem">Problem</a>
@@ -369,7 +394,7 @@
   <div class="hero-orb"></div>
   <div style="position: relative; z-index: 1;">
     <div style="display: inline-flex; align-items: center; gap: 16px; margin-bottom: 48px;">
-      <div style="width: 56px; height: 56px; border-radius: 16px; background: linear-gradient(135deg, var(--accent), var(--accent-dark)); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 26px; color: #1a0f0a;">A</div>
+      <img class="logo-large" src="/logo.svg" width="56" height="56" alt="AUREVI0N logo" style="border-radius: 16px; box-shadow: 0 10px 40px rgba(201,59,29,0.3);">
     </div>
 
     <h1 style="max-width: 820px; margin: 0 auto;">
@@ -407,7 +432,7 @@
 <section class="slide" style="justify-content: center; align-items: center; text-align: center; border-top: 1px solid var(--border);">
   <p class="reveal" style="font-size: clamp(24px, 3.5vw, 44px); font-weight: 200; letter-spacing: -1px; line-height: 1.4; max-width: 860px; color: var(--dim);">
     Most fitness apps track what you already did.
-    <strong style="font-weight: 400; color: var(--text);">Aurevion predicts what you should do next</strong> —
+    <strong style="font-weight: 400; color: var(--text);">AUREVI0N predicts what you should do next</strong> —
     adapting your training, meals, and recovery using wearable data, body metrics, and machine learning.
   </p>
 </section>
@@ -443,7 +468,7 @@
 <section class="slide glow-br">
   <span class="mono accent mb-lg reveal">02 — The Solution</span>
   <h2 class="reveal reveal-d1">One integrated system.<br>From goal to fork to barbell.</h2>
-  <p class="subtitle reveal reveal-d2">Aurevion treats fitness as a contract — not a casual form. Set a measurable goal, get a real plan, and execute with tools that close the loop from planning through the kitchen and the gym.</p>
+  <p class="subtitle reveal reveal-d2">AUREVI0N treats fitness as a contract — not a casual form. Set a measurable goal, get a real plan, and execute with tools that close the loop from planning through the kitchen and the gym.</p>
 
   <div class="row mt-lg gap-lg" data-motion="stagger-in">
     <div class="stat-block">
@@ -734,7 +759,7 @@
   <div class="hero-orb" style="width: 600px; height: 600px; opacity: 0.7;"></div>
   <div style="position: relative; z-index: 1;">
     <div style="margin-bottom: 40px;">
-      <div style="width: 56px; height: 56px; border-radius: 16px; background: linear-gradient(135deg, var(--accent), var(--accent-dark)); display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 26px; color: #1a0f0a;">A</div>
+      <img class="logo-large" src="/logo.svg" width="56" height="56" alt="AUREVI0N logo" style="border-radius: 16px; box-shadow: 0 10px 40px rgba(201,59,29,0.3);">
     </div>
 
     <h1 class="reveal" style="max-width: 700px; margin: 0 auto;">
@@ -744,7 +769,7 @@
     </h1>
 
     <p class="subtitle mt-lg reveal reveal-d1" style="margin: 0 auto; text-align: center;">
-      Be first in line when Aurevion launches.
+      Be first in line when AUREVI0N launches.
     </p>
 
     <form class="cta-form mt-lg reveal reveal-d2" style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;" onsubmit="event.preventDefault(); this.querySelector('button').textContent='You\'re in'; this.querySelector('input').disabled=true;">
@@ -757,7 +782,7 @@
     </div>
 
     <div class="mt-lg">
-      <span class="mono">Aurevion &middot; 2026</span>
+      <span class="mono">AUREVI0N &middot; 2026</span>
     </div>
   </div>
 </section>
@@ -766,12 +791,12 @@
 <!-- Footer -->
 <footer>
   <div class="footer-inner">
-    <div class="footer-left">&copy; 2026 Aurevion</div>
+    <div class="footer-left">&copy; 2026 AUREVI0N</div>
     <div class="footer-links">
-      <a href="#">Privacy</a>
-      <a href="#">Terms</a>
-      <a href="#">Instagram</a>
-      <a href="#">X / Twitter</a>
+      <span>Privacy</span>
+      <span>Terms</span>
+      <span>Instagram</span>
+      <span>X / Twitter</span>
     </div>
   </div>
 </footer>

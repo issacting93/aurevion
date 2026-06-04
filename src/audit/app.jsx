@@ -81,15 +81,9 @@ function TopBar({ filter, onFilter, counts, total }) {
       background: T.bg,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-        <div style={{
-          width: 30, height: 30, borderRadius: 9,
-          background: `linear-gradient(135deg, ${T.accent}, #c93b1d)`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontWeight: 800, fontSize: 14, color: '#1a0f0a',
-          fontFamily: FONTS.sans,
-        }}>A</div>
+        <img src="/logo.svg" width="30" height="30" alt="" style={{ borderRadius: 9 }}/>
         <div>
-          <div style={{ fontSize: 14, fontWeight: 600, lineHeight: 1.1 }}>Aurevion</div>
+          <div style={{ fontFamily: FONTS.mono, fontSize: 14, fontWeight: 200, lineHeight: 1.1 }}>AUREVI0N</div>
           <div style={{ fontFamily: FONTS.mono, fontSize: 10, color: T.textMute, letterSpacing: 0.6 }}>COMPONENT AUDIT · v0.1</div>
         </div>
       </div>

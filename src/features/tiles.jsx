@@ -10,8 +10,8 @@
 //   compact — glanceable: metric only, minimal chrome
 // ─────────────────────────────────────────────────────────────────────────────
 
-const TILE_PAD = { full: 16, mid: 14, compact: 10 };
-const TILE_RAD = { full: 14, mid: 12, compact: 10 };
+const TILE_PAD = { full: Space[4], mid: 14, compact: 10 };
+const TILE_RAD = { full: 14, mid: Space[3], compact: 10 };
 const TILE_GAP = 10;
 
 // ─── FTileGrid ───────────────────────────────────────────
@@ -98,7 +98,7 @@ function ProgressTile({ label, pct, description, meta, tag, color = F.accent, de
       {density === 'compact' && (
         <FLabel size={8} mb={0} letter={1}>{label}</FLabel>
       )}
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: Space[2] }}>
         <FNum size={numSize} weight={200} unit="%" color={color}>{pct}</FNum>
       </div>
       <FTexBar pct={pct} height={density === 'compact' ? 4 : density === 'mid' ? 6 : 8} color={color} radius={3} />
@@ -149,9 +149,9 @@ function MacroTile({ kcal, protein, carbs, fat, deficit, density = 'mid', span, 
           </div>
           {deficit && <FMono size={10} color={F.accent}>{deficit}</FMono>}
         </div>
-        <div style={{ display: 'flex', gap: 16 }}>
+        <div style={{ display: 'flex', gap: Space[4] }}>
           {macros.map(m => (
-            <div key={m.label} style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+            <div key={m.label} style={{ display: 'flex', alignItems: 'baseline', gap: Space[1] }}>
               <FMono size={9} color={F.mute}>{m.label}</FMono>
               <FMono size={13} color={F.text}>{m.value}g</FMono>
             </div>
@@ -166,7 +166,7 @@ function MacroTile({ kcal, protein, carbs, fat, deficit, density = 'mid', span, 
     <FTile density={density} span={span || 2} style={style}>
       <TileHead label="TARGETS FOR THIS WEEK" tag={deficit && <FTag tone="accent" size="sm">{deficit}</FTag>} density={density} />
       <FNum size={36} weight={200} unit="kcal">{kcal.toLocaleString()}</FNum>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: Space[2] }}>
         {macros.map(m => (
           <div key={m.label} style={{
             padding: '10px 12px', borderRadius: 10,
@@ -196,7 +196,7 @@ function CalendarTile({ days, density = 'mid', span, style }) {
     return (
       <FTile density={density} span={span || 1} style={style}>
         <FLabel size={8} mb={0} letter={1}>THIS WEEK</FLabel>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: Space[1] }}>
           <FNum size={20} weight={200}>{done}</FNum>
           <FMono size={11} color={F.mute}>/ {days.length}</FMono>
         </div>
@@ -216,7 +216,7 @@ function CalendarTile({ days, density = 'mid', span, style }) {
     return (
       <FTile density={density} span={span || 2} style={style}>
         <TileHead label="THIS WEEK" density={density} />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: Space[1] }}>
           {days.map((d, i) => (
             <div key={i} style={{ textAlign: 'center' }}>
               <FMono size={9} color={d.today ? F.accent : F.mute}>{d.label}</FMono>
@@ -243,11 +243,11 @@ function CalendarTile({ days, density = 'mid', span, style }) {
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
         <TileHead label="THIS WEEK · PLAN HEALTH" tag={<FTag tone="green" size="sm">ON TRACK</FTag>} density={density} />
       </div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: Space[1] }}>
         <FNum size={28} weight={200}>{done}</FNum>
         <FMono size={13} color={F.mute}>/ {days.length} completed</FMono>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: Space[1] }}>
         {days.map((d, i) => (
           <div key={i} style={{ textAlign: 'center' }}>
             <FMono size={9} color={d.today ? F.accent : F.mute}>{d.label}</FMono>
@@ -302,7 +302,7 @@ function SessionTile({ name, time, exercises, exerciseCount, day, density = 'mid
       <FTile density={density} span={span || 1} style={style}>
         <TileHead label="NEXT SESSION" density={density} />
         <span style={{ fontSize: 16, fontWeight: 400, letterSpacing: -0.3 }}>{name}</span>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: Space[2], alignItems: 'center' }}>
           <FMono size={10} color={F.dim}>{day}</FMono>
           <FMono size={10} color={F.mute}>·</FMono>
           <FMono size={10} color={F.dim}>{time}</FMono>
@@ -364,7 +364,7 @@ function PrepTile({ recipes, totalTime, readyPct, nextLabel, density = 'mid', sp
       <FTile density={density} span={span || 1} style={style}>
         <TileHead label="TONIGHT'S PREP" density={density} />
         <span style={{ fontSize: 16, fontWeight: 400, letterSpacing: -0.3 }}>{recipes.length} recipes</span>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: Space[2], alignItems: 'center' }}>
           <FMono size={10} color={F.dim}>{totalTime}</FMono>
           <FMono size={10} color={F.mute}>·</FMono>
           <FMono size={10} color={readyPct >= 100 ? F.green : F.dim}>{readyPct}% ready</FMono>
@@ -388,7 +388,7 @@ function PrepTile({ recipes, totalTime, readyPct, nextLabel, density = 'mid', sp
             borderTop: i > 0 ? `1px solid ${F.borderSoft}` : 'none',
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: Space[2] }}>
               <div style={{ width: 4, height: 20, borderRadius: 2, background: r.color }} />
               <span style={{ fontSize: 13, color: F.text }}>{r.name}</span>
             </div>
@@ -432,7 +432,7 @@ function CheckInTile({ latest, trend, history, streak, density = 'mid', span, st
           </div>
           <FIcon path={trendIcon} size={16} color={trendColor} stroke={2} />
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: Space[2] }}>
           <FMono size={10} color={F.dim}>BF {latest.bf}%</FMono>
           <FMono size={10} color={F.mute}>·</FMono>
           <FMono size={10} color={F.dim}>{latest.date}</FMono>
@@ -447,7 +447,7 @@ function CheckInTile({ latest, trend, history, streak, density = 'mid', span, st
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <TileHead label="RECENT CHECK-INS" tag={streak && <FTag tone="accent" size="sm"><FIcon path={ICONS.flame} size={10} color="#1a0f0a" stroke={2} /> {streak}D STREAK</FTag>} density={density} />
       </div>
-      <div style={{ display: 'flex', gap: 16, alignItems: 'baseline' }}>
+      <div style={{ display: 'flex', gap: Space[4], alignItems: 'baseline' }}>
         <FNum size={28} weight={200} unit="kg">{latest.weight}</FNum>
         <FMono size={12} color={F.dim}>BF {latest.bf}%</FMono>
         <FIcon path={trendIcon} size={16} color={trendColor} stroke={2} />
@@ -461,7 +461,7 @@ function CheckInTile({ latest, trend, history, streak, density = 'mid', span, st
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             }}>
               <FMono size={10} color={F.mute}>{h.date}</FMono>
-              <div style={{ display: 'flex', gap: 12 }}>
+              <div style={{ display: 'flex', gap: Space[3] }}>
                 <FMono size={10} color={F.text}>{h.weight} kg</FMono>
                 <FMono size={10} color={F.dim}>{h.bf}%</FMono>
                 <FMono size={10} color={h.delta < 0 ? F.green : h.delta > 0 ? F.red : F.mute}>
@@ -484,7 +484,7 @@ function FridgeTile({ total, missing, expiring, topMissing, density = 'mid', spa
     return (
       <FTile density={density} span={span || 1} style={style}>
         <FLabel size={8} mb={0} letter={1}>FRIDGE</FLabel>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: Space[1] }}>
           <FNum size={20} weight={200} color={missing > 0 ? F.accent : F.green}>{missing}</FNum>
           <FMono size={9} color={F.mute}>missing</FMono>
         </div>
@@ -497,7 +497,7 @@ function FridgeTile({ total, missing, expiring, topMissing, density = 'mid', spa
       <FTile density={density} span={span || 1} style={style}>
         <TileHead label="FRIDGE" density={density} />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: Space[1] }}>
             <FNum size={22} weight={200}>{total}</FNum>
             <FMono size={10} color={F.mute}>items</FMono>
           </div>
@@ -514,7 +514,7 @@ function FridgeTile({ total, missing, expiring, topMissing, density = 'mid', spa
   return (
     <FTile density={density} span={span || 1} style={style}>
       <TileHead label="PANTRY STATUS" tag={missing > 0 ? <FTag tone="accent" size="sm">{missing} MISSING</FTag> : <FTag tone="green" size="sm">STOCKED</FTag>} density={density} />
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: Space[1] }}>
         <FNum size={28} weight={200}>{total}</FNum>
         <FMono size={11} color={F.mute}>items tracked</FMono>
       </div>
@@ -559,7 +559,7 @@ function StreakTile({ count, best, density = 'mid', span, style }) {
     return (
       <FTile density={density} span={span || 1} style={style}>
         <TileHead label="STREAK" density={density} />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: Space[2] }}>
           <FIcon path={ICONS.flame} size={20} color={F.accent} stroke={1.8} />
           <FNum size={26} weight={200} unit="days">{count}</FNum>
         </div>
@@ -647,7 +647,7 @@ function TDEETile({ value, confidence, trend, density = 'mid', span, style }) {
         <path d={d} fill="none" stroke={F.accent} strokeWidth="1.8" strokeLinecap="round" />
         <circle cx={w} cy={h - ((points[points.length - 1] - min) / range) * h} r="3" fill={F.accent} />
       </svg>
-      <div style={{ display: 'flex', gap: 16, marginTop: 4 }}>
+      <div style={{ display: 'flex', gap: Space[4], marginTop: 4 }}>
         <div>
           <FLabel size={9} mb={2}>MODEL CONFIDENCE</FLabel>
           <FTexBar pct={confidence} height={4} radius={2} />
@@ -669,7 +669,7 @@ function GoalTile({ current, target, unit, weeks, elapsed, density = 'mid', span
     return (
       <FTile density={density} span={span || 1} style={style}>
         <FLabel size={8} mb={0} letter={1}>GOAL</FLabel>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: Space[1] }}>
           <FNum size={18} weight={200}>{current}</FNum>
           <FMono size={10} color={F.accent}>→ {target}</FMono>
           <FMono size={9} color={F.mute}>{unit}</FMono>
@@ -683,7 +683,7 @@ function GoalTile({ current, target, unit, weeks, elapsed, density = 'mid', span
     return (
       <FTile density={density} span={span || 1} style={style}>
         <TileHead label="ACTIVE CONTRACT" density={density} />
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: Space[1] }}>
           <FNum size={22} weight={200}>{current}</FNum>
           <FMono size={12} color={F.accent}>→</FMono>
           <FNum size={22} weight={200} color={F.accent}>{target}</FNum>
