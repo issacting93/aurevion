@@ -97,8 +97,8 @@ function OBProgress({ current, total }) {
         {Array.from({ length: total }).map((_, i) => (
           <div key={i} style={{
             flex: 1, height: 3, borderRadius: 2,
-            background: i <= current ? F.accent : 'rgba(255,255,255,0.06)',
-            transition: 'background 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+            background: i <= current ? Color.accent : 'rgba(255,255,255,0.06)',
+            transition: `background ${Duration.slow} ${Ease.out}`
           }}/>
         ))}
       </div>
@@ -116,9 +116,9 @@ function OBNav({ title, onBack }) {
     }}>
       <button onClick={onBack} style={{
         width: 36, height: 36, borderRadius: '50%', border: 'none',
-        background: 'rgba(255,255,255,0.06)', color: F.text,
+        background: 'rgba(255,255,255,0.06)', color: Color.text,
         cursor: 'pointer', display: 'grid', placeItems: 'center',
-        transition: 'background .12s ease, transform .1s cubic-bezier(0.34, 1.56, 0.64, 1)'
+        transition: `background ${Duration.fast} ease, transform ${Duration.fast} ${Ease.spring}`
       }}
       onMouseDown={e => e.currentTarget.style.transform = 'scale(0.88)'}
       onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
@@ -126,7 +126,7 @@ function OBNav({ title, onBack }) {
       >
         <FIcon path={ICONS.back} size={16} stroke={2}/>
       </button>
-      <div style={{ fontFamily: FF.mono, fontSize: 11, letterSpacing: 1.4, color: F.mute, textTransform: 'uppercase' }}>
+      <div style={{ fontFamily: Font.mono, fontSize: 11, letterSpacing: 1.4, color: Color.mute, textTransform: 'uppercase' }}>
         {title}
       </div>
       <div style={{ width: 36 }}/>
@@ -140,11 +140,11 @@ function OBQuestion({ children, sub }) {
   return (
     <div style={{ padding: '0 24px', marginTop: 8 }}>
       <div style={{
-        fontFamily: FF.sans, fontSize: 26, fontWeight: 500,
-        letterSpacing: -0.5, lineHeight: 1.2, color: F.text
+        fontFamily: Font.sans, fontSize: 26, fontWeight: 500,
+        letterSpacing: -0.5, lineHeight: 1.2, color: Color.text
       }}>{children}</div>
       {sub && <div style={{
-        fontFamily: FF.sans, fontSize: 14, color: F.dim,
+        fontFamily: Font.sans, fontSize: 14, color: Color.dim,
         marginTop: 8, lineHeight: 1.5
       }}>{sub}</div>}
     </div>
@@ -170,11 +170,11 @@ function OBCard({ selected, onClick, icon, label, sub }) {
     <button onClick={onClick} style={{
       width: '100%', textAlign: 'left', cursor: 'pointer',
       padding: '16px 18px', borderRadius: 14,
-      background: selected ? 'rgba(255,110,80,0.06)' : F.surface,
-      border: selected ? `2px solid ${F.accent}` : `2px solid ${F.border}`,
-      color: F.text, display: 'flex', alignItems: 'center', gap: 14,
-      transition: 'border-color .15s ease, background .15s ease, transform .12s cubic-bezier(0.34, 1.56, 0.64, 1)',
-      fontFamily: FF.sans,
+      background: selected ? 'rgba(255,110,80,0.06)' : Color.surface,
+      border: selected ? `2px solid ${Color.accent}` : `2px solid ${Color.border}`,
+      color: Color.text, display: 'flex', alignItems: 'center', gap: 14,
+      transition: `border-color ${Duration.normal} ease, background ${Duration.normal} ease, transform ${Duration.fast} ${Ease.spring}`,
+      fontFamily: Font.sans,
       transform: pressed ? 'scale(0.97)' : 'scale(1)',
     }}
     onPointerDown={() => setPressed(true)}
@@ -185,20 +185,20 @@ function OBCard({ selected, onClick, icon, label, sub }) {
         width: 36, height: 36, borderRadius: 10,
         background: selected ? 'rgba(255,110,80,0.15)' : 'rgba(255,255,255,0.06)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        flexShrink: 0, transition: 'background .15s ease'
+        flexShrink: 0, transition: `background ${Duration.normal} ease`
       }}>
         {typeof icon === 'string' ? <span style={{ fontSize: 18 }}>{icon}</span> : icon}
       </div>}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 16, fontWeight: 500 }}>{label}</div>
-        {sub && <div style={{ fontSize: 12, color: F.dim, marginTop: 2 }}>{sub}</div>}
+        {sub && <div style={{ fontSize: 12, color: Color.dim, marginTop: 2 }}>{sub}</div>}
       </div>
       <div style={{
         width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
         border: selected ? 'none' : '2px solid rgba(255,255,255,0.15)',
-        background: selected ? F.accent : 'transparent',
+        background: selected ? Color.accent : 'transparent',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        transition: 'all .15s cubic-bezier(0.34, 1.56, 0.64, 1)'
+        transition: `all ${Duration.normal} ${Ease.spring}`
       }}>
         {selected && <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#1a0f0a' }}/>}
       </div>
@@ -212,15 +212,15 @@ function OBUnitToggle({ options, value, onChange }) {
   return (
     <div style={{
       display: 'inline-flex', borderRadius: 999, overflow: 'hidden',
-      border: `1px solid ${F.border}`
+      border: `1px solid ${Color.border}`
     }}>
       {options.map(u => (
         <button key={u.value} onClick={() => onChange(u.value)} style={{
           padding: '8px 20px', border: 'none', cursor: 'pointer',
-          fontFamily: FF.mono, fontSize: 12, letterSpacing: 1, textTransform: 'uppercase',
-          background: value === u.value ? F.accent : 'transparent',
-          color: value === u.value ? '#1a0f0a' : F.dim,
-          fontWeight: 600, transition: 'all .15s ease'
+          fontFamily: Font.mono, fontSize: 12, letterSpacing: 1, textTransform: 'uppercase',
+          background: value === u.value ? Color.accent : 'transparent',
+          color: value === u.value ? '#1a0f0a' : Color.dim,
+          fontWeight: 600, transition: `all ${Duration.normal} ease`
         }}>{u.label}</button>
       ))}
     </div>
@@ -258,21 +258,21 @@ function OB_Welcome({ onNext }) {
 
           <div>
             <div style={{
-              fontFamily: FF.sans, fontSize: 44, fontWeight: 200,
-              letterSpacing: -1.4, lineHeight: 1, color: F.text, marginBottom: 12,
+              fontFamily: Font.sans, fontSize: 44, fontWeight: 200,
+              letterSpacing: -1.4, lineHeight: 1, color: Color.text, marginBottom: 12,
               opacity: ready ? 1 : 0, transform: ready ? 'translateY(0)' : 'translateY(8px)',
               transition: 'opacity 0.5s ease 0.2s, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s'
             }}>
               YOUR BODY.<br/>YOUR DATA.
             </div>
             <div style={{
-              fontFamily: FF.mono, fontSize: 12, letterSpacing: 2,
-              color: F.accent, textTransform: 'uppercase',
+              fontFamily: Font.mono, fontSize: 12, letterSpacing: 2,
+              color: Color.accent, textTransform: 'uppercase',
               opacity: ready ? 1 : 0, transition: 'opacity 0.4s ease 0.5s'
             }}>AUREVI0N</div>
           </div>
           <div style={{
-            fontSize: 15, lineHeight: 1.6, color: F.dim, maxWidth: 300,
+            fontSize: 15, lineHeight: 1.6, color: Color.dim, maxWidth: 300,
             opacity: ready ? 1 : 0, transition: 'opacity 0.4s ease 0.7s'
           }}>
             Nutrition, training, and body composition — tracked with precision, not guesswork.
@@ -291,8 +291,8 @@ function OB_Welcome({ onNext }) {
         opacity: ready ? 1 : 0, transition: 'opacity 0.3s ease 1.1s'
       }}>
         <button style={{
-          background: 'transparent', border: 'none', color: F.dim, padding: 0,
-          fontFamily: FF.mono, fontSize: 11, letterSpacing: 1.4,
+          background: 'transparent', border: 'none', color: Color.dim, padding: 0,
+          fontFamily: Font.mono, fontSize: 11, letterSpacing: 1.4,
           textTransform: 'uppercase', cursor: 'pointer'
         }}>I already have an account</button>
       </div>
@@ -300,7 +300,7 @@ function OB_Welcome({ onNext }) {
         padding: '0 24px 8px', textAlign: 'center',
         opacity: ready ? 0.4 : 0, transition: 'opacity 0.3s ease 1.2s'
       }}>
-        <span style={{ fontFamily: FF.mono, fontSize: 9, letterSpacing: 1, color: F.mute }}>
+        <span style={{ fontFamily: Font.mono, fontSize: 9, letterSpacing: 1, color: Color.mute }}>
           By continuing you agree to our Terms of Service and Privacy Policy.
         </span>
       </div>
@@ -366,10 +366,10 @@ function OB_Birthday({ onNext, onBack, data, setData }) {
             <button key={i} onClick={() => item.val != null && onChange(item.val)} style={{
               background: 'transparent', border: 'none', cursor: item.val != null ? 'pointer' : 'default',
               padding: '10px 0', width: '100%', textAlign: 'center',
-              fontFamily: FF.sans, fontSize: isCentre ? 22 : 18,
+              fontFamily: Font.sans, fontSize: isCentre ? 22 : 18,
               fontWeight: isCentre ? 600 : 400,
-              color: item.val == null ? 'transparent' : isCentre ? F.text : dist === 1 ? F.mute : F.faint,
-              transition: 'all .2s cubic-bezier(0.34, 1.56, 0.64, 1)'
+              color: item.val == null ? 'transparent' : isCentre ? Color.text : dist === 1 ? Color.mute : Color.faint,
+              transition: `all ${Duration.normal} ${Ease.spring}`
             }}>
               {item.val != null ? item.val : '-'}
             </button>
@@ -378,8 +378,8 @@ function OB_Birthday({ onNext, onBack, data, setData }) {
         <div style={{
           position: 'absolute', top: '50%', left: 0, right: 0,
           height: 44, transform: 'translateY(-50%)',
-          borderTop: `1px solid ${F.border}`,
-          borderBottom: `1px solid ${F.border}`,
+          borderTop: `1px solid ${Color.border}`,
+          borderBottom: `1px solid ${Color.border}`,
           pointerEvents: 'none'
         }}/>
         <button onClick={() => { const i = items.indexOf(value); if (i > 0) onChange(items[i-1]); }}
@@ -483,8 +483,8 @@ function OB_BodyMetrics({ onNext, onBack, data, setData }) {
               return (
                 <div key={i} style={{
                   width: 1, height: isMajor ? 16 : 8,
-                  background: isActive ? F.accent : 'rgba(255,255,255,0.15)',
-                  transition: 'background .15s ease'
+                  background: isActive ? Color.accent : 'rgba(255,255,255,0.15)',
+                  transition: `background ${Duration.normal} ease`
                 }}/>
               );
             })}
@@ -536,12 +536,12 @@ function OB_BodyFat({ onNext, onBack, data, setData }) {
               return (
                 <button key={r} onClick={() => setData({ ...data, bodyFat: r })} style={{
                   aspectRatio: '1', borderRadius: 14, cursor: 'pointer',
-                  background: sel ? 'rgba(255,110,80,0.08)' : F.surface,
-                  border: sel ? `2px solid ${F.accent}` : `2px solid ${F.border}`,
-                  color: F.text, display: 'flex', flexDirection: 'column',
+                  background: sel ? 'rgba(255,110,80,0.08)' : Color.surface,
+                  border: sel ? `2px solid ${Color.accent}` : `2px solid ${Color.border}`,
+                  color: Color.text, display: 'flex', flexDirection: 'column',
                   alignItems: 'center', justifyContent: 'flex-end',
                   padding: '8px 4px', gap: 6,
-                  transition: 'border-color .15s ease, background .15s ease, transform .15s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                  transition: `border-color ${Duration.normal} ease, background ${Duration.normal} ease, transform ${Duration.normal} ${Ease.spring}`,
                   transform: sel ? 'scale(1.03)' : 'scale(1)'
                 }}>
                   <div style={{
@@ -551,15 +551,15 @@ function OB_BodyFat({ onNext, onBack, data, setData }) {
                     display: 'flex', alignItems: 'center', justifyContent: 'center'
                   }}>
                     <FIcon path="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm0 10c-4.42 0-8 1.79-8 4v2h16v-2c0-2.21-3.58-4-8-4z"
-                      size={24} color={sel ? F.accent : 'rgba(255,255,255,0.2)'} fill={sel ? F.accent : 'rgba(255,255,255,0.12)'} stroke={0}/>
+                      size={24} color={sel ? Color.accent : 'rgba(255,255,255,0.2)'} fill={sel ? Color.accent : 'rgba(255,255,255,0.12)'} stroke={0}/>
                   </div>
                   <div style={{
-                    fontFamily: FF.mono, fontSize: 10, fontWeight: 600,
+                    fontFamily: Font.mono, fontSize: 10, fontWeight: 600,
                     letterSpacing: 0.5,
-                    color: sel ? F.accent : F.dim,
+                    color: sel ? Color.accent : Color.dim,
                     background: sel ? 'rgba(255,110,80,0.15)' : 'rgba(255,255,255,0.06)',
                     padding: '3px 8px', borderRadius: 6,
-                    transition: 'all .15s ease'
+                    transition: `all ${Duration.normal} ease`
                   }}>{r}</div>
                 </button>
               );
@@ -602,12 +602,12 @@ function OB_Activity({ onNext, onBack, data, setData }) {
             return (
               <button key={o.val} onClick={() => setData({ ...data, exerciseFreq: o.val })} style={{
                 padding: '14px 12px', borderRadius: 12, cursor: 'pointer',
-                background: sel ? 'rgba(255,110,80,0.06)' : F.surface,
-                border: sel ? `2px solid ${F.accent}` : `2px solid ${F.border}`,
-                color: sel ? F.accent : F.text,
-                fontFamily: FF.mono, fontSize: 13, fontWeight: 600,
+                background: sel ? 'rgba(255,110,80,0.06)' : Color.surface,
+                border: sel ? `2px solid ${Color.accent}` : `2px solid ${Color.border}`,
+                color: sel ? Color.accent : Color.text,
+                fontFamily: Font.mono, fontSize: 13, fontWeight: 600,
                 letterSpacing: 0.8, textAlign: 'center',
-                transition: 'all .15s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                transition: `all ${Duration.normal} ${Ease.spring}`,
                 transform: sel ? 'scale(1.03)' : 'scale(1)'
               }}>{o.label}</button>
             );
@@ -621,7 +621,7 @@ function OB_Activity({ onNext, onBack, data, setData }) {
             <OBCard key={o.val} selected={data.activityLevel === o.val}
               onClick={() => setData({ ...data, activityLevel: o.val })}
               label={o.label} sub={o.sub}
-              icon={<FIcon path={o.val === 'sedentary' ? 'M5 18l3-3h8l3 3 M9 10V6 M15 10V6' : o.val === 'moderate' ? 'M13 4v16 M7 8l6-4 6 4 M7 16l6 4 6-4' : ICONS.flame} size={18} color={data.activityLevel === o.val ? F.accent : F.dim}/>}
+              icon={<FIcon path={o.val === 'sedentary' ? 'M5 18l3-3h8l3 3 M9 10V6 M15 10V6' : o.val === 'moderate' ? 'M13 4v16 M7 8l6-4 6 4 M7 16l6 4 6-4' : ICONS.flame} size={18} color={data.activityLevel === o.val ? Color.accent : Color.dim}/>}
             />
           ))}
         </div>
@@ -663,15 +663,15 @@ function OB_Experience({ onNext, onBack, data, setData }) {
             return (
               <button key={o.val} onClick={() => setData({ ...data, liftingExp: o.val })} style={{
                 padding: '12px 10px', borderRadius: 12, cursor: 'pointer',
-                background: sel ? 'rgba(255,110,80,0.06)' : F.surface,
-                border: sel ? `2px solid ${F.accent}` : `2px solid ${F.border}`,
-                color: F.text, fontFamily: FF.sans, fontSize: 13, fontWeight: 500,
+                background: sel ? 'rgba(255,110,80,0.06)' : Color.surface,
+                border: sel ? `2px solid ${Color.accent}` : `2px solid ${Color.border}`,
+                color: Color.text, fontFamily: Font.sans, fontSize: 13, fontWeight: 500,
                 textAlign: 'center',
-                transition: 'all .15s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                transition: `all ${Duration.normal} ${Ease.spring}`,
                 transform: sel ? 'scale(1.03)' : 'scale(1)'
               }}>
                 <div>{o.label}</div>
-                <div style={{ fontSize: 10, color: F.mute, marginTop: 2 }}>{o.sub}</div>
+                <div style={{ fontSize: 10, color: Color.mute, marginTop: 2 }}>{o.sub}</div>
               </button>
             );
           })}
@@ -688,15 +688,15 @@ function OB_Experience({ onNext, onBack, data, setData }) {
             return (
               <button key={o.val} onClick={() => setData({ ...data, cardioExp: o.val })} style={{
                 padding: '12px 10px', borderRadius: 12, cursor: 'pointer',
-                background: sel ? 'rgba(255,110,80,0.06)' : F.surface,
-                border: sel ? `2px solid ${F.accent}` : `2px solid ${F.border}`,
-                color: F.text, fontFamily: FF.sans, fontSize: 13, fontWeight: 500,
+                background: sel ? 'rgba(255,110,80,0.06)' : Color.surface,
+                border: sel ? `2px solid ${Color.accent}` : `2px solid ${Color.border}`,
+                color: Color.text, fontFamily: Font.sans, fontSize: 13, fontWeight: 500,
                 textAlign: 'center',
-                transition: 'all .15s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                transition: `all ${Duration.normal} ${Ease.spring}`,
                 transform: sel ? 'scale(1.03)' : 'scale(1)'
               }}>
                 <div>{o.label}</div>
-                <div style={{ fontSize: 10, color: F.mute, marginTop: 2 }}>{o.sub}</div>
+                <div style={{ fontSize: 10, color: Color.mute, marginTop: 2 }}>{o.sub}</div>
               </button>
             );
           })}
@@ -732,7 +732,7 @@ function OB_Goal({ onNext, onBack, data, setData }) {
               <OBCard key={o.val} selected={data.goal === o.val}
                 onClick={() => setData({ ...data, goal: o.val })}
                 label={o.label} sub={o.sub}
-                icon={<FIcon path={o.icon} size={18} color={data.goal === o.val ? F.accent : F.dim}/>}/>
+                icon={<FIcon path={o.icon} size={18} color={data.goal === o.val ? Color.accent : Color.dim}/>}/>
             ))}
           </div>
         </FStagger>
@@ -809,31 +809,31 @@ function OB_TDEE({ onNext, onBack, data }) {
             <svg width={ringSize} height={ringSize} style={{ position: 'absolute', top: 0, left: 0, transform: 'rotate(-90deg)' }}>
               <circle cx={ringSize/2} cy={ringSize/2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={strokeW}/>
               <circle cx={ringSize/2} cy={ringSize/2} r={r} fill="none"
-                stroke={F.accent} strokeWidth={strokeW}
+                stroke={Color.accent} strokeWidth={strokeW}
                 strokeDasharray={c} strokeDashoffset={offset}
                 strokeLinecap="round"
                 style={{ transition: `stroke-dashoffset 1.4s cubic-bezier(0.16, 1, 0.3, 1)` }}/>
             </svg>
             <div style={{ position: 'relative', textAlign: 'center' }}>
               <FNum size={32} weight={300}>{countVal}</FNum>
-              <div style={{ fontFamily: FF.mono, fontSize: 9, color: F.mute, letterSpacing: 1.4, marginTop: 2 }}>KCAL / DAY</div>
+              <div style={{ fontFamily: Font.mono, fontSize: 9, color: Color.mute, letterSpacing: 1.4, marginTop: 2 }}>KCAL / DAY</div>
             </div>
           </div>
         </div>
 
         {phase >= 1 && <div style={{
           padding: '14px 18px', borderRadius: 14,
-          background: F.surface, border: `1px solid ${F.border}`,
-          fontSize: 14, lineHeight: 1.6, color: F.dim,
+          background: Color.surface, border: `1px solid ${Color.border}`,
+          fontSize: 14, lineHeight: 1.6, color: Color.dim,
           animation: 'fStaggerIn 0.3s ease both'
         }}>
-          This is your estimated <span style={{ color: F.accent, fontWeight: 600 }}>Total Daily Energy Expenditure</span> — how many Calories you burn each day.
+          This is your estimated <span style={{ color: Color.accent, fontWeight: 600 }}>Total Daily Energy Expenditure</span> — how many Calories you burn each day.
         </div>}
 
         {phase >= 2 && <div style={{
           padding: '14px 18px', borderRadius: 14,
-          background: F.surface, border: `1px solid ${F.border}`,
-          fontSize: 14, lineHeight: 1.6, color: F.dim,
+          background: Color.surface, border: `1px solid ${Color.border}`,
+          fontSize: 14, lineHeight: 1.6, color: Color.dim,
           animation: 'fStaggerIn 0.3s ease both'
         }}>
           Understanding this is key to managing your weight. Your goal adjusts this number to create the right deficit or surplus.
@@ -842,12 +842,12 @@ function OB_TDEE({ onNext, onBack, data }) {
         {phase >= 3 && <div style={{
           padding: '14px 18px', borderRadius: 14,
           background: 'rgba(255,110,80,0.06)', border: '1px solid rgba(255,110,80,0.15)',
-          fontSize: 13, lineHeight: 1.6, color: F.dim,
+          fontSize: 13, lineHeight: 1.6, color: Color.dim,
           animation: 'fStaggerIn 0.3s ease both'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-            <FIcon path={ICONS.sparkle} size={14} color={F.accent}/>
-            <span style={{ fontFamily: FF.mono, fontSize: 10, color: F.accent, letterSpacing: 1.2, textTransform: 'uppercase', fontWeight: 600 }}>Initial estimate</span>
+            <FIcon path={ICONS.sparkle} size={14} color={Color.accent}/>
+            <span style={{ fontFamily: Font.mono, fontSize: 10, color: Color.accent, letterSpacing: 1.2, textTransform: 'uppercase', fontWeight: 600 }}>Initial estimate</span>
           </div>
           This number refines itself as you log data. After ~6 weeks, expect accuracy within ±80 kcal.
         </div>}
@@ -905,10 +905,10 @@ function OB_Ready({ data }) {
             </div>
           </div>
           <div style={{
-            fontFamily: FF.sans, fontSize: 32, fontWeight: 200,
-            letterSpacing: -1, color: F.text, lineHeight: 1.1
+            fontFamily: Font.sans, fontSize: 32, fontWeight: 200,
+            letterSpacing: -1, color: Color.text, lineHeight: 1.1
           }}>YOU'RE ALL SET</div>
-          <div style={{ fontFamily: FF.mono, fontSize: 11, color: F.mute, letterSpacing: 1.4, marginTop: 8, textTransform: 'uppercase' }}>
+          <div style={{ fontFamily: Font.mono, fontSize: 11, color: Color.mute, letterSpacing: 1.4, marginTop: 8, textTransform: 'uppercase' }}>
             Your plan is ready
           </div>
         </div>
@@ -917,7 +917,7 @@ function OB_Ready({ data }) {
           {/* Daily target */}
           <div style={{
             padding: '18px 20px', borderRadius: 16,
-            background: F.surface, border: `1px solid ${F.border}`,
+            background: Color.surface, border: `1px solid ${Color.border}`,
             marginBottom: 10
           }}>
             <FLabel>Daily Target</FLabel>
@@ -933,19 +933,19 @@ function OB_Ready({ data }) {
           {/* Macros with textured bars */}
           <div style={{
             padding: '18px 20px', borderRadius: 16,
-            background: F.surface, border: `1px solid ${F.border}`,
+            background: Color.surface, border: `1px solid ${Color.border}`,
             marginBottom: 10
           }}>
             <FLabel>Macro Targets</FLabel>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 10 }}>
               {[
-                { label: 'Protein', val: protein, max: Math.max(protein, carbs, fat), color: F.accent },
-                { label: 'Carbs', val: carbs, max: Math.max(protein, carbs, fat), color: F.dim },
-                { label: 'Fat', val: fat, max: Math.max(protein, carbs, fat), color: F.mute },
+                { label: 'Protein', val: protein, max: Math.max(protein, carbs, fat), color: Color.accent },
+                { label: 'Carbs', val: carbs, max: Math.max(protein, carbs, fat), color: Color.dim },
+                { label: 'Fat', val: fat, max: Math.max(protein, carbs, fat), color: Color.mute },
               ].map(m => (
                 <div key={m.label}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
-                    <span style={{ fontFamily: FF.mono, fontSize: 10, letterSpacing: 1, color: F.mute, textTransform: 'uppercase' }}>{m.label}</span>
+                    <span style={{ fontFamily: Font.mono, fontSize: 10, letterSpacing: 1, color: Color.mute, textTransform: 'uppercase' }}>{m.label}</span>
                     <FNum size={20} weight={300} unit="G">{m.val}</FNum>
                   </div>
                   <FTexBar pct={(m.val / m.max) * 100} height={10} color={m.color}/>
@@ -957,7 +957,7 @@ function OB_Ready({ data }) {
           {/* Stats summary */}
           <div style={{
             padding: '14px 20px', borderRadius: 16,
-            background: F.surface, border: `1px solid ${F.border}`,
+            background: Color.surface, border: `1px solid ${Color.border}`,
             display: 'flex', gap: 8, flexWrap: 'wrap'
           }}>
             <FTag tone="mute">{data.weight} {data.weightUnit || 'kg'}</FTag>
