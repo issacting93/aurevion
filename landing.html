@@ -321,6 +321,62 @@
   .cta-input::placeholder { color: var(--mute); }
   .cta-input:focus { border-color: var(--accent); }
 
+  /* ─── Video showcase ─── */
+  .video-section {
+    min-height: auto; padding: 80px 10vw;
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; position: relative; overflow: hidden;
+    border-top: 1px solid var(--border);
+  }
+  .video-wrap {
+    position: relative; width: 100%; max-width: 900px;
+    border-radius: 20px; overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow:
+      0 40px 80px rgba(0,0,0,0.5),
+      0 0 120px var(--accent-glow);
+    margin-top: 48px;
+    background: #000;
+  }
+  .video-wrap video {
+    width: 100%; height: auto; display: block;
+    cursor: pointer;
+  }
+  .video-wrap::after {
+    content: '';
+    position: absolute; inset: 0; border-radius: 20px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+    pointer-events: none;
+  }
+  .video-play-btn {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px; height: 80px; border-radius: 50%;
+    background: rgba(0,0,0,0.6); backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 2;
+    transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+  }
+  .video-play-btn:hover {
+    transform: translate(-50%, -50%) scale(1.08);
+    background: var(--accent);
+    box-shadow: 0 0 40px var(--accent-shadow);
+    border-color: transparent;
+  }
+  .video-play-btn:hover svg { fill: #1a0f0a; }
+  .video-play-btn svg {
+    fill: #fafafa; width: 28px; height: 28px;
+    margin-left: 3px; /* optical center for play triangle */
+    transition: fill 0.2s;
+  }
+  .video-wrap.playing .video-play-btn { opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+  @media (max-width: 768px) {
+    .video-section { padding: 60px 6vw; }
+    .video-wrap { border-radius: 14px; }
+    .video-wrap::after { border-radius: 14px; }
+  }
+
   /* ─── Scroll reveal ─── */
   .reveal {
     opacity: 0; transform: translateY(30px);
@@ -434,6 +490,30 @@
     Most fitness apps track what you already did.
     <strong style="font-weight: 400; color: var(--text);">AUREVI0N predicts what you should do next</strong> —
     adapting your training, meals, and recovery using wearable data, body metrics, and machine learning.
+  </p>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- VIDEO SHOWCASE -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="video-section glow-center">
+  <span class="mono accent reveal">See It In Action</span>
+  <h2 class="reveal reveal-d1" style="margin-top: 20px; max-width: 600px;">10 screens. 48 seconds.<br>The full onboarding flow.</h2>
+
+  <div class="video-wrap reveal reveal-d2" id="video-wrap">
+    <button class="video-play-btn" id="video-play" aria-label="Play video">
+      <svg viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg>
+    </button>
+    <video playsinline preload="metadata" poster="/onboarding-demo-poster.jpg" id="demo-video">
+      <source src="/onboarding-demo.webm" type="video/webm">
+      <source src="/onboarding-demo.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <p class="mono mt-lg reveal reveal-d3" style="max-width: 500px; line-height: 1.7;">
+    Goal setting &rarr; biometrics &rarr; TDEE estimate &rarr; macro targets &rarr; personalised dashboard.
+    <span style="color: var(--accent);">No account required to see it.</span>
   </p>
 </section>
 
@@ -819,6 +899,17 @@
   window.addEventListener('scroll', () => {
     nav.classList.toggle('scrolled', window.scrollY > 60);
   }, { passive: true });
+
+  // Video play/pause
+  const video = document.getElementById('demo-video');
+  const wrap = document.getElementById('video-wrap');
+  const playBtn = document.getElementById('video-play');
+  playBtn.addEventListener('click', () => { video.play(); wrap.classList.add('playing'); });
+  video.addEventListener('click', () => {
+    if (video.paused) { video.play(); wrap.classList.add('playing'); }
+    else { video.pause(); wrap.classList.remove('playing'); }
+  });
+  video.addEventListener('ended', () => { wrap.classList.remove('playing'); });
 </script>
 </body>
 </html>

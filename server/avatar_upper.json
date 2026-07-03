@@ -1,0 +1,10 @@
+{
+  "height_cm": 178.0,
+  "weight_kg": 82.0,
+  "bmi": 25.9,
+  "waist_cm_estimated": 72.1,
+  "body_fat_pct": 21.1,
+  "bf_category": "average",
+  "lean_mass_kg": 64.7,
+  "fat_mass_kg": 17.3
+}

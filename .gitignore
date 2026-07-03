@@ -1,3 +1,14 @@
 .vercel
 node_modules
+dist
+packages/*/dist
 .DS_Store
+.obsidian/
+recordings/
+.temp-recordings/
+.venv/
+__pycache__/
+*.mov
+*.mp4
+*.webm
+*.zip

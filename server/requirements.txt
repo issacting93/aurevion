@@ -1,0 +1,4 @@
+anny[warp,examples]
+trimesh
+numpy
+torch

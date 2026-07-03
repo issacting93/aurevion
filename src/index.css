@@ -1,0 +1,97 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #000;
+  color: #fafafa;
+  font-family: "Geist", -apple-system, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* Focus ring — keyboard only */
+:focus-visible {
+  outline: 2px solid #FF6E50;
+  outline-offset: 2px;
+}
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.14); }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Keyframes */
+@keyframes aurevion-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+@keyframes aurevion-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes aurevion-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes aurevion-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes aurevion-scale-enter {
+  from { opacity: 0; transform: scale(0.96) translateY(4px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes fStaggerIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes fPulse {
+  0%   { transform: scale(1); opacity: 0.6; }
+  50%  { transform: scale(1.35); opacity: 0; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+.f-pulse-ring {
+  animation: fPulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes fbtnSpin { to { transform: rotate(360deg); } }
+
+/* Jewel button */
+.aurevion-jewel { transition: transform .15s ease; }
+.aurevion-jewel:hover { transform: translateY(-1px); }
+.aurevion-jewel:active { transform: translateY(1px) scale(0.99); }
+.aurevion-jewel-icon::before {
+  content: ''; position: absolute; inset: 0; border-radius: 50%; padding: 2.5px;
+  background: conic-gradient(from 0deg,
+    #000000, #FF6E50, #ffffff, #FF6E50,
+    #000000, #FF6E50, #ffffff, #FF6E50, #000000);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  filter: saturate(1.4) brightness(1.1);
+  animation: aurevionJewelSpin 6s linear infinite;
+}
+.aurevion-jewel-icon::after {
+  content: ''; position: absolute; inset: -6px; border-radius: 50%;
+  background: conic-gradient(from 0deg,
+    #000000, #FF6E50, #ffffff, #FF6E50,
+    #000000, #FF6E50, #ffffff, #FF6E50, #000000);
+  filter: blur(10px) saturate(1.6); opacity: 0.45; z-index: -1;
+  animation: aurevionJewelSpin 6s linear infinite;
+}
+@keyframes aurevionJewelSpin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .aurevion-jewel-icon::before, .aurevion-jewel-icon::after { animation: none; }
+  @keyframes fStaggerIn {
+    from { opacity: 1; transform: none; }
+    to   { opacity: 1; transform: none; }
+  }
+}
