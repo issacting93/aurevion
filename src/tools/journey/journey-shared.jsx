@@ -14,6 +14,7 @@ export function PhoneFrame({ children, scale = SCALE, frameWidth = FW, frameHeig
     <div style={{
       flexShrink: 0, width: frameWidth, height: frameHeight,
       overflow: 'hidden', borderRadius: 56 * scale, background: Color.bg,
+      contain: 'layout style paint',
     }}>
       <div style={{
         transform: `scale(${scale})`,
@@ -64,7 +65,6 @@ export function ScreenLabel({ label, missing, reads, writes, crudTag, lensBadge,
       padding: '10px 12px',
       background: missing ? `${Color.red}08` : isPrimary ? `${lensColor}08` : Color.surface,
       border: `1px solid ${missing ? `${Color.red}30` : isPrimary ? `${lensColor}40` : Color.borderSoft}`,
-      borderLeft: isPrimary ? `3px solid ${lensColor}` : isAffected ? `3px solid ${lensColor}30` : undefined,
       borderRadius: 10, marginBottom: 8,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -82,7 +82,7 @@ export function ScreenLabel({ label, missing, reads, writes, crudTag, lensBadge,
         <div style={{
           marginTop: 4, padding: '2px 6px', borderRadius: 4,
           background: `${lensColor}12`, display: 'inline-block',
-          fontFamily: Font.mono, fontSize: 8, letterSpacing: 0.6, color: lensColor,
+          fontFamily: Font.mono, fontSize: 9, letterSpacing: 0.6, color: lensColor,
         }}>
           {lensBadge}
         </div>

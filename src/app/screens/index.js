@@ -23,8 +23,11 @@ import { DashboardScreen, DashboardNutritionScreen, DashboardTrainingScreen } fr
 import { MacroHeatmapScreen } from './MacroHeatmap'
 import { FoodLogScreen } from './FoodLog'
 import { WaterTrackingScreen } from './WaterTracking'
+import { WorkoutHistoryScreen } from './WorkoutHistory'
+import { TodayScreen } from './Today'
 
 export const SCREENS = [
+  { id: 'today',      feature: 'Home',         flow: '00', label: 'Today',               C: TodayScreen },
   { id: 'dash-bal',   feature: 'Dashboard',    flow: '00', label: 'Balanced',            C: DashboardScreen },
   { id: 'dash-nut',   feature: 'Dashboard',    flow: '00', label: 'Nutrition focus',     C: DashboardNutritionScreen },
   { id: 'dash-trn',   feature: 'Dashboard',    flow: '00', label: 'Training focus',      C: DashboardTrainingScreen },
@@ -43,6 +46,7 @@ export const SCREENS = [
   { id: 'wk-template',feature: 'Training',     flow: '05', label: 'Workout template',     C: WorkoutTemplateScreen },
   { id: 'train-a',    feature: 'Training',     flow: '05', label: 'Active session',       C: TrainingSessionScreen },
   { id: 'train-sum',  feature: 'Training',     flow: '05', label: 'Workout summary',     C: WorkoutSummaryScreen },
+  { id: 'wk-history', feature: 'Training',     flow: '05', label: 'Workout history',     C: WorkoutHistoryScreen },
   { id: 'macro-a',    feature: 'Macros',       flow: '06', label: 'Weekly targets',      C: MacroTargetsScreen },
   { id: 'macro-b',    feature: 'Macros',       flow: '06', label: 'Meal queue',          C: MacroMealsScreen },
   { id: 'batch-a',    feature: 'Macros',       flow: '06', label: 'Batch strategy',      C: BatchPrepScreen },
@@ -55,7 +59,7 @@ export const SCREENS = [
   { id: 'cook-sum',   feature: 'Meal Prep',    flow: '08', label: 'Cook summary',        C: CookSummaryScreen },
   { id: 'profile',    feature: 'Profile',      flow: '09', label: 'Account hub',         C: ProfileScreen },
   { id: 'checkin',    feature: 'Feedback',     flow: '10', label: 'Weekly check-in',     C: CheckInScreen },
-  { id: 'macro-heat', feature: 'Analytics',    flow: '11', label: 'Macro adherence',     C: MacroHeatmapScreen },
   { id: 'food-log',   feature: 'Feedback',     flow: '10', label: 'Daily food log',      C: FoodLogScreen },
   { id: 'water',      feature: 'Feedback',     flow: '10', label: 'Water tracking',      C: WaterTrackingScreen },
+  { id: 'macro-heat', feature: 'Analytics',    flow: '11', label: 'Macro adherence',     C: MacroHeatmapScreen },
 ]

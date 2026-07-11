@@ -3,15 +3,16 @@
 import { useState, useEffect, useRef } from 'react'
 import { Color, Font, Space, Radius, Type } from '../../ui/tokens'
 import { ICONS, FSurface, FNavBar, FLabel, FMono, FNum, FScale, FIcon, FTag, FBtn, FListRow, FButtonGroup, Phone } from '../../ui/components'
+import { MOCK_BODY, MOCK_TARGETS, MOCK_MEAL_PREP } from '../../context/mockUser'
 
 export function GoalInputContent() {
   // Interactive: slider drag for target body fat (10–30%), timeline pick.
-  const [target, setTarget] = useState(15.0);
-  const [weeks, setWeeks] = useState(16);
+  const [target, setTarget] = useState(MOCK_BODY.targetBf);
+  const [weeks, setWeeks] = useState(MOCK_BODY.weeks);
   const trackRef = useRef(null);
   const dragging = useRef(false);
 
-  const NOW_FAT = 22.4;
+  const NOW_FAT = MOCK_BODY.currentBf;
   const MIN = 10, MAX = 30;
   const pctOf = (v) => ((v - MIN) / (MAX - MIN)) * 100;
 
@@ -96,7 +97,7 @@ export function GoalInputContent() {
           }}/>
           <div style={{
             position: 'absolute', top: -12, left: `${pctOf(NOW_FAT)}%`, transform: 'translateX(-50%)',
-            fontFamily: Font.mono, fontSize: 9, color: Color.mute, letterSpacing: 1,
+            fontFamily: Font.mono, fontSize: 10, color: Color.mute, letterSpacing: 1,
           }}>NOW</div>
           {/* target handle */}
           <div style={{
@@ -119,7 +120,7 @@ export function GoalInputContent() {
       </div>
 
       {/* Pace preview — responds to slider + weeks */}
-      <FSurface style={{ marginTop: 32, padding: 16, borderRadius: Radius.lg }}>
+      <FSurface style={{ marginTop: 32 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <FLabel mb={4}>Pace</FLabel>
@@ -148,7 +149,7 @@ export function GoalInputScreen() {
   );
 }
 
-export function GoalContractScreen() {
+export function GoalContractContent() {
   const Row = ({ label, value, unit, tag, tagTone }) => (
     <div style={{ padding: '18px 0', borderBottom: `1px solid ${Color.borderSoft}` }}>
       <FLabel mb={6}>{label}</FLabel>
@@ -159,23 +160,29 @@ export function GoalContractScreen() {
     </div>
   );
   return (
-    <Phone label="Brief" group="ONBOARDING">
-      <FNavBar
-        title="Your brief"
-        leading={<FIcon path={ICONS.back} size={20} color={Color.text}/>}
-        trailing={<FMono color={Color.mute}>04 / 04</FMono>}
-      />
-      <div style={{ flex: 1, padding: '20px 24px 40px', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ flex: 1, padding: '20px 24px 40px', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
         <FLabel>The contract</FLabel>
         <div style={{ marginTop: 8 }}>
-          <FNum size={42} weight={200}>22.4 → 15.0%</FNum>
+          <FNum size={42} weight={200}>{MOCK_BODY.currentBf} → {MOCK_BODY.targetBf}%</FNum>
         </div>
         <FMono color={Color.mute}>BODY FAT · 16 WEEKS · ENDS 04 SEP</FMono>
 
         <div style={{ marginTop: 32, borderTop: `1px solid ${Color.borderSoft}` }}>
           <Row label="Daily deficit"   value="−480" unit="kcal" tag="−18% TDEE" tagTone="accent"/>
           <Row label="Weekly training" value="5.5"  unit="hr"   tag="4 LIFT · 2 Z2"/>
-          <Row label="Protein floor"   value="147"  unit="g"    tag="2.1 G/KG"/>
+          <Row label="Protein floor"   value={String(MOCK_TARGETS.protein)}  unit="g"    tag="2.1 G/KG"/>
+
+          {/* Meal prep approach — from goal engine */}
+          <div style={{ padding: '18px 0', borderBottom: `1px solid ${Color.borderSoft}` }}>
+            <FLabel mb={6}>MEAL PREP APPROACH</FLabel>
+            <FNum size={34} weight={200}>{MOCK_MEAL_PREP.primary}</FNum>
+            <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
+              {MOCK_MEAL_PREP.supporting.map((s, i) => (
+                <FTag key={i} tone="mute">{s}</FTag>
+              ))}
+            </div>
+          </div>
+
           <Row label="Sleep"           value="≥ 7"  unit="hr"   tag="NON-NEG"/>
         </div>
 
@@ -192,7 +199,19 @@ export function GoalContractScreen() {
           <FBtn variant="ghost" size="lg">Edit</FBtn>
           <FBtn variant="split" full>Sign on</FBtn>
         </div>
-      </div>
+    </div>
+  );
+}
+
+export function GoalContractScreen() {
+  return (
+    <Phone label="Brief" group="ONBOARDING">
+      <FNavBar
+        title="Your brief"
+        leading={<FIcon path={ICONS.back} size={20} color={Color.text}/>}
+        trailing={<FMono color={Color.mute}>04 / 04</FMono>}
+      />
+      <GoalContractContent />
     </Phone>
   );
 }

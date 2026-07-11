@@ -43,14 +43,16 @@ Each fitness goal maps to one or more training modalities with varying strength 
 
 | Modality Key | Display Name | Description | Rep/Intensity Range | Rest Period |
 | :--- | :--- | :--- | :--- | :--- |
-| `lifting_hyp` | Hypertrophy Lifting | Volume-focused resistance training | 6-12 reps, RPE 7.5-9 | 60-90s |
-| `lifting_str` | Strength Lifting | Heavy compound, neuromuscular focus | 1-5 reps, RPE 8.5-10 | 180-300s |
+| `lifting_hyp` | Hypertrophy Lifting | Volume-focused resistance training | 6-12 reps, RPE 7.5-9 (RIR 1-2.5) | 60-90s |
+| `lifting_str` | Strength Lifting | Heavy compound, neuromuscular focus | 1-5 reps, RPE 8.5-10 (RIR 0-1.5) | 180-300s |
 | `hiit` | HIIT | High-intensity intervals, metabolic conditioning | 6-40s bursts + recovery | 30-60s |
 | `zone2_cardio` | Zone 2 Cardio | Aerobic base building, 60-70% max HR | 30-90 min continuous | N/A |
 | `circuits` | Circuits | Multi-exercise rounds, minimal rest | 12-20+ reps per station | 0-30s |
 | `plyometrics` | Plyometrics | Jump training, explosive movements | 1-5 explosive reps | 60-120s |
 | `mobility_yoga` | Mobility / Yoga | Flexibility, recovery, parasympathetic activation | Holds / flows | N/A |
 | `calisthenics` | Calisthenics | Bodyweight progressive overload | Varies by progression | 60-120s |
+
+> **RPE ↔ RIR relationship**: RPE 10 = 0 RIR (failure), RPE 9 = 1 RIR, RPE 8 = 2 RIR, etc. The app captures both and syncs them bidirectionally. RIR-based load adjustment suggests ±5% when RIR is outside the 1-2 sweet spot.
 
 ### Goal → Training Modality Matrix
 
@@ -410,6 +412,68 @@ Below are the canonical 8-to-12 week program templates based on user goals. Thes
 | **Shoulder Mobility**| Kettlebell Halos | 8 reps/direction| Lubricate rotator cuffs |
 | **Balance** | Single-Leg Stand | 60s/leg | Proprioception & ankle stabilizers |
 | **Release** | Deep Squat Hold | 90s | Open hips and stretch posterior chain |
+
+---
+
+## 4b. Exercise Selection, Rotation & Swaps
+
+The program generator selects exercises. But the user needs to understand *why* each exercise is there, and be able to swap within safe boundaries.
+
+### Why Each Exercise Is In Your Program
+
+Every exercise in a generated session traces back to:
+1. **Goal**: which fitness goal(s) demanded this modality
+2. **Muscle coverage**: which muscle groups this exercise hits that the session needs
+3. **Equipment**: which equipment variant was selected from the user's available set
+4. **Injury safety**: confirms this exercise isn't excluded by the user's injury flags
+
+This chain is surfaced in the UI: Exercise Browser shows goal tags per exercise, Exercise Detail shows the full chain.
+
+### Exercise Rotation Across Phases
+
+Within the 12-week program:
+
+| Phase | Weeks | Exercise Strategy |
+|-------|-------|-------------------|
+| **Base** | 1–4 | Foundation compounds. High frequency on the same exercises to build motor patterns. Accessories rotate weekly for variety. |
+| **Build** | 5–8 | Compounds stay. Accessories shift to target weak points identified by RIR/RPE trends. Volume increases. |
+| **Peak** | 9–12 | Compounds intensify (heavier, fewer reps). Accessories drop to minimum. Focus narrows to goal-critical movements. |
+
+Compounds (the first 1–2 exercises per session) are sticky across the full program. Accessories (the remaining exercises) can rotate between phases and can be swapped by the user at any time.
+
+### Exercise Swap Rules
+
+When the user taps "Swap" on an exercise, the app offers alternatives that satisfy:
+
+1. **Same primary muscle group** — a quad exercise swaps for another quad exercise
+2. **Compatible modality** — a hypertrophy-tagged exercise swaps for another hypertrophy-compatible one
+3. **Available equipment** — only shows exercises the user's equipment supports
+4. **Injury-safe** — excludes exercises flagged by the user's injury constraints
+5. **Not already in session** — no duplicates within the same workout
+
+Swap candidates are ranked by how many of these constraints they satisfy, with goal alignment weighted highest.
+
+### Planning Horizon
+
+- Exercises are planned **by week** — a 7-day schedule with specific sessions on named days
+- Users see **today** by default — the current session is the hero, not the weekly overview
+- The week context (dot strip, remaining sessions) sits below the today directive
+- Future weeks are previewable but not editable (the generator handles week-to-week progression)
+- Past weeks are viewable as history (completed sessions with logged data)
+
+### Flow Principles for Program Delivery
+
+The program generator produces data. But how that data is *delivered* to the user determines whether the app feels like a coach or a spreadsheet. These principles bridge the fitness engine to the UX:
+
+**1. Today over this week.** The user opens the app to do something now, not to review their schedule. The current session (or rest day) is the first and largest thing they see. The weekly context is supporting information, not the hero.
+
+**2. Last time travels with you.** Every session should surface what the user actually did last time for the same workout type. "Squat 80kg × 8" is more useful than "planned: 4 × 8" because it sets expectations and drives auto-progression. This data comes from `activityLog` entries with the same session name.
+
+**3. Form cues at the point of need.** The form cue for an exercise should appear during the rest period *before* that exercise, not on a separate detail screen. The user is about to perform the movement — that's when the cue has value.
+
+**4. Summary exits forward.** Completing a session should bridge to the next action: what to eat (post-workout nutrition), when to train next (next session preview), what improved (PR badges, volume trends). The summary is a transition, not an endpoint.
+
+**5. Equipment as prep, not metadata.** The equipment list for today's session serves a practical purpose: "grab these things before you start." It should appear before the Start button, not buried in exercise details. Derived from `exercise.equipment` across all exercises in the session.
 
 ---
 

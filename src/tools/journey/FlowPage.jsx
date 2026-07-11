@@ -58,7 +58,7 @@ export default function FlowPage({ mode }) {
           <FTag tone={flow === 'create' ? 'green' : flow === 'edit' ? 'accent' : 'red'} size="sm">
             {screens.length} SCREENS
           </FTag>
-          <FMono size={9} color={builtCount === screens.length ? Color.green : Color.dim}>
+          <FMono size={10} color={builtCount === screens.length ? Color.green : Color.dim}>
             {builtCount}/{screens.length} BUILT
           </FMono>
         </div>

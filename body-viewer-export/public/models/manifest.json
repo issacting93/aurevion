@@ -1,0 +1,231 @@
+{
+  "variants": [
+    {
+      "id": "male-lean",
+      "label": "Male \u00b7 Lean",
+      "gender": "male",
+      "file": "/models/male-lean.glb"
+    },
+    {
+      "id": "male-athletic",
+      "label": "Male \u00b7 Athletic",
+      "gender": "male",
+      "file": "/models/male-athletic.glb"
+    },
+    {
+      "id": "male-average",
+      "label": "Male \u00b7 Average",
+      "gender": "male",
+      "file": "/models/male-average.glb"
+    },
+    {
+      "id": "male-stocky",
+      "label": "Male \u00b7 Stocky",
+      "gender": "male",
+      "file": "/models/male-stocky.glb"
+    },
+    {
+      "id": "male-heavy",
+      "label": "Male \u00b7 Heavy",
+      "gender": "male",
+      "file": "/models/male-heavy.glb"
+    },
+    {
+      "id": "female-lean",
+      "label": "Female \u00b7 Lean",
+      "gender": "female",
+      "file": "/models/female-lean.glb"
+    },
+    {
+      "id": "female-athletic",
+      "label": "Female \u00b7 Athletic",
+      "gender": "female",
+      "file": "/models/female-athletic.glb"
+    },
+    {
+      "id": "female-average",
+      "label": "Female \u00b7 Average",
+      "gender": "female",
+      "file": "/models/female-average.glb"
+    },
+    {
+      "id": "female-curvy",
+      "label": "Female \u00b7 Curvy",
+      "gender": "female",
+      "file": "/models/female-curvy.glb"
+    },
+    {
+      "id": "female-heavy",
+      "label": "Female \u00b7 Heavy",
+      "gender": "female",
+      "file": "/models/female-heavy.glb"
+    }
+  ],
+  "muscleGroups": {
+    "chest": {
+      "index": 0,
+      "label": "Chest",
+      "color": [
+        220,
+        60,
+        60
+      ],
+      "exercises": [
+        "Bench Press",
+        "Push-ups",
+        "Chest Fly",
+        "Dips"
+      ]
+    },
+    "back": {
+      "index": 1,
+      "label": "Back",
+      "color": [
+        60,
+        130,
+        220
+      ],
+      "exercises": [
+        "Pull-ups",
+        "Rows",
+        "Lat Pulldown",
+        "Deadlift"
+      ]
+    },
+    "shoulders": {
+      "index": 2,
+      "label": "Shoulders",
+      "color": [
+        220,
+        160,
+        40
+      ],
+      "exercises": [
+        "Overhead Press",
+        "Lateral Raise",
+        "Front Raise",
+        "Face Pull"
+      ]
+    },
+    "biceps": {
+      "index": 3,
+      "label": "Biceps",
+      "color": [
+        180,
+        60,
+        200
+      ],
+      "exercises": [
+        "Bicep Curl",
+        "Hammer Curl",
+        "Chin-ups",
+        "Preacher Curl"
+      ]
+    },
+    "triceps": {
+      "index": 4,
+      "label": "Triceps",
+      "color": [
+        60,
+        200,
+        180
+      ],
+      "exercises": [
+        "Tricep Pushdown",
+        "Skull Crusher",
+        "Dips",
+        "Overhead Extension"
+      ]
+    },
+    "forearms": {
+      "index": 5,
+      "label": "Forearms",
+      "color": [
+        200,
+        120,
+        60
+      ],
+      "exercises": [
+        "Wrist Curl",
+        "Reverse Curl",
+        "Farmer's Walk",
+        "Dead Hang"
+      ]
+    },
+    "abs": {
+      "index": 6,
+      "label": "Abs",
+      "color": [
+        100,
+        220,
+        60
+      ],
+      "exercises": [
+        "Crunches",
+        "Plank",
+        "Leg Raise",
+        "Cable Woodchop"
+      ]
+    },
+    "glutes": {
+      "index": 7,
+      "label": "Glutes",
+      "color": [
+        220,
+        60,
+        160
+      ],
+      "exercises": [
+        "Hip Thrust",
+        "Squat",
+        "Lunges",
+        "Glute Bridge"
+      ]
+    },
+    "quads": {
+      "index": 8,
+      "label": "Quads",
+      "color": [
+        60,
+        180,
+        220
+      ],
+      "exercises": [
+        "Squat",
+        "Leg Press",
+        "Lunges",
+        "Leg Extension"
+      ]
+    },
+    "hamstrings": {
+      "index": 9,
+      "label": "Hamstrings",
+      "color": [
+        160,
+        100,
+        60
+      ],
+      "exercises": [
+        "Romanian Deadlift",
+        "Leg Curl",
+        "Good Morning",
+        "Nordic Curl"
+      ]
+    },
+    "calves": {
+      "index": 10,
+      "label": "Calves",
+      "color": [
+        140,
+        180,
+        60
+      ],
+      "exercises": [
+        "Calf Raise",
+        "Seated Calf Raise",
+        "Jump Rope",
+        "Box Jump"
+      ]
+    }
+  }
+}

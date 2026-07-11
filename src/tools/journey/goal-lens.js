@@ -43,7 +43,12 @@ const RELEVANCE = {
   'Daily Food Log':  'affected',
 
   // Exercise execution (follows program)
+  'Today':            'primary',
   'Exercise Browser': 'affected',
+  'Exercise Detail':  'affected',
+  'Workout Template': 'primary',
+  'Workout History':  'affected',
+  'Workout Summary':  'affected',
   'Calendar Week':    'affected',
   'Calendar Month':   'affected',
   'Calendar Day':     'affected',
@@ -65,6 +70,8 @@ const BADGES = {
   'Goal Input':      g => GOAL_META[g]?.label,
   'Goal Contract':   g => GOAL_META[g]?.label,
   'Goal Detail':     g => GOAL_META[g]?.label,
+  'Today':           g => GOAL_META[g]?.label,
+  'Workout Template': g => { const c = GOAL_CALORIC_STATE[g]; return c ? `${c.state}` : null },
 }
 
 /* ── Public API ── */

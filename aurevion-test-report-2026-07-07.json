@@ -1,0 +1,413 @@
+[
+  {
+    "agent": "Alex",
+    "profile": {
+      "goals": [
+        "hypertrophy"
+      ],
+      "equipment": "full_gym",
+      "days": 5,
+      "injuries": [],
+      "experience": "intermediate"
+    },
+    "timestamp": "2026-07-07T06:42:17.606Z",
+    "elapsed_ms": 0,
+    "checks": [
+      {
+        "step": "onboarding",
+        "test": "TDEE computed",
+        "pass": true,
+        "value": 3500
+      },
+      {
+        "step": "onboarding",
+        "test": "Target kcal computed",
+        "pass": true,
+        "value": 3500
+      },
+      {
+        "step": "onboarding",
+        "test": "Protein > 0",
+        "pass": true,
+        "value": "158g"
+      },
+      {
+        "step": "onboarding",
+        "test": "Carbs > 0",
+        "pass": true,
+        "value": "499g"
+      },
+      {
+        "step": "onboarding",
+        "test": "Fat > 0",
+        "pass": true,
+        "value": "97g"
+      },
+      {
+        "step": "onboarding",
+        "test": "Macros sum ≈ target",
+        "pass": true,
+        "value": "3501 vs 3500"
+      },
+      {
+        "step": "program",
+        "test": "Plan generated",
+        "pass": true,
+        "value": "Push / Pull / Legs · Hypertrophy"
+      },
+      {
+        "step": "program",
+        "test": "Sessions created",
+        "pass": true,
+        "value": 5
+      },
+      {
+        "step": "program",
+        "test": "Schedule has 7 days",
+        "pass": true,
+        "value": 7
+      },
+      {
+        "step": "program",
+        "test": "Training days match available",
+        "pass": true,
+        "value": "5 ≤ 5"
+      },
+      {
+        "step": "program",
+        "test": "Goal sources present",
+        "pass": true,
+        "value": "hypertrophy | hypertrophy | hypertrophy | hypertrophy | hypertrophy"
+      },
+      {
+        "step": "constraints",
+        "test": "No injuries to check",
+        "pass": true,
+        "value": "n/a"
+      },
+      {
+        "step": "constraints",
+        "test": "All exercises use available equipment",
+        "pass": true,
+        "value": "clean"
+      },
+      {
+        "step": "program",
+        "test": "Session modalities align with goals",
+        "pass": true,
+        "value": "sessions: hypertrophy · goals: hypertrophy"
+      },
+      {
+        "step": "browser",
+        "test": "Recommended exercises available",
+        "pass": true,
+        "value": 6
+      },
+      {
+        "step": "swap",
+        "test": "Swap candidates for first exercise",
+        "pass": true,
+        "value": "4 alternatives for Overhead Press"
+      },
+      {
+        "step": "history",
+        "test": "Volume computable from logged sets",
+        "pass": true,
+        "value": "2,288 kg"
+      },
+      {
+        "step": "program",
+        "test": "Phase is Base at week 1",
+        "pass": true,
+        "value": "Base"
+      },
+      {
+        "step": "program",
+        "test": "Total weeks is 12",
+        "pass": true,
+        "value": 12
+      }
+    ],
+    "summary": {
+      "total": 19,
+      "passed": 19,
+      "failed": 0
+    }
+  },
+  {
+    "agent": "Sam",
+    "profile": {
+      "goals": [
+        "fat_loss",
+        "healthier_meals"
+      ],
+      "equipment": "home_basic",
+      "days": 3,
+      "injuries": [
+        "Knees"
+      ],
+      "experience": "beginner"
+    },
+    "timestamp": "2026-07-07T06:42:17.606Z",
+    "elapsed_ms": 0,
+    "checks": [
+      {
+        "step": "onboarding",
+        "test": "TDEE computed",
+        "pass": true,
+        "value": 2297
+      },
+      {
+        "step": "onboarding",
+        "test": "Target kcal computed",
+        "pass": true,
+        "value": 2297
+      },
+      {
+        "step": "onboarding",
+        "test": "Protein > 0",
+        "pass": true,
+        "value": "144g"
+      },
+      {
+        "step": "onboarding",
+        "test": "Carbs > 0",
+        "pass": true,
+        "value": "286g"
+      },
+      {
+        "step": "onboarding",
+        "test": "Fat > 0",
+        "pass": true,
+        "value": "64g"
+      },
+      {
+        "step": "onboarding",
+        "test": "Macros sum ≈ target",
+        "pass": true,
+        "value": "2296 vs 2297"
+      },
+      {
+        "step": "program",
+        "test": "Plan generated",
+        "pass": true,
+        "value": "Full Body · HIIT + Strength + Cardio + Endurance"
+      },
+      {
+        "step": "program",
+        "test": "Sessions created",
+        "pass": true,
+        "value": 3
+      },
+      {
+        "step": "program",
+        "test": "Schedule has 7 days",
+        "pass": true,
+        "value": 7
+      },
+      {
+        "step": "program",
+        "test": "Training days match available",
+        "pass": true,
+        "value": "3 ≤ 3"
+      },
+      {
+        "step": "program",
+        "test": "Goal sources present",
+        "pass": true,
+        "value": "fat_loss | fat_loss | fat_loss"
+      },
+      {
+        "step": "constraints",
+        "test": "No injury-excluded exercises",
+        "pass": true,
+        "value": "clean"
+      },
+      {
+        "step": "constraints",
+        "test": "All exercises use available equipment",
+        "pass": true,
+        "value": "clean"
+      },
+      {
+        "step": "program",
+        "test": "Session modalities align with goals",
+        "pass": true,
+        "value": "sessions: hiit,strength,cardio · goals: hiit,strength,cardio,endurance"
+      },
+      {
+        "step": "browser",
+        "test": "Recommended exercises available",
+        "pass": true,
+        "value": 4
+      },
+      {
+        "step": "swap",
+        "test": "Swap candidates for first exercise",
+        "pass": true,
+        "value": "3 alternatives for Push-up"
+      },
+      {
+        "step": "history",
+        "test": "Volume computable from logged sets",
+        "pass": true,
+        "value": "0 kg"
+      },
+      {
+        "step": "program",
+        "test": "Phase is Base at week 1",
+        "pass": true,
+        "value": "Base"
+      },
+      {
+        "step": "program",
+        "test": "Total weeks is 12",
+        "pass": true,
+        "value": 12
+      }
+    ],
+    "summary": {
+      "total": 19,
+      "passed": 19,
+      "failed": 0
+    }
+  },
+  {
+    "agent": "Jordan",
+    "profile": {
+      "goals": [
+        "recomposition",
+        "max_strength"
+      ],
+      "equipment": "full_gym",
+      "days": 4,
+      "injuries": [
+        "Shoulders"
+      ],
+      "experience": "advanced"
+    },
+    "timestamp": "2026-07-07T06:42:17.609Z",
+    "elapsed_ms": 3,
+    "checks": [
+      {
+        "step": "onboarding",
+        "test": "TDEE computed",
+        "pass": true,
+        "value": 3808
+      },
+      {
+        "step": "onboarding",
+        "test": "Target kcal computed",
+        "pass": true,
+        "value": 3808
+      },
+      {
+        "step": "onboarding",
+        "test": "Protein > 0",
+        "pass": true,
+        "value": "184g"
+      },
+      {
+        "step": "onboarding",
+        "test": "Carbs > 0",
+        "pass": true,
+        "value": "530g"
+      },
+      {
+        "step": "onboarding",
+        "test": "Fat > 0",
+        "pass": true,
+        "value": "106g"
+      },
+      {
+        "step": "onboarding",
+        "test": "Macros sum ≈ target",
+        "pass": true,
+        "value": "3810 vs 3808"
+      },
+      {
+        "step": "program",
+        "test": "Plan generated",
+        "pass": true,
+        "value": "Upper / Lower · Hypertrophy + Strength + HIIT + Power + Cardio"
+      },
+      {
+        "step": "program",
+        "test": "Sessions created",
+        "pass": true,
+        "value": 4
+      },
+      {
+        "step": "program",
+        "test": "Schedule has 7 days",
+        "pass": true,
+        "value": 7
+      },
+      {
+        "step": "program",
+        "test": "Training days match available",
+        "pass": true,
+        "value": "4 ≤ 4"
+      },
+      {
+        "step": "program",
+        "test": "Goal sources present",
+        "pass": true,
+        "value": "recomposition | max_strength | recomposition | max_strength"
+      },
+      {
+        "step": "constraints",
+        "test": "No injury-excluded exercises",
+        "pass": true,
+        "value": "clean"
+      },
+      {
+        "step": "constraints",
+        "test": "All exercises use available equipment",
+        "pass": true,
+        "value": "clean"
+      },
+      {
+        "step": "program",
+        "test": "Session modalities align with goals",
+        "pass": true,
+        "value": "sessions: hypertrophy,strength,hiit,power · goals: hypertrophy,strength,hiit,power,cardio"
+      },
+      {
+        "step": "browser",
+        "test": "Recommended exercises available",
+        "pass": true,
+        "value": 11
+      },
+      {
+        "step": "swap",
+        "test": "Swap candidates for first exercise",
+        "pass": false,
+        "value": "0 alternatives for Push-up"
+      },
+      {
+        "step": "history",
+        "test": "Volume computable from logged sets",
+        "pass": true,
+        "value": "1,116 kg"
+      },
+      {
+        "step": "program",
+        "test": "Phase is Base at week 1",
+        "pass": true,
+        "value": "Base"
+      },
+      {
+        "step": "program",
+        "test": "Total weeks is 12",
+        "pass": true,
+        "value": 12
+      }
+    ],
+    "summary": {
+      "total": 19,
+      "passed": 18,
+      "failed": 1
+    }
+  }
+]

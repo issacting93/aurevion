@@ -269,7 +269,7 @@ export const LineChart = memo(function LineChart({
                   <g>
                     <line x1={ax} y1={ay - 8} x2={ax} y2={padTop - 4} stroke={Color.faint} strokeWidth={1} strokeDasharray="2 2" />
                     <text x={ax} y={padTop - 8} textAnchor="middle" fill={Color.dim}
-                      style={{ fontFamily: Font.mono, fontSize: 9, fontWeight: 500 }}>
+                      style={{ fontFamily: Font.mono, fontSize: 10, fontWeight: 500 }}>
                       {annotation.label}
                     </text>
                   </g>
@@ -430,7 +430,7 @@ export const LollipopChart = memo(function LollipopChart({
                   <rect x={padX - 4} y={gy - 14} width={goalLabel.length * 7 + 16} height={20} rx={10}
                     fill={Color.surface} stroke={Color.border} strokeWidth={1} />
                   <text x={padX + 4} y={gy} fill={Color.dim}
-                    style={{ fontFamily: Font.mono, fontSize: 9, fontWeight: 600, letterSpacing: 0.5 }}>
+                    style={{ fontFamily: Font.mono, fontSize: 10, fontWeight: 600, letterSpacing: 0.5 }}>
                     {goalLabel}
                   </text>
                 </g>
@@ -460,7 +460,7 @@ export const LollipopChart = memo(function LollipopChart({
               {/* Label */}
               {d.label && (
                 <text x={x} y={height - 6} textAnchor="middle" fill={Color.mute}
-                  style={{ fontFamily: Font.mono, fontSize: 9, fontWeight: 500, letterSpacing: 0.5 }}>
+                  style={{ fontFamily: Font.mono, fontSize: 10, fontWeight: 500, letterSpacing: 0.5 }}>
                   {d.label}
                 </text>
               )}
@@ -616,7 +616,7 @@ export const BarChart = memo(function BarChart({
                       style={animated ? { animation: `chart-bar-grow 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${bi * 0.05}s both` } : undefined} />
                     {showValues && (
                       <text x={x + (barW - 2) / 2} y={y - 8} textAnchor="middle" fill={Color.dim}
-                        style={{ fontFamily: Font.mono, fontSize: 9, fontWeight: 600 }}>
+                        style={{ fontFamily: Font.mono, fontSize: 10, fontWeight: 600 }}>
                         {seg.value}
                       </text>
                     )}
@@ -650,7 +650,7 @@ export const Sparkline = memo(function Sparkline({
   style,
 }) {
   const vw = 100
-  const pad = 2
+  const pad = 4
 
   const { d, lastPt, fillD } = useMemo(() => {
     if (data.length < 2) return { d: '', lastPt: null, fillD: '' }
@@ -667,12 +667,25 @@ export const Sparkline = memo(function Sparkline({
     return { d: line, lastPt: last, fillD: area }
   }, [data, height])
 
+  /* Dot is rendered outside the SVG so preserveAspectRatio="none" doesn't squash it */
+  const dotSize = 8
+  const dotLeft = lastPt ? `${(lastPt[0] / vw) * 100}%` : 0
+  const dotTop = lastPt ? `${(lastPt[1] / height) * 100}%` : 0
+
   return (
-    <svg width={width} height={height} viewBox={`0 0 ${vw} ${height}`} preserveAspectRatio="none" style={{ display: 'block', ...style }}>
-      {fill && fillD && <path d={fillD} fill={color} fillOpacity={0.1} />}
-      {d && <path d={d} fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />}
-      {dot && lastPt && <circle cx={lastPt[0]} cy={lastPt[1]} r={2.5} fill={color} />}
-    </svg>
+    <div style={{ position: 'relative', width, height, ...style }}>
+      <svg width="100%" height={height} viewBox={`0 0 ${vw} ${height}`} preserveAspectRatio="none" style={{ display: 'block' }}>
+        {fill && fillD && <path d={fillD} fill={color} fillOpacity={0.1} />}
+        {d && <path d={d} fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />}
+      </svg>
+      {dot && lastPt && (
+        <div style={{
+          position: 'absolute', left: dotLeft, top: dotTop,
+          width: dotSize, height: dotSize, borderRadius: '50%',
+          background: color, transform: 'translate(-50%, -50%)',
+        }} />
+      )}
+    </div>
   )
 })
 

@@ -4,6 +4,7 @@ import { Color, Font, Space, Radius } from '../../ui/tokens'
 import { ICONS, FNavBar, FLabel, FMono, FNum, FTexBar, FIcon, FBtn, FTabBar, FSection, FSurface, FListRow, FAvatar, Phone } from '../../ui/components'
 import { useUser } from '../../context/UserContext'
 import { useNav } from '../../context/NavigationContext'
+import { MOCK_BODY } from '../../context/mockUser'
 
 export function ProfileContent() {
   const { checkins, profile } = useUser();
@@ -48,27 +49,19 @@ export function ProfileContent() {
           <FMono color={Color.accent}>W04 / 16</FMono>
         </div>
         <div style={{ marginTop: 8 }}>
-          <FNum size={36} weight={200}>22.4 → 15.0%</FNum>
+          <FNum size={36} weight={200}>{MOCK_BODY.currentBf} → {MOCK_BODY.targetBf}%</FNum>
         </div>
         <FMono color={Color.mute}>BODY FAT · ENDS 04 SEP</FMono>
         <div style={{ marginTop: 18 }}>
           <FTexBar pct={28} height={6}/>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12 }}>
-          <FMono color={Color.mute} size={9}>28% COMPLETE</FMono>
-          <FMono color={Color.green} size={9}>−1.4 KG SO FAR</FMono>
+          <FMono color={Color.mute} size={10}>28% COMPLETE</FMono>
+          <FMono color={Color.green} size={10}>−1.4 KG SO FAR</FMono>
         </div>
       </FSurface>
 
-      {/* Log check-in button */}
-      <div style={{ marginTop: 32 }}>
-        <FBtn variant="primary" full size="md"
-          onClick={() => nav?.pushDetail?.('checkin-flow', 'Check-in')}>
-          Log check-in
-        </FBtn>
-      </div>
-
-      {/* Recent check-ins */}
+      {/* Recent check-ins (data zone) */}
       <FSection label="Recent check-ins" mt={32} mb={12}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
           <FNum size={26} weight={200}>{streakCount} wks</FNum>
@@ -85,15 +78,21 @@ export function ProfileContent() {
         ))}
       </div>
 
-      {/* Settings rows */}
-      <FSection label="Settings" mt={40} mb={12}>
-        <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column' }}>
+      {/* Log check-in (interaction zone) */}
+      <div style={{ marginTop: 24 }}>
+        <FBtn variant="primary" full size="md"
+          onClick={() => nav?.pushDetail?.('checkin-flow', 'Check-in')}>
+          Log check-in
+        </FBtn>
+      </div>
+
+      {/* Settings — grouped by category (R4) */}
+      <FSection label="Preferences" mt={40} mb={0}>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
           {[
-            { i: ICONS.goal,   t: 'Goal & contract',     sub: 'EDIT, PAUSE, OR RESET' },
-            { i: ICONS.dumb,   t: 'Training preferences', sub: '4 LIFT · 2 ZONE 2 · 5.5 H/WK' },
-            { i: ICONS.meal,   t: 'Diet preferences',     sub: 'OMNIVORE · NO PORK · NUT-FREE' },
-            { i: ICONS.bell,   t: 'Reminders',            sub: 'MEAL, TRAIN, CHECK-IN' },
-            { i: ICONS.person, t: 'Account',              sub: 'EMAIL, PASSWORD, DATA' },
+            { i: ICONS.goal, t: 'Goal & contract',      sub: 'EDIT, PAUSE, OR RESET' },
+            { i: ICONS.dumb, t: 'Training preferences',  sub: '4 LIFT · 2 ZONE 2 · 5.5 H/WK' },
+            { i: ICONS.meal, t: 'Diet preferences',      sub: 'OMNIVORE · NO PORK · NUT-FREE' },
           ].map((row, i) => (
             <FListRow key={i}
               leading={
@@ -113,8 +112,35 @@ export function ProfileContent() {
         </div>
       </FSection>
 
-      <div style={{ marginTop: 32 }}>
+      <FSection label="Account" mt={28} mb={0}>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {[
+            { i: ICONS.bell,   t: 'Reminders',  sub: 'MEAL, TRAIN, CHECK-IN' },
+            { i: ICONS.person, t: 'Account',     sub: 'EMAIL, PASSWORD, DATA' },
+          ].map((row, i) => (
+            <FListRow key={i}
+              leading={
+                <div style={{
+                  width: 36, height: 36, borderRadius: Radius.md,
+                  background: 'rgba(255,255,255,0.04)',
+                  display: 'grid', placeItems: 'center', color: Color.dim,
+                }}>
+                  <FIcon path={row.i} size={18} stroke={1.8}/>
+                </div>
+              }
+              title={row.t}
+              subtitle={row.sub}
+              trailing={<FIcon path={ICONS.fwd} size={16} color={Color.mute}/>}
+            />
+          ))}
+        </div>
+      </FSection>
+
+      <div style={{ marginTop: 32, display: 'flex', flexDirection: 'column', gap: 10 }}>
         <FBtn variant="ghost" size="md" full data-stay="true">Sign out</FBtn>
+        <FBtn variant="ghost" size="sm" full data-stay="true" style={{ color: Color.red, borderColor: 'rgba(248,113,113,0.15)' }}>
+          Delete account
+        </FBtn>
       </div>
     </div>
   );

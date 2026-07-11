@@ -11,7 +11,7 @@ import { MotionEase } from '../../ui/motion'
 function StatPill({ label, value }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-      <span style={{ fontFamily: Font.mono, fontSize: 9, letterSpacing: 1.2, color: Color.mute, textTransform: 'uppercase' }}>{label}</span>
+      <span style={{ fontFamily: Font.mono, fontSize: 10, letterSpacing: 1.2, color: Color.mute, textTransform: 'uppercase' }}>{label}</span>
       <span style={{ fontFamily: Font.mono, fontSize: 16, fontWeight: 300, color: Color.text, letterSpacing: -0.5 }}>{value}</span>
     </div>
   );
@@ -222,7 +222,7 @@ function MorphCard({ open, onToggle }) {
               opacity: 0.9,
             }}>
               <FIcon path={currentStep.icon} size={52} color={Color.accent} stroke={1.2}/>
-              <FMono color={Color.mute} size={9}>STEP {currentStep.num}</FMono>
+              <FMono color={Color.mute} size={10}>STEP {currentStep.num}</FMono>
             </div>
           </div>
 
@@ -307,7 +307,7 @@ export function FeatureCardMorphScreen() {
               borderRadius: i === 0 ? '8px 0 0 8px' : i === 3 ? '0 8px 8px 0' : 0,
               borderRight: i < 3 ? `1px solid ${Color.borderSoft}` : 'none',
             }}>
-              <div style={{ fontFamily: Font.mono, fontSize: 9, letterSpacing: 1.2, color: Color.mute, textTransform: 'uppercase', marginBottom: 4 }}>{m.label}</div>
+              <div style={{ fontFamily: Font.mono, fontSize: 10, letterSpacing: 1.2, color: Color.mute, textTransform: 'uppercase', marginBottom: 4 }}>{m.label}</div>
               <div style={{ fontFamily: Font.mono, fontSize: 15, fontWeight: 500, color: m.color }}>{m.val}</div>
             </div>
           ))}
@@ -345,7 +345,7 @@ export function FeatureCardMorphScreen() {
           border: `1px solid ${Color.borderSoft}`,
           boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
         }}>
-          <FMono color={Color.dim} size={9} letter={1.2}>{open ? 'TAP \u00D7 TO COLLAPSE' : 'TAP CARD TO ENTER COOK MODE'}</FMono>
+          <FMono color={Color.dim} size={10} letter={1.2}>{open ? 'TAP \u00D7 TO COLLAPSE' : 'TAP CARD TO ENTER COOK MODE'}</FMono>
         </div>
       </div>
     </Phone>

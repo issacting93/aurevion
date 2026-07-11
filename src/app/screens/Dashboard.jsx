@@ -8,69 +8,10 @@
 
 import { Color, Space, Radius, Type } from '../../ui/tokens'
 import { ICONS, FLabel, FIcon, FTabBar, FSurface, FAvatar, FButtonGroup, Phone } from '../../ui/components'
-import { GoalTile, TDEETile, MacroTile, CalendarTile, SessionTile, PrepTile, CheckInTile, FridgeTile, StreakTile, FTileGrid } from './tiles'
+import { GoalTile, TDEETile, MacroTile, CalendarTile, SessionTile, PrepTile, CheckInTile, FridgeTile, StreakTile, WaterTile, FTileGrid } from './tiles'
 import { useUser } from '../../context/UserContext'
-
-// ─── Fallback data (used when no real data exists yet) ───
-const MOCK_DATA = {
-  goal: { current: 20.1, target: 15.0, unit: '% BF', weeks: 16, elapsed: 6 },
-  tdee: { value: 2420, confidence: 74, trend: [2380, 2420, 2350, 2400, 2440, 2410, 2420] },
-  macros: { kcal: 1660, protein: 147, carbs: 160, fat: 60, deficit: '−480' },
-  calendar: [
-    { label: 'M', done: true,  type: 'train', eventLabel: 'Upper' },
-    { label: 'T', done: true,  type: 'meal',  eventLabel: 'Prep' },
-    { label: 'W', done: true,  type: 'train', eventLabel: 'Lower' },
-    { label: 'T', done: true,  type: 'checkin', today: true, eventLabel: 'Check-in' },
-    { label: 'F', done: false, type: 'train', eventLabel: 'Pull' },
-    { label: 'S', done: false, type: 'rest' },
-    { label: 'S', done: false, type: 'meal',  eventLabel: 'Prep' },
-  ],
-  session: {
-    name: 'Pull · Upper B',
-    time: '48 min planned',
-    day: 'FRI',
-    exerciseCount: 6,
-    exercises: [
-      { name: 'Warm-up walk', sets: '5 min' },
-      { name: 'Pull-up', sets: '4 × 8' },
-      { name: 'Barbell row', sets: '4 × 6' },
-      { name: 'Face pull', sets: '3 × 12' },
-      { name: 'Bicep curl', sets: '3 × 10' },
-      { name: 'Cooldown stretch', sets: '5 min' },
-    ],
-  },
-  prep: {
-    recipes: [
-      { name: 'Salmon + greens', color: Color.accent, portions: 4, time: '25m' },
-      { name: 'Rice bowls', color: Color.blue, portions: 6, time: '35m' },
-      { name: 'Chili', color: Color.purple, portions: 8, time: '55m' },
-    ],
-    totalTime: '~78 min',
-    readyPct: 85,
-  },
-  checkin: {
-    latest: { weight: 82.1, bf: 20.1, date: '12 May' },
-    trend: 'down',
-    streak: 14,
-    history: [
-      { date: '12 May', weight: 82.1, bf: 20.1, delta: -0.4 },
-      { date: '05 May', weight: 82.5, bf: 20.4, delta: -0.3 },
-      { date: '28 Apr', weight: 82.8, bf: 20.6, delta: -0.5 },
-    ],
-  },
-  fridge: {
-    total: 24,
-    missing: 4,
-    expiring: 2,
-    topMissing: [
-      { name: 'Salmon fillet', amount: '600g' },
-      { name: 'Brown rice', amount: '500g' },
-      { name: 'Greek yoghurt', amount: '400g' },
-      { name: 'Spinach', amount: '200g' },
-    ],
-  },
-  streak: { count: 14, best: 21 },
-};
+import { MOCK_DASHBOARD, MOCK_WATER } from '../../context/mockUser'
+import { flattenSessionExercises } from './fitness-data'
 
 // ─── Layout presets ──────────────────────────────────────
 const LAYOUTS = {
@@ -79,6 +20,7 @@ const LAYOUTS = {
     { tile: 'calendar', density: 'mid',     span: 2 },
     { tile: 'macros',   density: 'mid',     span: 2 },
     { tile: 'session',  density: 'mid',     span: 1 },
+    { tile: 'water',    density: 'mid',     span: 1 },
     { tile: 'prep',     density: 'mid',     span: 1 },
     { tile: 'tdee',     density: 'mid',     span: 1 },
     { tile: 'checkin',  density: 'mid',     span: 1 },
@@ -142,7 +84,7 @@ const DAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 
 function useDashData() {
   const { profile, targets, checkins, workoutPlan } = useUser();
-  if (!targets) return MOCK_DATA;
+  if (!targets) return MOCK_DASHBOARD;
 
   const bfCurrent = parseBfMidpoint(profile?.bodyFat);
   const mod = targets.target - targets.tdee;
@@ -155,16 +97,19 @@ function useDashData() {
       date: c.date, weight: c.weight, bf: c.bf,
       delta: i < checkins.length - 1 ? +(c.weight - checkins[i + 1].weight).toFixed(1) : 0,
     })),
-  } : MOCK_DATA.checkin;
+  } : MOCK_DASHBOARD.checkin;
 
   // Build session data from workout plan
   const sessionData = (() => {
-    if (!workoutPlan?.sessions) return MOCK_DATA.session
+    if (!workoutPlan?.sessions) return MOCK_DASHBOARD.session
     // Find today's session or next upcoming
     const todaySession = workoutPlan.sessions.find(s => s.dayIndex === TODAY_INDEX && !s.completed)
     const nextSession = todaySession || workoutPlan.sessions.find(s => s.dayIndex > TODAY_INDEX && !s.completed) || workoutPlan.sessions.find(s => !s.completed)
-    if (!nextSession) return MOCK_DATA.session
-    const coreExercises = nextSession.exercises.filter(e => e.category !== 'warmup' && e.category !== 'cooldown')
+    if (!nextSession) return MOCK_DASHBOARD.session
+    const nonUtil = nextSession.exercises.filter(e => e.category !== 'warmup' && e.category !== 'cooldown' && !e.groupType)
+    const grouped = nextSession.exercises.filter(e => e.groupType)
+    const flatGrouped = grouped.length > 0 ? flattenSessionExercises(grouped) : []
+    const coreExercises = [...nonUtil, ...flatGrouped]
     return {
       name: nextSession.name,
       time: `${nextSession.estimatedMins} min planned`,
@@ -179,7 +124,7 @@ function useDashData() {
 
   // Build calendar data from workout plan
   const calendarData = (() => {
-    if (!workoutPlan?.schedule) return MOCK_DATA.calendar
+    if (!workoutPlan?.schedule) return MOCK_DASHBOARD.calendar
     return workoutPlan.schedule.map((entry, i) => ({
       label: DAY_LABELS[i] || entry.day?.[0],
       done: entry.completed || false,
@@ -190,12 +135,12 @@ function useDashData() {
   })()
 
   return {
-    ...MOCK_DATA,
+    ...MOCK_DASHBOARD,
     goal: {
-      ...MOCK_DATA.goal,
+      ...MOCK_DASHBOARD.goal,
       ...(bfCurrent != null && { current: bfCurrent }),
     },
-    tdee: { ...MOCK_DATA.tdee, value: targets.tdee },
+    tdee: { ...MOCK_DASHBOARD.tdee, value: targets.tdee },
     macros: {
       kcal: targets.target,
       protein: targets.protein,
@@ -206,6 +151,7 @@ function useDashData() {
     session: sessionData,
     calendar: calendarData,
     checkin: checkinData,
+    water: { current: MOCK_WATER.trend7d[6] || 1250, target: MOCK_WATER.target, trend7d: MOCK_WATER.trend7d },
   };
 }
 
@@ -254,6 +200,8 @@ function renderTile(config, data, onTileClick) {
       return <FridgeTile key={tile} {...data.fridge} {...props} />;
     case 'streak':
       return <StreakTile key={tile} {...data.streak} {...props} />;
+    case 'water':
+      return <WaterTile key={tile} {...data.water} {...props} />;
     default:
       return null;
   }
@@ -278,13 +226,11 @@ const GOAL_LABELS = {
 
 // ─── Dashboard Content (used by AppShell and DashboardScreen) ──
 export function DashboardContent({ onTileClick }) {
-  const { profile, preferences, setLayout, dismissIntervention, workoutPlan } = useUser();
+  const { profile, dismissIntervention, workoutPlan } = useUser();
   const data = useDashData();
   const activeIntervention = useActiveIntervention();
 
-  // Auto-select layout from goals if user hasn't manually changed it
-  const goalBasedLayout = classifyGoals(profile?.goals);
-  const layoutKey = preferences?.layout || goalBasedLayout;
+  const layoutKey = classifyGoals(profile?.goals);
   const tiles = LAYOUTS[layoutKey];
 
   const hour = new Date().getHours();
@@ -331,9 +277,6 @@ export function DashboardContent({ onTileClick }) {
         )}
       </div>
 
-      <div style={{ padding: '14px 20px 6px' }}>
-        <FButtonGroup options={DENSITY_OPTIONS} value={layoutKey} onChange={setLayout} />
-      </div>
 
       {activeIntervention && (
         <div style={{ padding: '8px 20px 0' }}>

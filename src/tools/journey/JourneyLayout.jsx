@@ -1,13 +1,50 @@
 /* JourneyLayout — shared shell for all /journey sub-routes.
    Provides header, sticky nav, compact/expanded state via outlet context. */
 
-import { useState, Fragment } from 'react'
+import { useState, useEffect, useRef, useCallback, Fragment } from 'react'
 import { Outlet, Link, useLocation, useOutletContext } from 'react-router-dom'
 import { Color, Font, Phase } from '../../ui/tokens'
 import { FMono, FTag } from '../../ui/components'
 import { DevModeOverlay } from '../../app/screens/DevMode'
 import { PW, PH, TOTAL_SCREENS, COVERAGE_PCT, PHASES } from './journey-data'
 import { PhoneFrame } from './journey-shared'
+import { UserProvider } from '../../context/UserContext'
+
+/* ── HTML export helper ── */
+function exportPageHTML(filename) {
+  // Collect all stylesheets (Geist fonts, etc.)
+  const styles = []
+  for (const sheet of document.styleSheets) {
+    try {
+      const rules = [...sheet.cssRules].map(r => r.cssText).join('\n')
+      styles.push(rules)
+    } catch { /* cross-origin sheets — skip */ }
+  }
+  // Clone the DOM
+  const clone = document.documentElement.cloneNode(true)
+  // Remove scripts
+  clone.querySelectorAll('script').forEach(s => s.remove())
+  // Remove probe UI
+  clone.querySelectorAll('[data-probe-ui]').forEach(el => el.remove())
+  // Build self-contained HTML
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AUREVI0N — ${filename}</title>
+<style>${styles.join('\n')}</style>
+</head>
+${clone.querySelector('body').outerHTML}
+</html>`
+  const blob = new Blob([html], { type: 'text/html' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `${filename}.html`
+  a.click()
+  URL.revokeObjectURL(url)
+}
 
 const NAV_ITEMS = [
   { label: 'HUB', to: '/journey', exact: true },
@@ -18,12 +55,30 @@ const NAV_ITEMS = [
   { label: 'OBSERVE', to: '/journey/observe', color: Phase.observe, sep: true },
   { label: 'GOALS', to: '/journey/goals', color: Color.purple, sep: true },
   { label: 'EXPLORE', to: '/journey/explore', color: Color.purple },
+  { label: 'ALL', to: '/journey/all', color: Color.text, sep: true },
 ]
 
 export default function JourneyLayout() {
   const [compact, setCompact] = useState(false)
   const [expanded, setExpanded] = useState(null)
+  const [overlayVisible, setOverlayVisible] = useState(false)
   const location = useLocation()
+
+  // Stable callback ref so outlet context doesn't change on every render
+  const expandedRef = useRef(null)
+  const stableSetExpanded = useCallback((val) => {
+    expandedRef.current = val
+    setExpanded(val)
+  }, [])
+
+  // Fade-in: render overlay at opacity 0, then animate to 1 on next frame
+  useEffect(() => {
+    if (expanded?.C) {
+      const frame = requestAnimationFrame(() => setOverlayVisible(true))
+      return () => cancelAnimationFrame(frame)
+    }
+    setOverlayVisible(false)
+  }, [expanded])
 
   return (
     <DevModeOverlay>
@@ -52,7 +107,7 @@ export default function JourneyLayout() {
           {PHASES.map(p => {
             const built = p.screens.filter(s => s.C).length
             return (
-              <FMono key={p.id} size={9} color={p.color}>
+              <FMono key={p.id} size={10} color={p.color}>
                 {p.id.toUpperCase().slice(0, 4)} {built}/{p.screens.length}
               </FMono>
             )
@@ -101,10 +156,27 @@ export default function JourneyLayout() {
             </Fragment>
           )
         })}
+        <div style={{ marginLeft: 'auto' }}>
+          <button
+            onClick={() => {
+              const slug = location.pathname.replace(/^\/journey\/?/, '') || 'index'
+              exportPageHTML(slug.replace(/\//g, '-'))
+            }}
+            style={{
+              padding: '6px 14px', borderRadius: 9999,
+              fontFamily: Font.mono, fontSize: 10, letterSpacing: 1.2,
+              color: Color.mute, textDecoration: 'none',
+              border: `1px solid ${Color.borderSoft}`,
+              background: 'transparent', cursor: 'pointer',
+            }}
+          >
+            EXPORT HTML
+          </button>
+        </div>
       </nav>
 
       {/* Child route content */}
-      <Outlet context={{ compact, setCompact, expanded, setExpanded }} />
+      <Outlet context={{ compact, setCompact, setExpanded: stableSetExpanded }} />
 
       {/* Expanded screen overlay */}
       {expanded?.C && (
@@ -112,10 +184,14 @@ export default function JourneyLayout() {
           position: 'fixed', inset: 0, zIndex: 100,
           background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(12px)',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16,
+          opacity: overlayVisible ? 1 : 0,
+          transition: 'opacity 0.15s ease-out',
         }}>
           <FMono size={11} color={Color.mute}>{expanded.label}</FMono>
           <div onClick={e => e.stopPropagation()}>
-            <PhoneFrame scale={1} frameWidth={PW} frameHeight={PH}><expanded.C goalKey={expanded.goalKey} /></PhoneFrame>
+            <UserProvider _override={expanded._profileState}>
+              <PhoneFrame scale={1} frameWidth={PW} frameHeight={PH}><expanded.C goalKey={expanded.goalKey} /></PhoneFrame>
+            </UserProvider>
           </div>
           <FMono size={10} color={Color.faint}>CLICK ANYWHERE TO CLOSE</FMono>
         </div>

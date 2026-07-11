@@ -4,7 +4,7 @@
 
 import { useState } from 'react'
 import { Color, Font, Space, Radius, Duration, Ease, Type } from '../../ui/tokens'
-import { ICONS, FBtn, FIcon, FNum, FLabel, FMono, FTag, FStagger, FSurface, FNavBar } from '../../ui/components'
+import { ICONS, FBtn, FIcon, FNum, FLabel, FMono, FTag, FStagger, FSurface, FNavBar, Phone } from '../../ui/components'
 import { useUser } from '../../context/UserContext'
 
 /* ── Helpers ───────────────────────────────────────────── */
@@ -209,7 +209,7 @@ function CISummary({ data, checkins, targets, onSave }) {
 
 /* ── Flow ──────────────────────────────────────────────── */
 
-export function CheckInFlowContent() {
+export function CheckInFlowContent({ onComplete }) {
   const { profile, targets, checkins, logCheckin, addIntervention } = useUser();
   const [step, setStep] = useState(0);
   const [data, setData] = useState({
@@ -236,6 +236,8 @@ export function CheckInFlowContent() {
         id: `checkin-${now.getTime()}`,
       });
     }
+
+    onComplete?.();
   };
 
   const skipBf = () => {
@@ -277,4 +279,13 @@ export function CheckInFlowContent() {
       )}
     </div>
   );
+}
+
+export function CheckInFlowScreen() {
+  return (
+    <Phone label="Check-in" group="OBSERVE">
+      <FNavBar title="Weekly Check-in" leading={<FIcon path={ICONS.back} size={20} color={Color.text} />} />
+      <CheckInFlowContent />
+    </Phone>
+  )
 }

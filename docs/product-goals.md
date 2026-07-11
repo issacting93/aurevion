@@ -46,28 +46,35 @@ Weekly check-ins (weight, body fat, subjective rating) feed into a decision engi
 
 ### What Works End-to-End
 - 12-step onboarding → computed TDEE and macros
-- Auto-generated training programs from goals + constraints
-- Active workout sessions with set logging, RPE, rest timers, summary
+- Auto-generated training programs from goals + constraints, with exercise grouping (supersets/circuits)
+- Active workout sessions with set logging, RPE + RIR, load adjustment suggestions, group-aware execution, rest timers, summary with volume/RPE/RIR/load progressions
+- Goal → training linkage visible in UI (session cards show goal tags, GoalDetail shows linked sessions)
 - Active cook mode with multi-timer Gantt timeline
 - Weekly check-in with decision logic and interventions
-- Personalized dashboard with 3 density presets
+- Personalized dashboard with 3 density presets + 10 tile types (including hydration)
+- Water tracking accessible from dashboard via WaterTile
 - 3D body composition viewer
 - Goal network interactive graph
 
 ### What's Designed But Not Connected
-- Calendar events are hardcoded (not from workout plan)
 - Meal prep recipes are hardcoded (not from macro targets)
 - Fridge inventory doesn't sync with shopping list
 - Food log doesn't feed back into macro adherence
+- Water tracking data is mock (not persisted from quick-add interactions)
+
+### What's Designed But Needs Rethinking
+- **Exercise Browser** is a disconnected flat library. No sense of "your program", no time awareness, no recommended vs all, no swap capability. Needs to become a goal-aware, program-contextual surface (see user-flows.md Mode 3 for the redesigned model).
+- **Workout history** doesn't exist. No way to review past sessions or compare performance over time.
 
 ### What's Missing
 - Backend / persistence (everything is localStorage)
 - Authentication and multi-device sync
 - Push notifications / behavioral nudges
-- Periodization and auto-progression for training
+- Cross-session auto-progression (RIR-based mid-session adjustment exists; carry-forward to next session not built)
 - Wearable integration (Apple Health, Garmin, etc.)
 - Recipe database and meal generation
 - Social / community features
+- Universal tracking template (sleep, steps, mood, soreness, supplements — only water is implemented)
 
 ## Target Users
 
@@ -85,7 +92,7 @@ People who already train consistently but eat randomly. They know the gym side b
 
 3. **Focused modes over feature menus**: When you're cooking, the app becomes a kitchen timer. When you're lifting, it becomes a set tracker. No distracting navigation.
 
-4. **Generate, don't configure**: The app should make decisions for the user based on their goals, not present 50 options. Configuration is for constraints (what you can't do), not preferences (what you feel like doing).
+4. **Generate, don't configure — but allow swaps**: The app makes decisions based on goals, not preferences. But once a program is generated, the user can swap individual exercises within safe boundaries (same muscle group, same modality, injury-safe, equipment-available). The generator chooses the plan; the user personalizes the edges.
 
 5. **Motion with purpose**: Spring physics for interactive elements, stagger for hierarchy, hatching for uncertainty. Every animation communicates state change, not decoration.
 
@@ -100,8 +107,9 @@ For a production app, the north stars would be:
 
 ## Near-Term Roadmap
 
-1. **Decision engine specification**: Define the threshold logic for interventions
-2. **Cooking pipeline**: Connect meal plan → shopping → fridge → cook → log
-3. **Periodization**: Week-to-week progression in training programs
-4. **Backend + auth**: Move off localStorage for the React Native port
-5. **Recipe generation**: Build a recipe database that responds to macro targets
+1. **Exercise tab redesign**: Today-first program view, three browse modes (In My Program / Recommended / Full Library), exercise swap flow, workout history
+2. **Decision engine specification**: Define the threshold logic for interventions
+3. **Cooking pipeline**: Connect meal plan → shopping → fridge → cook → log
+4. **Periodization**: Week-to-week progression in training programs
+5. **Backend + auth**: Move off localStorage for the React Native port
+6. **Recipe generation**: Build a recipe database that responds to macro targets

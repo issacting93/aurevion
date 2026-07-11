@@ -5,6 +5,7 @@ import { useState, useMemo } from 'react'
 import { Color, Font, Space, Radius, Type } from '../../ui/tokens'
 import { ICONS, FSurface, FLabel, FMono, FIcon, FTag } from '../../ui/components'
 import { EXERCISES } from '../../app/screens/fitness-data'
+import { deriveModalities } from '../../context/goalEngine'
 import { GOAL_META } from './ontology-data'
 
 // Extract unique values for filters
@@ -13,19 +14,10 @@ const ALL_EQUIPMENT = [...new Set(EXERCISES.map(e => e.equipment))].sort()
 const ALL_MODALITIES = [...new Set(EXERCISES.flatMap(e => e.modality))].sort()
 const ALL_CATEGORIES = [...new Set(EXERCISES.map(e => e.category))].sort()
 
-// Goal → modality mapping (from fitness-data.js, duplicated here for reverse lookup)
-const GOAL_MODALITIES = {
-  hypertrophy: ['hypertrophy'], fat_loss: ['hiit', 'strength', 'cardio'],
-  recomposition: ['hypertrophy', 'hiit'], max_strength: ['strength', 'power'],
-  cardio_endurance: ['cardio', 'endurance'], power: ['power', 'strength'],
-  agility: ['hiit', 'power'], flexibility: ['mobility'],
-  balance: ['mobility', 'endurance'], overall_wellness: ['cardio', 'mobility', 'hypertrophy'],
-}
+const ALL_GOALS = ['hypertrophy','fat_loss','recomposition','max_strength','cardio_endurance','power','agility','flexibility','balance','overall_wellness']
 
 function getGoalsForExercise(exercise) {
-  return Object.entries(GOAL_MODALITIES)
-    .filter(([, mods]) => exercise.modality.some(m => mods.includes(m)))
-    .map(([goalKey]) => goalKey)
+  return ALL_GOALS.filter(g => deriveModalities([g]).some(m => exercise.modality.includes(m)))
 }
 
 const CATEGORY_COLORS = {
@@ -114,7 +106,7 @@ export default function ExerciseLibrary() {
         {activeFilterCount > 0 && (
           <button onClick={() => { setSearch(''); setMuscleFilter(new Set()); setEquipFilter(new Set()); setModFilter(new Set()); setCatFilter(new Set()) }} style={{
             background: 'none', border: 'none', cursor: 'pointer',
-            fontFamily: Font.mono, fontSize: 9, color: Color.accent, letterSpacing: 0.6,
+            fontFamily: Font.mono, fontSize: 10, color: Color.accent, letterSpacing: 0.6,
           }}>CLEAR FILTERS</button>
         )}
       </div>

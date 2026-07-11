@@ -7,8 +7,8 @@ export const Color = Object.freeze({
   surface3:   '#1e1e1e',
   text:       '#fafafa',
   dim:        '#a1a1a1',
-  mute:       '#6b6b6b',
-  faint:      '#3a3a3a',
+  mute:       '#8a8a8a',
+  faint:      '#525252',
   border:     'rgba(255,255,255,0.08)',
   borderSoft: 'rgba(255,255,255,0.04)',
   accent:     '#FF6E50',
@@ -87,7 +87,7 @@ export const Shadow = Object.freeze({
   sm:   '0 1px 2px rgba(0,0,0,0.4)',
   md:   '0 2px 8px rgba(0,0,0,0.4)',
   lg:   '0 4px 24px rgba(0,0,0,0.5)',
-  glow: `0 0 20px ${Color.accentDim}`,
+  glow: 'none',
 })
 
 export const Duration = Object.freeze({
@@ -101,7 +101,7 @@ export const Duration = Object.freeze({
 
 export const Ease = Object.freeze({
   default: 'cubic-bezier(0.4, 0, 0.2, 1)',
-  spring:  'cubic-bezier(0.34, 1.56, 0.64, 1)',
+  spring:  'cubic-bezier(0.22, 1, 0.36, 1)',
   out:     'cubic-bezier(0, 0, 0.2, 1)',
   expo:    'cubic-bezier(0.16, 1, 0.3, 1)',
 })
@@ -113,13 +113,13 @@ export const Type = Object.freeze({
   headingLg: { fontFamily: Font.sans, fontSize: 22, fontWeight: 500, letterSpacing: -0.5,  lineHeight: 1.2 },
   headingMd: { fontFamily: Font.sans, fontSize: 17, fontWeight: 500, letterSpacing: -0.3,  lineHeight: 1.3 },
   headingSm: { fontFamily: Font.sans, fontSize: 15, fontWeight: 500, letterSpacing: -0.2,  lineHeight: 1.3 },
-  bodyLg:    { fontFamily: Font.sans, fontSize: 15, fontWeight: 400, letterSpacing: 0,     lineHeight: 1.5 },
-  bodyMd:    { fontFamily: Font.sans, fontSize: 13, fontWeight: 400, letterSpacing: 0,     lineHeight: 1.45 },
-  bodySm:    { fontFamily: Font.sans, fontSize: 12, fontWeight: 400, letterSpacing: 0,     lineHeight: 1.4 },
-  labelLg:   { fontFamily: Font.mono, fontSize: 12, fontWeight: 500, letterSpacing: 1.4, lineHeight: 1, textTransform: 'uppercase' },
-  labelMd:   { fontFamily: Font.mono, fontSize: 10, fontWeight: 500, letterSpacing: 1.2, lineHeight: 1, textTransform: 'uppercase' },
-  labelSm:   { fontFamily: Font.mono, fontSize:  9, fontWeight: 500, letterSpacing: 1.0, lineHeight: 1, textTransform: 'uppercase' },
+  bodyLg:    { fontFamily: Font.sans, fontSize: 14, fontWeight: 400, letterSpacing: 0,     lineHeight: 1.5 },
+  bodyMd:    { fontFamily: Font.sans, fontSize: 13, fontWeight: 400, letterSpacing: 0,     lineHeight: 1.5 },
+  bodySm:    { fontFamily: Font.sans, fontSize: 11, fontWeight: 400, letterSpacing: 0,     lineHeight: 1.45 },
+  labelLg:   { fontFamily: Font.mono, fontSize: 13, fontWeight: 500, letterSpacing: 1.4, lineHeight: 1, textTransform: 'uppercase' },
+  labelMd:   { fontFamily: Font.mono, fontSize: 11, fontWeight: 500, letterSpacing: 1.2, lineHeight: 1, textTransform: 'uppercase' },
+  labelSm:   { fontFamily: Font.mono, fontSize: 10, fontWeight: 500, letterSpacing: 1.2, lineHeight: 1, textTransform: 'uppercase' },
   dataLg:    { fontFamily: Font.mono, fontSize: 14, fontWeight: 400, letterSpacing: 0, lineHeight: 1.3 },
   dataMd:    { fontFamily: Font.mono, fontSize: 12, fontWeight: 400, letterSpacing: 0, lineHeight: 1.3 },
-  dataSm:    { fontFamily: Font.mono, fontSize: 10, fontWeight: 400, letterSpacing: 0, lineHeight: 1.3 },
+  dataSm:    { fontFamily: Font.mono, fontSize: 11, fontWeight: 400, letterSpacing: 0, lineHeight: 1.3 },
 })

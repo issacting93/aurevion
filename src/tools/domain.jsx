@@ -314,7 +314,7 @@ export function MealListItem({ badge, name, time, day, kcal, macros, batch = fal
             <span style={{
               padding: '2px 8px', borderRadius: Radius.full,
               background: Color.accentDim, color: Color.accent,
-              fontFamily: Font.mono, fontSize: 9, fontWeight: 600, letterSpacing: 0.8,
+              fontFamily: Font.mono, fontSize: 10, fontWeight: 600, letterSpacing: 0.8,
               textTransform: 'uppercase', flexShrink: 0,
             }}>BATCH</span>
           )}

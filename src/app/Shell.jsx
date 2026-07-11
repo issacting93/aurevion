@@ -7,15 +7,16 @@ import { Color, Font, Space, Radius } from '../ui/tokens'
 import { Phone, FIcon, ICONS, FMono } from '../ui/components'
 
 // Content components (no Phone/NavBar/TabBar wrappers)
+import { TodayContent } from './screens/Today'
 import { DashboardContent } from './screens/Dashboard'
-import { TDEEContent } from './screens/TDEE'
-import { GoalInputContent } from './screens/GoalSetting'
-import { MacroTargetsContent } from './screens/Macros'
-import { TrainingSessionContent } from './screens/Training'
+import { TDEEContent, TDEECompareContent } from './screens/TDEE'
+import { GoalInputContent, GoalContractContent } from './screens/GoalSetting'
+import { MacroTargetsContent, MacroMealsContent, ShoppingListContent } from './screens/Macros'
+import { TrainingSessionContent, SummaryPhase } from './screens/Training'
 import { ProgramOverviewContent } from './screens/ProgramOverview'
 import { PlanCalendarContent } from './screens/PlanCalendar'
 import { FridgeContent } from './screens/Fridge'
-import { MealPrepMergeContent } from './screens/MealPrep'
+import { MealPrepMergeContent, MealPrepTimelineContent, MealPrepCookModeContent } from './screens/MealPrep'
 import { BatchPrepContent } from './screens/BatchPrep'
 import { ProfileContent } from './screens/Profile'
 import { CheckInFlowContent } from './screens/CheckIn'
@@ -23,6 +24,11 @@ import { GoalDetailContent } from './screens/GoalDetail'
 import { ExerciseBrowserContent } from './screens/ExerciseBrowser'
 import { ExerciseDetailContent } from './screens/ExerciseDetail'
 import { WorkoutTemplateContent } from './screens/WorkoutTemplateDetail'
+import { WorkoutHistoryContent } from './screens/WorkoutHistory'
+import { WaterTrackingContent } from './screens/WaterTracking'
+import { CookSummaryContent } from './screens/CookSummary'
+import { FoodLogContent } from './screens/FoodLog'
+import { MacroHeatmapContent } from './screens/MacroHeatmap'
 import { useUser } from '../context/UserContext'
 
 // ─── Tab definitions ─────────────────────────────────────
@@ -45,6 +51,7 @@ const TILE_ROUTES = {
   checkin:  { screen: 'checkin-flow', title: 'Check-in' },
   fridge:   { screen: 'fridge',  title: 'Pantry' },
   streak:   { screen: 'profile', title: 'Profile' },
+  water:    { screen: 'water',   title: 'Hydration' },
 }
 
 // ─── Tab content router ──────────────────────────────────
@@ -61,7 +68,7 @@ function TabRouter({ tab }) {
   }
 
   switch (tab) {
-    case 'home':  return <DashboardContent onTileClick={handleTile} />
+    case 'home':  return <TodayContent onStartSession={handleStartSession} />
     case 'train': return <ProgramOverviewContent onStartSession={handleStartSession} />
     case 'eat':   return <MacroTargetsContent />
     case 'plan':  return <PlanCalendarContent onStartSession={handleStartSession} />
@@ -72,30 +79,46 @@ function TabRouter({ tab }) {
 
 // ─── Detail content router ───────────────────────────────
 function DetailRouter({ screenId, data }) {
-  const { popDetail } = useNav()
+  const { popDetail, pushDetail, switchTab } = useNav()
   const { markSessionComplete } = useUser()
 
+  const returnToToday = () => switchTab('home')
+
   const handleSessionComplete = () => {
-    if (data?.session?.dayIndex != null) markSessionComplete(data.session.dayIndex)
-    popDetail()
+    const session = data?.session
+    if (session) markSessionComplete(session.id || session.dayIndex)
+    returnToToday()
   }
 
   switch (screenId) {
     case 'goal':    return <GoalInputContent />
+    case 'goal-contract': return <GoalContractContent />
     case 'tdee':    return <TDEEContent />
+    case 'tdee-compare': return <TDEECompareContent />
     case 'macros':  return <MacroTargetsContent />
+    case 'meal-queue': return <MacroMealsContent />
+    case 'shopping': return <ShoppingListContent />
     case 'session': return <ProgramOverviewContent />
-    case 'active-session': return <TrainingSessionContent session={data?.session} onComplete={handleSessionComplete} onBack={popDetail} />
+    case 'active-session': return <TrainingSessionContent session={data?.session} onComplete={handleSessionComplete} onBack={popDetail} autoAdvance={data?.autoAdvance} />
     case 'prep':    return <MealPrepMergeContent />
+    case 'prep-timeline': return <MealPrepTimelineContent />
+    case 'prep-cook': return <MealPrepCookModeContent />
     case 'fridge':  return <FridgeContent />
     case 'batch':   return <BatchPrepContent />
-    case 'plan':    return <PlanCalendarContent />
+    case 'plan':    return <PlanCalendarContent onStartSession={(session) => { pushDetail('active-session', session.name, { session }) }} />
     case 'profile':      return <ProfileContent />
-    case 'checkin-flow': return <CheckInFlowContent />
+    case 'checkin-flow': return <CheckInFlowContent onComplete={returnToToday} />
     case 'goal-detail':      return <GoalDetailContent data={data} />
     case 'exercises':        return <ExerciseBrowserContent data={data} />
     case 'exercise-detail':  return <ExerciseDetailContent data={data} />
     case 'workout-template': return <WorkoutTemplateContent data={data} />
+    case 'water':            return <WaterTrackingContent />
+    case 'workout-history':  return <WorkoutHistoryContent />
+    case 'workout-summary-detail': return <SummaryPhase loggedSets={data?.loggedSets || []} elapsed={data?.elapsed} session={data?.session} onDone={returnToToday} />
+    case 'food-log':     return <FoodLogContent />
+    case 'macro-heat':   return <MacroHeatmapContent />
+    case 'cook-summary': return <CookSummaryContent onDone={returnToToday} />
+    case 'dashboard':        return <DashboardContent onTileClick={(tileId) => { const r = TILE_ROUTES[tileId]; if (r) pushDetail(r.screen, r.title) }} />
     default:             return null
   }
 }
@@ -150,7 +173,7 @@ function ShellTabBar({ hidden }) {
           >
             <FIcon path={tab.icon} size={20} color={active ? Color.accent : Color.mute} stroke={active ? 2 : 1.5} />
             <span style={{
-              fontFamily: Font.mono, fontSize: 9, letterSpacing: 0.8,
+              fontFamily: Font.mono, fontSize: 10, letterSpacing: 0.8,
               textTransform: 'uppercase',
             }}>{tab.label}</span>
           </button>
@@ -207,10 +230,13 @@ function ShellContent() {
   )
 }
 
+// ─── Exported for demo orchestration ─────────────────────
+export { ShellContent }
+
 // ─── AppShell (main export) ──────────────────────────────
-export function AppShell() {
+export function AppShell({ _initialTab, _initialDetail } = {}) {
   return (
-    <NavigationProvider>
+    <NavigationProvider initialTab={_initialTab} initialDetail={_initialDetail}>
       <Phone statusTime="9:41">
         <ShellContent />
       </Phone>

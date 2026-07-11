@@ -37,10 +37,10 @@ function NavCard({ to, module, tag, tagColor, title, description, widget, highli
         </span>
       })}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
-        <div style={{ fontFamily: Font.mono, fontSize: 9, color: D.mute, letterSpacing: 1 }}>{module}</div>
+        <div style={{ fontFamily: Font.mono, fontSize: 10, color: D.mute, letterSpacing: 1 }}>{module}</div>
         <span style={{
           display: 'inline-flex', alignItems: 'center', gap: 5,
-          fontFamily: Font.mono, fontSize: 9, letterSpacing: 1, textTransform: 'uppercase',
+          fontFamily: Font.mono, fontSize: 10, letterSpacing: 1, textTransform: 'uppercase',
           padding: '3px 8px', borderRadius: 999, fontWeight: 600,
           background: tagColor === 'accent' ? 'rgba(255,110,80,0.08)' : tagColor === 'green' ? 'rgba(74,222,128,0.08)' : 'rgba(255,255,255,0.02)',
           color: tagColor === 'accent' ? D.accent : tagColor === 'green' ? D.green : D.dim,
@@ -81,7 +81,7 @@ export default function Home() {
               <div>HOST: <span style={{ color: D.dim }}>localhost:3000</span></div>
               <div>ENV: <span style={{ color: D.dim }}>production</span></div>
             </div>
-            <div style={{ fontFamily: Font.mono, fontSize: 10, lineHeight: 1.6, color: D.mute, borderLeft: `1px solid ${D.border}`, paddingLeft: 32 }}>
+            <div style={{ fontFamily: Font.mono, fontSize: 10, lineHeight: 1.6, color: D.mute, paddingLeft: 32 }}>
               <div>SYSTEM: <span style={{ color: D.green }}>ONLINE</span></div>
               <div>LATENCY: <span style={{ color: D.dim }}>0.14 ms</span></div>
             </div>
@@ -134,7 +134,7 @@ export default function Home() {
                 <div style={{ width: 14, height: 14, borderRadius: 3, background: '#FF6E50' }} />
                 <div style={{ width: 14, height: 14, borderRadius: 3, background: '#4ade80' }} />
                 <div style={{ width: 14, height: 14, borderRadius: 3, background: '#0d0d0d', border: `1px solid ${D.border}` }} />
-                <span style={{ fontFamily: Font.mono, fontSize: 9, color: D.mute, marginLeft: 'auto' }}>GEIST / GEIST MONO</span>
+                <span style={{ fontFamily: Font.mono, fontSize: 10, color: D.mute, marginLeft: 'auto' }}>GEIST / GEIST MONO</span>
               </div>
             }
           />
@@ -168,7 +168,41 @@ export default function Home() {
                 <div style={{ width: 8, height: 8, borderRadius: 4, background: Color.blue }} />
                 <div style={{ width: 8, height: 8, borderRadius: 4, background: Color.purple }} />
                 <div style={{ width: 8, height: 8, borderRadius: 4, background: Color.amber }} />
-                <span style={{ fontFamily: Font.mono, fontSize: 9, color: D.mute, marginLeft: 'auto' }}>32 NODES · 65 EDGES</span>
+                <span style={{ fontFamily: Font.mono, fontSize: 10, color: D.mute, marginLeft: 'auto' }}>32 NODES · 65 EDGES</span>
+              </div>
+            }
+          />
+
+          <NavCard
+            to="/templates"
+            module="MODULE-06 // TEMPLATES"
+            tag="PATTERNS"
+            tagColor="accent"
+            title="Design Templates"
+            description="20 reusable patterns with live examples — tile densities, focused mode layouts, intensity grids, exercise grouping, summary pages, filter lists, card status, and more."
+            widget={
+              <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap' }}>
+                {Array.from({ length: 20 }, (_, i) => String(i + 1).padStart(2, '0')).map(n => (
+                  <div key={n} style={{ width: 16, height: 16, borderRadius: 3, background: D.surface, border: `1px solid ${D.border}`, display: 'grid', placeItems: 'center' }}>
+                    <span style={{ fontFamily: Font.mono, fontSize: 6, color: D.dim }}>{n}</span>
+                  </div>
+                ))}
+              </div>
+            }
+          />
+
+          <NavCard
+            to="/check"
+            module="MODULE-07 // QA"
+            tag="AUDIT"
+            tagColor="accent"
+            title="Consistency Checker"
+            description="Verify screen coverage across /journey, /demo, and /app. Run design rule checks (R1-R6) against every screen. Browse the registry."
+            widget={
+              <div style={{ display: 'flex', gap: 12, alignItems: 'center', fontFamily: Font.mono, fontSize: 10 }}>
+                <span style={{ color: D.green }}>COVERAGE</span>
+                <span style={{ color: D.dim }}>DESIGN RULES</span>
+                <span style={{ color: D.dim }}>REGISTRY</span>
               </div>
             }
           />
@@ -182,7 +216,7 @@ export default function Home() {
             description="Public-facing marketing landing page with waitlist signups, adaptive TDEE models, parallel meal prep timelines, and scroll reveals."
             widget={
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 45 }}>
-                <span style={{ fontFamily: Font.mono, fontSize: 9, color: D.accent }}>WAITLIST: ACTIVE</span>
+                <span style={{ fontFamily: Font.mono, fontSize: 10, color: D.accent }}>WAITLIST: ACTIVE</span>
               </div>
             }
           />

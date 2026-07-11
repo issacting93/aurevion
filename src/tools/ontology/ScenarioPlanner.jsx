@@ -76,10 +76,10 @@ export default function ScenarioPlanner() {
       <div style={{ width: 340, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 20 }}>
         {/* Fitness goals */}
         <FSurface>
-          <FLabel size={9} mb={10} letter={1.2}>FITNESS GOALS</FLabel>
+          <FLabel size={10} mb={10} letter={1.2}>FITNESS GOALS</FLabel>
           {['Body Composition', 'Performance', 'Functional'].map(group => (
             <div key={group} style={{ marginBottom: 10 }}>
-              <FMono size={8} color={Color.faint}>{group.toUpperCase()}</FMono>
+              <FMono size={9} color={Color.faint}>{group.toUpperCase()}</FMono>
               <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 4 }}>
                 {Object.entries(GOAL_META).filter(([, m]) => m.group === group).map(([key, meta]) => (
                   <Chip key={key} label={meta.label} active={goals.has(key)} color={meta.color} onClick={() => toggleSet(goals, setGoals, key)} />
@@ -91,7 +91,7 @@ export default function ScenarioPlanner() {
 
         {/* Nutrition goals */}
         <FSurface>
-          <FLabel size={9} mb={10} letter={1.2}>NUTRITION GOALS</FLabel>
+          <FLabel size={10} mb={10} letter={1.2}>NUTRITION GOALS</FLabel>
           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
             {Object.entries(NUTRITION_GOAL_META).map(([key, meta]) => (
               <Chip key={key} label={meta.label} active={nutritionGoals.has(key)} color={meta.color} onClick={() => toggleSet(nutritionGoals, setNutritionGoals, key)} />
@@ -101,7 +101,7 @@ export default function ScenarioPlanner() {
 
         {/* Equipment */}
         <FSurface>
-          <FLabel size={9} mb={10} letter={1.2}>EQUIPMENT</FLabel>
+          <FLabel size={10} mb={10} letter={1.2}>EQUIPMENT</FLabel>
           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
             {EQUIPMENT_OPTIONS.map(opt => (
               <Chip key={opt.val} label={opt.label} active={equipment === opt.val} color={Color.accent} onClick={() => setEquipment(opt.val)} />
@@ -111,7 +111,7 @@ export default function ScenarioPlanner() {
 
         {/* Available days */}
         <FSurface>
-          <FLabel size={9} mb={10} letter={1.2}>AVAILABLE DAYS</FLabel>
+          <FLabel size={10} mb={10} letter={1.2}>AVAILABLE DAYS</FLabel>
           <div style={{ display: 'flex', gap: 4 }}>
             {ALL_DAYS.map(d => (
               <Chip key={d} label={d.slice(0, 2)} active={days.has(d)} color={Color.accent} onClick={() => toggleSet(days, setDays, d)} />
@@ -121,7 +121,7 @@ export default function ScenarioPlanner() {
 
         {/* Injuries */}
         <FSurface>
-          <FLabel size={9} mb={10} letter={1.2}>INJURIES</FLabel>
+          <FLabel size={10} mb={10} letter={1.2}>INJURIES</FLabel>
           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
             {INJURY_OPTIONS.map(inj => (
               <Chip key={inj} label={inj} active={injuries.has(inj)} color={Color.red} onClick={() => toggleSet(injuries, setInjuries, inj)} />
@@ -131,7 +131,7 @@ export default function ScenarioPlanner() {
 
         {/* Experience */}
         <FSurface>
-          <FLabel size={9} mb={10} letter={1.2}>EXPERIENCE</FLabel>
+          <FLabel size={10} mb={10} letter={1.2}>EXPERIENCE</FLabel>
           <div style={{ display: 'flex', gap: 4 }}>
             {EXP_OPTIONS.map(exp => (
               <Chip key={exp} label={exp} active={experience === exp} color={Color.blue} onClick={() => setExperience(exp)} />
@@ -151,7 +151,7 @@ export default function ScenarioPlanner() {
             {/* Caloric state + macro breakdown */}
             <div style={{ display: 'flex', gap: 12 }}>
               <FSurface style={{ flex: 1 }}>
-                <FLabel size={9} mb={8} letter={1.2}>CALORIC STATE</FLabel>
+                <FLabel size={10} mb={8} letter={1.2}>CALORIC STATE</FLabel>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
                   <span style={{ ...Type.headingMd }}>{caloricState?.state}</span>
                   <FMono color={caloricState?.modifier >= 0 ? Color.green : Color.red} size={12}>
@@ -160,14 +160,14 @@ export default function ScenarioPlanner() {
                 </div>
                 {mealPrep && (
                   <div style={{ marginTop: 10 }}>
-                    <FMono size={9} color={Color.mute}>MEAL PREP: {mealPrep.primary.toUpperCase()}</FMono>
+                    <FMono size={10} color={Color.mute}>MEAL PREP: {mealPrep.primary.toUpperCase()}</FMono>
                     <div style={{ ...Type.bodySm, color: Color.dim, marginTop: 4 }}>{mealPrep.timing}</div>
                   </div>
                 )}
               </FSurface>
 
               <FSurface style={{ flex: 1 }}>
-                <FLabel size={9} mb={8} letter={1.2}>MACRO SPLIT</FLabel>
+                <FLabel size={10} mb={8} letter={1.2}>MACRO SPLIT</FLabel>
                 {macros && (
                   <>
                     <div style={{ display: 'flex', height: 20, borderRadius: 4, overflow: 'hidden', marginBottom: 8 }}>
@@ -179,11 +179,11 @@ export default function ScenarioPlanner() {
                       {[['P', macros.protein, MACRO_COLORS.protein], ['C', macros.carbs, MACRO_COLORS.carbs], ['F', macros.fat, MACRO_COLORS.fat]].map(([l, range, c]) => (
                         <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                           <div style={{ width: 6, height: 6, borderRadius: 3, background: c }} />
-                          <FMono size={9} color={Color.dim}>{l} {range[0]}-{range[1]}%</FMono>
+                          <FMono size={10} color={Color.dim}>{l} {range[0]}-{range[1]}%</FMono>
                         </div>
                       ))}
                     </div>
-                    <FMono size={9} color={Color.mute} style={{ marginTop: 6 }}>PROTEIN: {macros.gPerKg}g/kg LBM</FMono>
+                    <FMono size={10} color={Color.mute} style={{ marginTop: 6 }}>PROTEIN: {macros.gPerKg}g/kg LBM</FMono>
                   </>
                 )}
               </FSurface>
@@ -191,17 +191,17 @@ export default function ScenarioPlanner() {
 
             {/* Pool stats */}
             <div style={{ display: 'flex', gap: 12 }}>
-              <FSurface style={{ flex: 1, textAlign: 'center', padding: 14 }}>
+              <FSurface style={{ flex: 1, textAlign: 'center', padding: 16 }}>
                 <FLabel mb={4}>Exercises</FLabel>
                 <FNum size={22} weight={300}>{exercisePoolSize}</FNum>
-                <FMono size={9} color={Color.mute}>AVAILABLE</FMono>
+                <FMono size={10} color={Color.mute}>AVAILABLE</FMono>
               </FSurface>
-              <FSurface style={{ flex: 1, textAlign: 'center', padding: 14 }}>
+              <FSurface style={{ flex: 1, textAlign: 'center', padding: 16 }}>
                 <FLabel mb={4}>Sessions</FLabel>
                 <FNum size={22} weight={300}>{program?.sessions?.length || 0}</FNum>
-                <FMono size={9} color={Color.mute}>/WEEK</FMono>
+                <FMono size={10} color={Color.mute}>/WEEK</FMono>
               </FSurface>
-              <FSurface style={{ flex: 1, textAlign: 'center', padding: 14 }}>
+              <FSurface style={{ flex: 1, textAlign: 'center', padding: 16 }}>
                 <FLabel mb={4}>Split</FLabel>
                 <FMono color={Color.accent} size={10}>{program?.splitLabel || '—'}</FMono>
               </FSurface>
@@ -209,7 +209,7 @@ export default function ScenarioPlanner() {
 
             {/* Weekly program preview */}
             <FSurface>
-              <FLabel size={9} mb={12} letter={1.2}>WEEKLY PROGRAM</FLabel>
+              <FLabel size={10} mb={12} letter={1.2}>WEEKLY PROGRAM</FLabel>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {program?.schedule?.map((entry, i) => (
                   <div key={i} style={{
@@ -220,12 +220,12 @@ export default function ScenarioPlanner() {
                   }}>
                     <FMono size={10} color={Color.dim} style={{ width: 30 }}>{entry.day}</FMono>
                     {entry.isRest ? (
-                      <FMono size={9} color={Color.faint}>REST</FMono>
+                      <FMono size={10} color={Color.faint}>REST</FMono>
                     ) : (
                       <>
                         <span style={{ ...Type.bodySm, flex: 1 }}>{entry.name}</span>
                         <FTag tone="mute" size="sm">{entry.modalityLabel}</FTag>
-                        <FMono size={9} color={Color.mute}>
+                        <FMono size={10} color={Color.mute}>
                           {entry.exercises?.filter(e => e.category !== 'warmup' && e.category !== 'cooldown').length} ex · ~{entry.estimatedMins}m
                         </FMono>
                       </>
@@ -246,11 +246,11 @@ export default function ScenarioPlanner() {
                   {session.exercises.filter(e => e.category !== 'warmup' && e.category !== 'cooldown').map((ex, ei) => (
                     <div key={ei} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
                       <div style={{ width: 4, height: 4, borderRadius: 2, background: Color.accent, flexShrink: 0 }} />
-                      <FMono size={9} color={Color.text} style={{ flex: 1 }}>{ex.name}</FMono>
-                      <FMono size={9} color={Color.mute}>
+                      <FMono size={10} color={Color.text} style={{ flex: 1 }}>{ex.name}</FMono>
+                      <FMono size={10} color={Color.mute}>
                         {ex.load > 0 ? `${ex.sets}×${ex.reps} @ ${ex.load}kg` : ex.duration > 0 ? `${ex.duration} min` : `${ex.sets}×${ex.reps}`}
                       </FMono>
-                      <FMono size={8} color={Color.faint}>{ex.rest}s rest</FMono>
+                      <FMono size={9} color={Color.faint}>{ex.rest}s rest</FMono>
                     </div>
                   ))}
                 </div>

@@ -151,7 +151,6 @@ function LeftRail({ items, selectedId, onSelect }) {
                   background: active ? 'rgba(255,255,255,0.05)' : 'transparent',
                   border: 'none', cursor: 'pointer', fontFamily: FONTS.sans,
                   display: 'flex', alignItems: 'center', gap: 10, color: T.text,
-                  borderLeft: active ? `2px solid ${T.accent}` : '2px solid transparent',
                 }}>
                   <span style={{
                     width: 6, height: 6, borderRadius: '50%', background: v.color, flexShrink: 0,
@@ -265,7 +264,7 @@ function TabBar() {
 function Inspector({ item, onNext, onPrev }) {
   return (
     <div style={{
-      width: 360, flexShrink: 0, borderLeft: `1px solid ${T.border}`,
+      width: 360, flexShrink: 0,
       background: T.bg, padding: 24, overflowY: 'auto',
       display: 'flex', flexDirection: 'column', gap: 22,
     }}>
@@ -291,7 +290,6 @@ function Inspector({ item, onNext, onPrev }) {
         <div style={{
           padding: '14px 16px', borderRadius: 12,
           background: 'rgba(255,255,255,0.03)',
-          borderLeft: `2px solid ${VERDICTS[item.verdict].color}`,
           fontSize: 14, lineHeight: 1.55, color: T.text,
           fontStyle: 'italic',
         }}>

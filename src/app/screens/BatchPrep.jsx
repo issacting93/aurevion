@@ -1,57 +1,89 @@
 // 10 Batch Prep — View suggested meals as production batches.
 // Grouping portions into production runs to visualize the efficiency of the plan.
 
+import { useMemo } from 'react'
 import { Color, Font, Space, Radius } from '../../ui/tokens'
 import { ICONS, FSurface, FNavBar, FLabel, FMono, FNum, FIcon, FTag, FBtn, FTabBar, Phone } from '../../ui/components'
+import { useNav } from '../../context/NavigationContext'
+import { useUser } from '../../context/UserContext'
+import { deriveBatches } from './nutrition-data'
+
+const BATCH_TYPE_COLORS = { 'FRESH PREP': Color.green, 'BATCH COOK': Color.blue, 'SLOW COOK': Color.accent }
 
 function BatchStat({ label, val }) {
   return (
     <div>
-      <span style={{ fontFamily: Font.mono, fontSize: 9, color: Color.mute, marginRight: 4 }}>{label}</span>
+      <span style={{ fontFamily: Font.mono, fontSize: 10, color: Color.mute, marginRight: 4 }}>{label}</span>
       <span style={{ fontFamily: Font.mono, fontSize: 12, color: Color.text, fontWeight: 500 }}>{val}g</span>
     </div>
   );
 }
 
 export function BatchPrepContent() {
-  const batches = [
+  const { pushDetail } = useNav()
+  const { mealPlan } = useUser()
+
+  const HARDCODED_BATCHES = [
     {
-      n: 'Garlic salmon \u00B7 greens',
+      n: 'Cook Fresh',
       portions: 4,
       type: 'FRESH PREP',
       time: '32m',
-      tone: Color.accent,
+      tone: BATCH_TYPE_COLORS['FRESH PREP'],
       macros: { p: 42, c: 12, f: 22 },
-      ings: ['4 Salmon fillets', '2 Bunches Asparagus', 'Lemon', 'Garlic']
+      recipes: [{ name: 'Garlic Salmon & Greens', servings: 4 }],
     },
     {
-      n: 'Chicken rice bowls',
+      n: 'Batch Prep',
       portions: 5,
       type: 'BATCH COOK',
       time: '48m',
-      tone: Color.blue,
+      tone: BATCH_TYPE_COLORS['BATCH COOK'],
       macros: { p: 48, c: 62, f: 12 },
-      ings: ['1kg Chicken Breast', '500g Jasmine Rice', 'Broccoli', 'Soy']
+      recipes: [{ name: 'Chicken & Rice Bowls', servings: 3 }, { name: 'Breakfast Burritos', servings: 2 }],
     },
     {
-      n: 'Beef chili \u00B7 slow cook',
+      n: 'Slow Cook',
       portions: 5,
       type: 'SLOW COOK',
       time: '1h 05m',
-      tone: Color.purple,
+      tone: BATCH_TYPE_COLORS['SLOW COOK'],
       macros: { p: 38, c: 14, f: 24 },
-      ings: ['800g Lean Beef', 'Kidney Beans', 'Tomato', 'Spices']
+      recipes: [{ name: 'High-Protein Beef Chili', servings: 3 }, { name: 'Slow-Cook Pulled Pork', servings: 2 }],
     },
   ];
 
+  const TYPE_LABELS = { batch: 'BATCH COOK', slow_cook: 'SLOW COOK', fresh: 'FRESH PREP' }
+  const TYPE_COLORS = { batch: BATCH_TYPE_COLORS['BATCH COOK'], slow_cook: BATCH_TYPE_COLORS['SLOW COOK'], fresh: BATCH_TYPE_COLORS['FRESH PREP'] }
+
+  const batches = useMemo(() => {
+    if (!mealPlan) return HARDCODED_BATCHES
+    const derived = deriveBatches(mealPlan)
+    return derived.map(b => {
+      const fmtTime = b.totalTime >= 60 ? `${Math.floor(b.totalTime / 60)}h ${String(b.totalTime % 60).padStart(2, '0')}m` : `${b.totalTime}m`
+      const portions = Math.round(b.totalPortions)
+      const totalP = b.recipes.reduce((s, r) => s + (r.macros?.protein || 0) * r.servings, 0)
+      const totalC = b.recipes.reduce((s, r) => s + (r.macros?.carbs || 0) * r.servings, 0)
+      const totalF = b.recipes.reduce((s, r) => s + (r.macros?.fat || 0) * r.servings, 0)
+      return {
+        n: b.label,
+        recipes: b.recipes.map(r => ({ name: r.name, servings: Math.round(r.servings) })),
+        portions,
+        type: TYPE_LABELS[b.type] || b.label,
+        time: fmtTime,
+        tone: TYPE_COLORS[b.type] || b.color,
+        macros: { p: Math.round(totalP / portions), c: Math.round(totalC / portions), f: Math.round(totalF / portions) },
+      }
+    })
+  }, [mealPlan]);
+
   return (
     <div style={{ flex: 1, padding: '20px 24px 40px', overflowY: 'auto' }}>
-      <FLabel>The production plan</FLabel>
       <div style={{ marginTop: 4, display: 'flex', alignItems: 'baseline', gap: 14 }}>
-        <FNum size={64} weight={200}>03</FNum>
+        <FNum size={40} weight={300}>{batches.length}</FNum>
         <div>
           <div style={{ fontSize: 18, fontWeight: 300, color: Color.text }}>Batches</div>
-          <FMono color={Color.dim} size={10}>14 MEALS TOTAL · WEEK 19</FMono>
+          <FMono color={Color.dim} size={10}>{mealPlan?.meals?.length || 14} MEALS TOTAL · WEEK 19</FMono>
         </div>
       </div>
 
@@ -59,38 +91,44 @@ export function BatchPrepContent() {
         {batches.map((b, i) => (
           <FSurface key={i}>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-              <div>
-                <FTag tone="mute" size="sm" style={{ marginBottom: 8 }}>{b.type}</FTag>
-                <div style={{ fontSize: 18, fontWeight: 400, color: Color.text }}>{b.n}</div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <FNum size={28} weight={200} unit="X">{b.portions}</FNum>
-                <FMono color={Color.mute} size={9} style={{ display: 'block', marginTop: 2 }}>PORTIONS</FMono>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+              <FTag tone="mute" size="sm">{b.type}</FTag>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                <FMono color={Color.text} size={14}>{b.portions}</FMono>
+                <FMono color={Color.mute} size={10}>PORTIONS</FMono>
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: Space[3], marginBottom: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14 }}>
+              {(b.recipes || []).map((r, j) => (
+                <div key={j} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: 13, fontWeight: 400, color: Color.text }}>{r.name}</span>
+                  <FMono color={Color.mute} size={10}>{r.servings}×</FMono>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', gap: Space[3], padding: '10px 0', borderTop: `1px solid ${Color.borderSoft}` }}>
               <BatchStat label="P" val={b.macros.p} />
               <BatchStat label="C" val={b.macros.c} />
               <BatchStat label="F" val={b.macros.f} />
-              <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
-                <FLabel mb={0} size={9}>Est. Time</FLabel>
-                <FMono color={Color.text} size={12}>{b.time}</FMono>
-              </div>
+              <FMono color={Color.mute} size={10} style={{ marginLeft: 'auto' }}>AVG / PORTION</FMono>
             </div>
 
-            <div style={{ padding: '12px 0', borderTop: `1px solid ${Color.borderSoft}` }}>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                {b.ings.map((ing, j) => (
-                  <span key={j} style={{
-                    fontSize: 11, color: Color.dim, background: 'rgba(255,255,255,0.03)',
-                    padding: '4px 8px', borderRadius: Radius.sm, border: `1px solid ${Color.borderSoft}`
-                  }}>{ing}</span>
-                ))}
-              </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 4, paddingTop: 6 }}>
+              <FLabel mb={0} size={10}>Est. Time</FLabel>
+              <FMono color={Color.text} size={12}>{b.time}</FMono>
             </div>
           </FSurface>
+        ))}
+      </div>
+
+      <div style={{ marginTop: 20, display: 'flex', gap: Space[5], justifyContent: 'center' }}>
+        {Object.entries(BATCH_TYPE_COLORS).map(([label, c]) => (
+          <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: c, flexShrink: 0 }} />
+            <span style={{ fontFamily: Font.mono, fontSize: 10, color: Color.mute, letterSpacing: 0.8 }}>{label}</span>
+          </div>
         ))}
       </div>
 
@@ -103,7 +141,7 @@ export function BatchPrepContent() {
 
       <div style={{ marginTop: 32, display: 'flex', gap: Space[3] }}>
         <FBtn variant="ghost" full style={{ flex: 1 }}>Edit Meal Queue</FBtn>
-        <FBtn variant="split" full style={{ flex: 1.5 }} iconLeading={ICONS.cart}>Finalize Shopping List</FBtn>
+        <FBtn variant="split" full style={{ flex: 1.5 }} iconLeading={ICONS.cart} onClick={() => pushDetail('fridge', 'Pantry')}>Finalize Shopping List</FBtn>
       </div>
     </div>
   );

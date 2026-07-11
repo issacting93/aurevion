@@ -33,9 +33,9 @@ export const SCREEN_STATES = {
     { key: 'default', label: 'Default', description: 'Contract summary with all fields populated.' },
   ],
   'tdee-a': [
-    { key: 'default', label: 'Default', description: 'Day 87 — high confidence (74%), narrow band.' },
-    { key: 'early', label: 'Early days (Day 3)', description: 'Low confidence (12%), wide band, few data points.' },
-    { key: 'converged', label: 'Fully converged', description: 'Confidence at 95%+, band nearly flat, model stable.' },
+    { key: 'default', label: 'Default', description: 'Segmented burn ring showing BMR + Activity arcs. 7-day trend sparkline. 74% model confidence.' },
+    { key: 'early', label: 'Early days (Day 3)', description: 'Day 3 — ring barely filled, wide uncertainty. Sparkline has few data points.' },
+    { key: 'converged', label: 'Fully converged', description: 'Ring complete (BMR + Activity = TDEE). 95%+ confidence. Sparkline flat and stable.' },
   ],
   'tdee-b': [
     { key: 'default', label: 'Default', description: 'Side-by-side Day 3 vs Day 87 comparison.' },
@@ -105,6 +105,15 @@ export const SCREEN_STATES = {
   'profile': [
     { key: 'default', label: 'Default', description: 'Profile with active contract, 14-day check-in streak.' },
     { key: 'no-contract', label: 'No active contract', description: 'Goal completed or not set. CTA to start new goal.' },
+  ],
+  'water': [
+    { key: 'default', label: 'Default', description: 'Hydration ring at 50% (1,250 / 2,500 ml). 7-day sparkline. 5 logged entries.' },
+    { key: 'complete', label: 'Target met', description: 'Ring turns green. Exceeded 2,500 ml.' },
+    { key: 'empty', label: 'No entries', description: 'Ring empty. Quick-add buttons prominent.' },
+  ],
+  'wk-history': [
+    { key: 'default', label: 'Default', description: 'Chronological list of completed workouts with volume, sets, RPE per session.' },
+    { key: 'empty', label: 'No workouts', description: 'Empty state — user has not completed any sessions yet.' },
   ],
 }
 
@@ -189,25 +198,29 @@ export const SCREEN_ANATOMY = {
     ]},
   },
   'tdee-a': {
-    notes: 'Live TDEE estimate with 7-day trajectory graph and confidence band.',
+    notes: 'Segmented burn ring showing BMR + Activity as two arcs, with 7-day sparkline trend and model confidence bar.',
     tree: { component: 'Phone', children: [
       { component: 'FNavBar', props: { title: 'Expenditure' } },
-      { component: 'FLabel', props: { children: 'TDEE 7-day average' } },
-      { component: 'FNum', props: { size: 76, children: '2,420' } },
-      { component: 'FTag', props: { tone: 'green', children: 'NARROWING' } },
-      { component: 'TDEEPath', note: 'SVG trajectory visualization (screen-local)' },
-      { component: 'FLabel', props: { children: 'Model confidence' } },
-      { component: 'FTexBar', props: { pct: 74, height: 10 } },
+      { component: 'TDEERing', note: 'Segmented ring: BMR (muted accent) + Activity (vibrant accent with glow). Fills toward TDEE target.' },
+      { component: 'LegendItem', note: 'BMR: 1,620 kcal', props: { color: 'accent 30%' } },
+      { component: 'LegendItem', note: 'Activity: +580 kcal of 800 budget', props: { color: 'accent' } },
+      { component: 'Sparkline', note: '7-day TDEE trend with day labels' },
+      { component: 'FSurface', note: 'Model confidence', children: [
+        { component: 'FLabel', props: { children: 'Model confidence' } },
+        { component: 'FTexBar', props: { pct: 74, height: 10 } },
+      ]},
       { component: 'FTabBar', props: { active: 3 } },
     ]},
   },
   'tdee-b': {
-    notes: 'How the confidence band narrows from Day 3 to Day 87.',
+    notes: 'Confidence comparison: two rings side by side (Day 3 vs Now) with confidence trajectory sparkline.',
     tree: { component: 'Phone', children: [
       { component: 'FNavBar', props: { title: 'Confidence' } },
-      { component: 'FNum', props: { size: 36 } },
-      { component: 'TDEEPath', note: 'Wide band (Day 3)' },
-      { component: 'TDEEPath', note: 'Narrow band (Day 87)' },
+      { component: 'FNum', props: { size: 48, children: 'Trust visible.' } },
+      { component: 'ConfidenceRing', note: 'Day 3: 18% confidence, thick stroke (±210 kcal), muted' },
+      { component: 'ConfidenceRing', note: 'Now: 74% confidence, thin stroke (±70 kcal), vibrant with glow' },
+      { component: 'Sparkline', note: 'Confidence trajectory 18% → 74% over time' },
+      { component: 'FSurface', note: 'What changed — 87 weigh-ins, 81 food logs' },
     ]},
   },
   'plan-m': {
@@ -389,6 +402,28 @@ export const SCREEN_ANATOMY = {
       { component: 'SettingRows', note: 'Icon + label + sub + arrow' },
       { component: 'FBtn', props: { variant: 'ghost', children: 'Sign out' } },
       { component: 'FTabBar', props: { active: 4 } },
+    ]},
+  },
+  'water': {
+    notes: 'Hydration ring showing daily water intake progress, 7-day sparkline trend, quick-add buttons, and intake log.',
+    tree: { component: 'Phone', children: [
+      { component: 'FNavBar', props: { title: 'Hydration' } },
+      { component: 'HydrationRing', note: 'Progress ring: blue fill, green when target met. Center shows ML TODAY.' },
+      { component: 'LegendItem', note: 'Today / Avg 7d / Streak' },
+      { component: 'Sparkline', note: '7-day water trend with day labels' },
+      { component: 'QuickAddButtons', note: '+150, +250, +350, +500 ML grid' },
+      { component: 'FListRow', note: "Today's log — timestamped entries" },
+      { component: 'FTabBar', props: { active: 2 } },
+    ]},
+  },
+  'wk-history': {
+    notes: 'Workout history — chronological list of completed sessions from activityLog. Volume trend arrows compare to previous session of same type.',
+    tree: { component: 'Phone', children: [
+      { component: 'FNavBar', props: { title: 'History' } },
+      { component: 'FNum', note: 'Total workout count hero' },
+      { component: 'HistoryList', note: 'Date-sorted completed sessions', children: [
+        { component: 'Row', note: 'Date, session name, modality, volume, RPE, trend arrow' },
+      ]},
     ]},
   },
 }

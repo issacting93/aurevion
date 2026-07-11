@@ -1,7 +1,7 @@
 /* Feature Components — domain-specific primitives for Aurevion screens. */
 
 import { useState, useEffect, Children, Component } from 'react'
-import { Color, Font, Space, Radius, Duration, Ease, Type } from './tokens'
+import { Color, Font, Space, Radius, Duration, Ease, Type, alpha } from './tokens'
 
 // ── Icons ──
 export const ICONS = {
@@ -36,22 +36,65 @@ export const ICONS = {
 }
 
 // ── Surface card ──
-export function FSurface({ children, accent, tone, icon, title, style }) {
+export function FSurface({ children, accent, tone, icon, title, style, onClick }) {
   const toneColor = tone === 'green' ? Color.green : tone === 'red' ? Color.red : tone === 'accent' ? Color.accent : null
   return (
-    <div style={{
-      padding: tone ? Space[4] : Space[5], borderRadius: Radius.xl,
+    <div data-name={title ? `Card / ${title}` : 'Card'} onClick={onClick} style={{
+      padding: Space[5], borderRadius: Radius.lg,
       background: Color.surface,
-      border: `1px solid ${accent ? `${accent}40` : tone ? Color.border : Color.borderSoft}`,
+      border: `1px solid ${accent ? alpha(accent, 0.25) : tone ? Color.border : Color.borderSoft}`,
       ...style,
     }}>
       {title && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: Space[2], marginBottom: Space[2] }}>
-          {icon && <FIcon path={icon} size={14} color={toneColor || Color.accent}/>}
-          <span style={{ ...Type.labelSm, color: toneColor || Color.accent, fontWeight: 600 }}>{title}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: Space[2], marginBottom: Space[3] }}>
+          {icon && <FIcon path={icon} size={15} color={toneColor || Color.accent}/>}
+          <span style={{ ...Type.labelMd, color: toneColor || Color.accent, fontWeight: 600 }}>{title}</span>
         </div>
       )}
       {children}
+    </div>
+  )
+}
+
+// ── FDataCard — hero data card: category → large title → subtitle → metric boxes ──
+export function FDataCard({ category, categoryColor, title, subtitle, metrics, footer, style }) {
+  const accentC = categoryColor || Color.accent
+  return (
+    <div style={{
+      padding: '24px 22px', borderRadius: Radius.xl,
+      background: Color.surface, border: `1px solid ${Color.borderSoft}`, ...style,
+    }}>
+      {category && (
+        <div style={{ fontFamily: Font.mono, fontSize: 10, fontWeight: 500, color: accentC, letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 8 }}>{category}</div>
+      )}
+      <div style={{ fontFamily: Font.sans, fontSize: 36, fontWeight: 300, letterSpacing: -1, lineHeight: 1.1, color: Color.text, marginBottom: subtitle ? 8 : 0 }}>{title}</div>
+      {subtitle && (
+        <div style={{ fontFamily: Font.sans, fontSize: 13, fontWeight: 300, color: Color.dim, lineHeight: 1.5, maxWidth: '90%', marginBottom: metrics ? 20 : 0 }}>{subtitle}</div>
+      )}
+      {metrics && metrics.length > 0 && (
+        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(metrics.length, 4)}, 1fr)`, gap: 8 }}>
+          {metrics.map((m, i) => {
+            const isPrimary = i === 0
+            return (
+              <div key={m.label} style={{
+                padding: '12px 14px', borderRadius: Radius.lg,
+                background: isPrimary ? `${accentC}06` : Color.surface2,
+                border: `1px solid ${isPrimary ? `${accentC}25` : Color.borderSoft}`,
+              }}>
+                <div style={{ fontFamily: Font.mono, fontSize: 9, fontWeight: 600, color: isPrimary ? accentC : Color.mute, letterSpacing: 0.8, textTransform: 'uppercase', marginBottom: 6 }}>{m.label}</div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
+                  <span style={{ fontFamily: Font.sans, fontSize: 28, fontWeight: 300, color: Color.text, letterSpacing: -0.5 }}>{m.value}</span>
+                  {m.unit && <span style={{ fontFamily: Font.mono, fontSize: 10, color: Color.mute }}>{m.unit}</span>}
+                </div>
+                {isPrimary && <div style={{ height: 3, borderRadius: 2, marginTop: 8, background: `linear-gradient(90deg, ${accentC}, ${accentC}40)`, width: '80%' }} />}
+              </div>
+            )
+          })}
+        </div>
+      )}
+      {footer && (
+        <div style={{ marginTop: 12, padding: '14px 16px', borderRadius: Radius.lg, background: Color.surface2, border: `1px solid ${Color.borderSoft}` }}>{footer}</div>
+      )}
     </div>
   )
 }
@@ -60,16 +103,16 @@ export function FSurface({ children, accent, tone, icon, title, style }) {
 export function FListRow({ leading, title, subtitle, trailing, divider = true, compact, onClick, style }) {
   return (
     <div onClick={onClick} style={{
-      display: 'flex', alignItems: 'center', gap: 14,
-      padding: compact ? '12px 0' : '20px 0',
+      display: 'flex', alignItems: 'center', gap: 16,
+      padding: compact ? '18px 0' : '20px 0',
       borderTop: divider ? `1px solid ${Color.borderSoft}` : 'none',
       ...(onClick && { cursor: 'pointer', background: 'transparent', border: 'none', color: Color.text, textAlign: 'left', fontFamily: Font.sans, width: '100%' }),
       ...style,
     }}>
       {leading && <div style={{ flexShrink: 0 }}>{leading}</div>}
       <div style={{ flex: 1, minWidth: 0 }}>
-        {title && <div style={{ fontSize: 15, fontWeight: 400, color: Color.text }}>{title}</div>}
-        {subtitle && <FMono color={Color.mute} size={10}>{subtitle}</FMono>}
+        {title && <div style={{ fontSize: 14, fontWeight: 500, color: Color.text }}>{title}</div>}
+        {subtitle && <div style={{ marginTop: 5 }}><FMono color={Color.mute}>{subtitle}</FMono></div>}
       </div>
       {trailing && <div style={{ flexShrink: 0 }}>{trailing}</div>}
     </div>
@@ -94,7 +137,7 @@ export function FButtonGroup({ options, value, onChange, size = 'md', style }) {
             borderRadius: 8, border: 'none', cursor: 'pointer',
             background: active ? 'rgba(255,110,80,0.12)' : 'transparent',
             color: active ? Color.accent : Color.mute,
-            fontFamily: Font.mono, fontSize: size === 'sm' ? 9 : 10,
+            fontFamily: Font.mono, fontSize: size === 'sm' ? 10 : 11,
             letterSpacing: 1, textTransform: 'uppercase',
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
             transition: `background ${Duration.normal} ease, color ${Duration.normal} ease`,
@@ -125,19 +168,19 @@ export function FAvatar({ initials, tone = 'neutral', size = 48, image }) {
 
 
 // ── Phone shell ──
-export function Phone({ children, statusTime = '9:41' }) {
+export function Phone({ children, statusTime = '9:41', label, group }) {
   return (
-    <div style={{ width: 402, height: 874, borderRadius: 56, background: Color.bg, color: Color.text, overflow: 'hidden', fontFamily: Font.sans, position: 'relative', boxShadow: '0 30px 80px rgba(0,0,0,0.4), 0 0 0 9px #1a1a1a, 0 0 0 10px #2a2a2a', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 54, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 36px 0', fontFamily: Font.sans, fontSize: 15, fontWeight: 600, zIndex: 50, pointerEvents: 'none' }}>
+    <div data-name={label ? `Phone / ${label}` : 'Phone'} style={{ width: 428, height: 926, borderRadius: 56, background: Color.bg, color: Color.text, overflow: 'hidden', fontFamily: Font.sans, position: 'relative', boxShadow: '0 30px 80px rgba(0,0,0,0.4), 0 0 0 9px #1a1a1a, 0 0 0 10px #2a2a2a', display: 'flex', flexDirection: 'column' }}>
+      <div data-name="Status Bar" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 54, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 36px 0', fontFamily: Font.sans, fontSize: 15, fontWeight: 600, zIndex: 50, pointerEvents: 'none' }}>
         <span>{statusTime}</span>
         <span style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
           <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="0.5" /><rect x="4.5" y="5" width="3" height="6" rx="0.5" /><rect x="9" y="2.5" width="3" height="8.5" rx="0.5" /><rect x="13.5" y="0" width="3" height="11" rx="0.5" /></svg>
           <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="currentColor" strokeOpacity="0.4" fill="none" /><rect x="2" y="2" width="18" height="8" rx="1.5" fill="currentColor" /><path d="M23 4v4c.8-.3 1.5-1.3 1.5-2s-.7-1.7-1.5-2z" fill="currentColor" fillOpacity="0.4" /></svg>
         </span>
       </div>
-      <div style={{ position: 'absolute', top: 11, left: '50%', transform: 'translateX(-50%)', width: 124, height: 36, borderRadius: 22, background: '#000', zIndex: 60 }} />
-      <div style={{ flex: 1, minHeight: 0, paddingTop: 54, display: 'flex', flexDirection: 'column' }}>{children}</div>
-      <div style={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', width: 134, height: 5, borderRadius: 999, background: 'rgba(255,255,255,0.35)' }} />
+      <div data-name="Dynamic Island" style={{ position: 'absolute', top: 11, left: '50%', transform: 'translateX(-50%)', width: 124, height: 36, borderRadius: 22, background: '#000', zIndex: 60 }} />
+      <div data-name="Content" style={{ flex: 1, minHeight: 0, paddingTop: 54, display: 'flex', flexDirection: 'column' }}>{children}</div>
+      <div data-name="Home Indicator" style={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', width: 134, height: 5, borderRadius: 999, background: 'rgba(255,255,255,0.35)' }} />
     </div>
   )
 }
@@ -145,16 +188,16 @@ export function Phone({ children, statusTime = '9:41' }) {
 // ── FNavBar ──
 export function FNavBar({ title, leading, trailing }) {
   return (
-    <div style={{ padding: '12px 24px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 48 }}>{leading}</div>
-      {title && <div style={{ fontFamily: Font.mono, fontSize: 11, letterSpacing: 1.4, color: Color.mute, textTransform: 'uppercase' }}>{title}</div>}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 48, justifyContent: 'flex-end' }}>{trailing}</div>
+    <div data-name="Nav Bar" style={{ padding: '12px 24px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+      <div data-name="Nav Leading" style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 48 }}>{leading}</div>
+      {title && <div data-name="Nav Title" style={{ fontFamily: Font.mono, fontSize: 12, letterSpacing: 1.4, color: Color.mute, textTransform: 'uppercase' }}>{title}</div>}
+      <div data-name="Nav Trailing" style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 48, justifyContent: 'flex-end' }}>{trailing}</div>
     </div>
   )
 }
 
 // ── FLabel ──
-export function FLabel({ children, color = Color.mute, size = 10, mb = 6, mt = 0, letter = 1.4 }) {
+export function FLabel({ children, color = Color.mute, size = 10, mb = 6, mt = 0, letter = 0.8 }) {
   return <div style={{ fontFamily: Font.mono, fontSize: size, letterSpacing: letter, color, textTransform: 'uppercase', marginBottom: mb, marginTop: mt }}>{children}</div>
 }
 
@@ -175,15 +218,15 @@ export function FNum({ children, size = 56, weight = 200, unit, color = Color.te
 
 // ── FTexBar ──
 export function FTexBar({ pct = 70, height = 22, color = Color.accent, track = 'rgba(255,255,255,0.05)', radius = 6, animate = true }) {
-  const [width, setWidth] = useState(animate ? 0 : pct)
+  const [scale, setScale] = useState(animate ? 0 : pct / 100)
   useEffect(() => {
     if (!animate) return
-    const t = setTimeout(() => setWidth(pct), 80)
+    const t = setTimeout(() => setScale(pct / 100), 80)
     return () => clearTimeout(t)
   }, [pct, animate])
   return (
     <div style={{ height, borderRadius: radius, background: track, overflow: 'hidden' }}>
-      <div style={{ width: `${width}%`, height: '100%', borderRadius: radius, background: `repeating-linear-gradient(135deg, rgba(0,0,0,0.22) 0 1.5px, transparent 1.5px 5px), ${color}`, transition: `width ${Duration.fill} ${Ease.expo}` }} />
+      <div style={{ width: '100%', height: '100%', borderRadius: radius, background: `repeating-linear-gradient(135deg, rgba(0,0,0,0.22) 0 1.5px, transparent 1.5px 5px), ${color}`, transform: `scaleX(${scale})`, transformOrigin: 'left', transition: `transform ${Duration.fill} ${Ease.expo}` }} />
     </div>
   )
 }
@@ -217,7 +260,7 @@ export function FTag({ children, tone = 'neutral', size = 'sm', icon }) {
   }
   const p = palette[tone]
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: size === 'sm' ? '3px 8px' : '5px 10px', borderRadius: 999, background: p.bg, color: p.fg, border: p.border ? `1px solid ${p.border}` : 'none', fontFamily: Font.mono, fontSize: size === 'sm' ? 10 : 11, fontWeight: 600, letterSpacing: 0.8, textTransform: 'uppercase', whiteSpace: 'nowrap', flexShrink: 0 }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: size === 'sm' ? '4px 10px' : '6px 12px', borderRadius: 999, background: p.bg, color: p.fg, border: p.border ? `1px solid ${p.border}` : 'none', fontFamily: Font.mono, fontSize: size === 'sm' ? 11 : 12, fontWeight: 600, letterSpacing: 0.8, textTransform: 'uppercase', whiteSpace: 'nowrap', flexShrink: 0 }}>
       {icon}{children}
     </span>
   )
@@ -236,7 +279,7 @@ export function FBtn({ children, onClick, style = {}, variant, primary, size = '
           {iconLeading && <FIcon path={iconLeading} size={14} stroke={2.4} color={Color.accentText}/>}
           {loading ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><span style={{ width: 12, height: 12, borderRadius: '50%', border: '2px solid rgba(26,15,10,0.3)', borderTopColor: Color.accentText, animation: 'fbtnSpin 0.7s linear infinite' }}/><span>WORKING</span></span> : children}
         </span>
-        <span style={{ background: hover ? 'rgba(0,0,0,0.28)' : 'rgba(0,0,0,0.18)', borderLeft: '1px solid rgba(0,0,0,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: `background ${Duration.normal} ${Ease.default}` }}>
+        <span style={{ background: hover ? 'rgba(0,0,0,0.28)' : 'rgba(0,0,0,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: `background ${Duration.normal} ${Ease.default}` }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={Color.accentText} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </span>
       </button>
@@ -265,7 +308,7 @@ export function FBtn({ children, onClick, style = {}, variant, primary, size = '
       onMouseEnter={() => setHover(true)} onMouseLeave={() => { setHover(false); setActive(false) }}
       onMouseDown={() => setActive(true)} onMouseUp={() => setActive(false)}
       style={{ padding: sz.pad, minHeight: sz.lh, borderRadius: sz.radius, border: p.border === 'transparent' ? 'none' : `1px solid ${p.border}`, background: bg, color: fg, cursor: disabled || loading ? 'not-allowed' : 'pointer', fontFamily: isMono ? Font.mono : Font.sans, fontSize: isMono ? sz.fs : sz.fs + 2, fontWeight: 600, letterSpacing: isMono ? 1.4 : 0, textTransform: isMono ? 'uppercase' : 'none', width: full ? '100%' : 'auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: sz.gap, transition: `background ${Duration.fast} ${Ease.default}, color ${Duration.fast} ${Ease.default}, transform ${Duration.micro} ${Ease.default}`, transform: active ? 'translateY(0.5px)' : 'translateY(0)', opacity: disabled ? 0.5 : 1, ...style }}>
-      {loading ? <div style={{ width: sz.iconSize, height: sz.iconSize, borderRadius: '50%', border: `1.6px solid ${fg}33`, borderTopColor: fg, animation: 'fbtnSpin 0.7s linear infinite' }} /> : iconLeading && <FIcon path={iconLeading} size={sz.iconSize} stroke={2.2} color={fg} />}
+      {loading ? <div style={{ width: sz.iconSize, height: sz.iconSize, borderRadius: '50%', border: `1.6px solid ${alpha(fg, 0.2)}`, borderTopColor: fg, animation: 'fbtnSpin 0.7s linear infinite' }} /> : iconLeading && <FIcon path={iconLeading} size={sz.iconSize} stroke={2.2} color={fg} />}
       {children}
       {icon && !loading && <FIcon path={icon} size={sz.iconSize} stroke={2.2} color={fg} />}
     </button>
@@ -310,9 +353,9 @@ export function FCheckbox({ checked, tone = 'green', size = 20 }) {
 
 // ── FTabBar ──
 export function FTabBar({ active = 0 }) {
-  const tabs = [{ i: ICONS.goal }, { i: ICONS.meal }, { i: ICONS.fire, big: true }, { i: ICONS.chart }, { i: ICONS.person }]
+  const tabs = [{ i: ICONS.goal, n: 'Home' }, { i: ICONS.meal, n: 'Eat' }, { i: ICONS.fire, big: true, n: 'Train' }, { i: ICONS.chart, n: 'Plan' }, { i: ICONS.person, n: 'You' }]
   return (
-    <div style={{ padding: '10px 16px 26px', flexShrink: 0 }}>
+    <div data-name="Tab Bar" style={{ padding: '10px 16px 26px', flexShrink: 0 }}>
       <div style={{ height: 56, borderRadius: 999, background: 'rgba(20,20,20,0.85)', backdropFilter: 'blur(16px)', border: `1px solid ${Color.borderSoft}`, display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
         {tabs.map((t, i) => (
           <div key={i} style={{ width: 36, height: 36, borderRadius: '50%', background: i === active ? Color.accent : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', color: i === active ? Color.accentText : Color.dim }}>

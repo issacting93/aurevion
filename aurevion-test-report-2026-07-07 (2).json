@@ -1,0 +1,1349 @@
+[
+  {
+    "agent": "Alex",
+    "profile": {
+      "goals": [
+        "hypertrophy"
+      ],
+      "equipment": "full_gym",
+      "days": 5,
+      "injuries": [],
+      "experience": "intermediate"
+    },
+    "timestamp": "2026-07-07T07:15:45.815Z",
+    "elapsed_ms": 1,
+    "checks": [
+      {
+        "step": "onboarding",
+        "test": "TDEE > 0",
+        "pass": true,
+        "value": "3500"
+      },
+      {
+        "step": "onboarding",
+        "test": "TDEE is reasonable (1200-5000)",
+        "pass": true,
+        "value": "3500"
+      },
+      {
+        "step": "onboarding",
+        "test": "Target kcal > 0",
+        "pass": true,
+        "value": "3800"
+      },
+      {
+        "step": "onboarding",
+        "test": "Protein > 0",
+        "pass": true,
+        "value": "174g"
+      },
+      {
+        "step": "onboarding",
+        "test": "Carbs > 0",
+        "pass": true,
+        "value": "562g"
+      },
+      {
+        "step": "onboarding",
+        "test": "Fat > 0",
+        "pass": true,
+        "value": "95g"
+      },
+      {
+        "step": "onboarding",
+        "test": "Macros sum ≈ target (±100 kcal)",
+        "pass": true,
+        "value": "3799 vs 3800"
+      },
+      {
+        "step": "onboarding",
+        "test": "Caloric modifier applied",
+        "pass": true,
+        "value": "diff=300, expected=300"
+      },
+      {
+        "step": "onboarding",
+        "test": "Protein g/kg ≈ 2.2",
+        "pass": true,
+        "value": "2.2 g/kg (target 2.2)"
+      },
+      {
+        "step": "program",
+        "test": "Plan generated",
+        "pass": true,
+        "value": "Push / Pull / Legs · Hypertrophy"
+      },
+      {
+        "step": "program",
+        "test": "Sessions > 0",
+        "pass": true,
+        "value": "5"
+      },
+      {
+        "step": "program",
+        "test": "Schedule = 7 days",
+        "pass": true,
+        "value": "7"
+      },
+      {
+        "step": "program",
+        "test": "Training days ≤ available",
+        "pass": true,
+        "value": "5 ≤ 5"
+      },
+      {
+        "step": "program",
+        "test": "All sessions have goalSources",
+        "pass": true,
+        "value": "hypertrophy | hypertrophy | hypertrophy | hypertrophy | hypertrophy"
+      },
+      {
+        "step": "program",
+        "test": "All sessions have exercises",
+        "pass": true,
+        "value": "8, 7, 8, 8, 7"
+      },
+      {
+        "step": "program",
+        "test": "Phase = Base at week 1",
+        "pass": true,
+        "value": "Base"
+      },
+      {
+        "step": "program",
+        "test": "Total weeks = 12",
+        "pass": true,
+        "value": "12"
+      },
+      {
+        "step": "program",
+        "test": "Split matches day count (5d)",
+        "pass": true,
+        "value": "Push / Pull / Legs (expected Push*)"
+      },
+      {
+        "step": "program",
+        "test": "Session modalities ⊂ goal modalities",
+        "pass": true,
+        "value": "sessions: hypertrophy · goals: hypertrophy"
+      },
+      {
+        "step": "program",
+        "test": "All sessions have warmup",
+        "pass": true,
+        "value": "yes"
+      },
+      {
+        "step": "program",
+        "test": "All sessions have cooldown",
+        "pass": true,
+        "value": "yes"
+      },
+      {
+        "step": "program",
+        "test": "Estimated mins reasonable (20-90)",
+        "pass": true,
+        "value": "50, 50, 50, 50, 50"
+      },
+      {
+        "step": "constraints",
+        "test": "All exercises use available equipment",
+        "pass": true,
+        "value": "clean"
+      },
+      {
+        "step": "constraints",
+        "test": "No duplicate exercises in Mon",
+        "pass": true,
+        "value": "clean"
+      },
+      {
+        "step": "constraints",
+        "test": "No duplicate exercises in Tue",
+        "pass": true,
+        "value": "clean"
+      },
+      {
+        "step": "constraints",
+        "test": "No duplicate exercises in Wed",
+        "pass": true,
+        "value": "clean"
+      },
+      {
+        "step": "constraints",
+        "test": "No duplicate exercises in Thu",
+        "pass": true,
+        "value": "clean"
+      },
+      {
+        "step": "constraints",
+        "test": "No duplicate exercises in Fri",
+        "pass": true,
+        "value": "clean"
+      },
+      {
+        "step": "grouping",
+        "test": "superset A has ≥2 items",
+        "pass": true,
+        "value": "2 items"
+      },
+      {
+        "step": "grouping",
+        "test": "superset A has restAfter",
+        "pass": true,
+        "value": "90s"
+      },
+      {
+        "step": "grouping",
+        "test": "Flatten preserves _groupId",
+        "pass": true,
+        "value": "2 items"
+      },
+      {
+        "step": "grouping",
+        "test": "superset A has ≥2 items",
+        "pass": true,
+        "value": "2 items"
+      },
+      {
+        "step": "grouping",
+        "test": "superset A has restAfter",
+        "pass": true,
+        "value": "90s"
+      },
+      {
+        "step": "grouping",
+        "test": "Flatten preserves _groupId",
+        "pass": true,
+        "value": "2 items"
+      },
+      {
+        "step": "browser",
+        "test": "Recommended exercises available",
+        "pass": true,
+        "value": "6"
+      },
+      {
+        "step": "browser",
+        "test": "All exercises have category",
+        "pass": true,
+        "value": "0 missing"
+      },
+      {
+        "step": "browser",
+        "test": "All exercises have muscles[]",
+        "pass": true,
+        "value": "0 missing"
+      },
+      {
+        "step": "swap",
+        "test": "Swap candidates for Overhead Press (Mon)",
+        "pass": true,
+        "value": "4 alternatives"
+      },
+      {
+        "step": "swap",
+        "test": "Swap candidates for DB Row (Tue)",
+        "pass": true,
+        "value": "2 alternatives"
+      },
+      {
+        "step": "swap",
+        "test": "Swap candidates for Front Squat (Wed)",
+        "pass": true,
+        "value": "4 alternatives"
+      },
+      {
+        "step": "swap",
+        "test": "Swap candidates for Overhead Press (Thu)",
+        "pass": true,
+        "value": "4 alternatives"
+      },
+      {
+        "step": "swap",
+        "test": "Swap candidates for Pull-up (Fri)",
+        "pass": true,
+        "value": "2 alternatives"
+      },
+      {
+        "step": "phases",
+        "test": "Week 1 → Base",
+        "pass": true,
+        "value": "Base"
+      },
+      {
+        "step": "phases",
+        "test": "Week 5 → Build",
+        "pass": true,
+        "value": "Build"
+      },
+      {
+        "step": "phases",
+        "test": "Week 9 → Peak",
+        "pass": true,
+        "value": "Peak"
+      },
+      {
+        "step": "phases",
+        "test": "Week 12 → Peak",
+        "pass": true,
+        "value": "Peak"
+      },
+      {
+        "step": "nutrition",
+        "test": "Meal prep derived",
+        "pass": true,
+        "value": "Balanced Prep"
+      },
+      {
+        "step": "intensity",
+        "test": "RIR target for hypertrophy",
+        "pass": true,
+        "value": "RIR 1-3"
+      },
+      {
+        "step": "intensity",
+        "test": "RIR target for hypertrophy",
+        "pass": true,
+        "value": "RIR 1-3"
+      },
+      {
+        "step": "intensity",
+        "test": "RIR target for hypertrophy",
+        "pass": true,
+        "value": "RIR 1-3"
+      },
+      {
+        "step": "intensity",
+        "test": "RIR target for hypertrophy",
+        "pass": true,
+        "value": "RIR 1-3"
+      },
+      {
+        "step": "intensity",
+        "test": "RIR target for hypertrophy",
+        "pass": true,
+        "value": "RIR 1-3"
+      },
+      {
+        "step": "loads",
+        "test": "Load for Overhead Press (intermediate)",
+        "pass": true,
+        "value": "40kg"
+      },
+      {
+        "step": "loads",
+        "test": "Load for DB Bench Press (intermediate)",
+        "pass": true,
+        "value": "28kg"
+      },
+      {
+        "step": "history",
+        "test": "Volume computable",
+        "pass": true,
+        "value": "2,288 kg"
+      },
+      {
+        "step": "training-flow",
+        "test": "Session has core exercises",
+        "pass": true,
+        "value": "6 exercises"
+      },
+      {
+        "step": "training-flow",
+        "test": "All sets logged",
+        "pass": true,
+        "value": "24 sets"
+      },
+      {
+        "step": "training-flow",
+        "test": "Every exercise has logged data",
+        "pass": true,
+        "value": "4, 4, 4, 4, 4, 4"
+      },
+      {
+        "step": "training-flow",
+        "test": "Rest events occurred",
+        "pass": true,
+        "value": "23 rest periods"
+      },
+      {
+        "step": "training-flow",
+        "test": "Load suggestions triggered",
+        "pass": true,
+        "value": "4 suggestions"
+      },
+      {
+        "step": "training-flow",
+        "test": "Summary volume computable",
+        "pass": true,
+        "value": "4,252.5 kg"
+      },
+      {
+        "step": "training-flow",
+        "test": "Summary avg RPE in range (5-10)",
+        "pass": true,
+        "value": "8.3"
+      },
+      {
+        "step": "training-flow",
+        "test": "Summary avg RIR in range (0-5)",
+        "pass": true,
+        "value": "1.8"
+      },
+      {
+        "step": "training-flow",
+        "test": "Workout log entry has name",
+        "pass": true,
+        "value": "Push · Hypertrophy"
+      },
+      {
+        "step": "training-flow",
+        "test": "Workout log entry has loggedSets",
+        "pass": true,
+        "value": "6"
+      },
+      {
+        "step": "training-flow",
+        "test": "Workout log entry has modality",
+        "pass": true,
+        "value": "hypertrophy"
+      },
+      {
+        "step": "training-flow",
+        "test": "History can read volume from log",
+        "pass": true,
+        "value": "4252.5 === 4252.5"
+      },
+      {
+        "step": "training-flow",
+        "test": "History can read RPE from log",
+        "pass": true,
+        "value": "8.3 === 8.3"
+      },
+      {
+        "step": "training-flow",
+        "test": "Session ID matchable for completion",
+        "pass": true,
+        "value": "Mon-0"
+      },
+      {
+        "step": "training-flow",
+        "test": "Load overrides applied to exercises",
+        "pass": true,
+        "value": "4 exercises adjusted"
+      },
+      {
+        "step": "training-flow",
+        "test": "Load adjusted for Overhead Press",
+        "pass": true,
+        "value": "override: 42.5kg"
+      },
+      {
+        "step": "training-flow",
+        "test": "Load adjusted for DB Bench Press",
+        "pass": true,
+        "value": "override: 30kg"
+      },
+      {
+        "step": "training-flow",
+        "test": "Load adjusted for DB Shoulder Press",
+        "pass": true,
+        "value": "override: 20kg"
+      },
+      {
+        "step": "training-flow",
+        "test": "Load adjusted for Incline DB Press",
+        "pass": true,
+        "value": "override: 25kg"
+      }
+    ],
+    "summary": {
+      "total": 74,
+      "passed": 74,
+      "failed": 0
+    }
+  },
+  {
+    "agent": "Sam",
+    "profile": {
+      "goals": [
+        "fat_loss",
+        "healthier_meals"
+      ],
+      "equipment": "home_basic",
+      "days": 3,
+      "injuries": [
+        "Knees"
+      ],
+      "experience": "beginner"
+    },
+    "timestamp": "2026-07-07T07:15:45.816Z",
+    "elapsed_ms": 0,
+    "checks": [
+      {
+        "step": "onboarding",
+        "test": "TDEE > 0",
+        "pass": true,
+        "value": "2297"
+      },
+      {
+        "step": "onboarding",
+        "test": "TDEE is reasonable (1200-5000)",
+        "pass": true,
+        "value": "2297"
+      },
+      {
+        "step": "onboarding",
+        "test": "Target kcal > 0",
+        "pass": true,
+        "value": "1817"
+      },
+      {
+        "step": "onboarding",
+        "test": "Protein > 0",
+        "pass": true,
+        "value": "173g"
+      },
+      {
+        "step": "onboarding",
+        "test": "Carbs > 0",
+        "pass": true,
+        "value": "180g"
+      },
+      {
+        "step": "onboarding",
+        "test": "Fat > 0",
+        "pass": true,
+        "value": "45g"
+      },
+      {
+        "step": "onboarding",
+        "test": "Macros sum ≈ target (±100 kcal)",
+        "pass": true,
+        "value": "1817 vs 1817"
+      },
+      {
+        "step": "onboarding",
+        "test": "Caloric modifier applied",
+        "pass": true,
+        "value": "diff=-480, expected=-480"
+      },
+      {
+        "step": "onboarding",
+        "test": "Protein g/kg ≈ 2.4",
+        "pass": true,
+        "value": "2.4 g/kg (target 2.4)"
+      },
+      {
+        "step": "program",
+        "test": "Plan generated",
+        "pass": true,
+        "value": "Full Body · HIIT + Strength + Cardio + Endurance"
+      },
+      {
+        "step": "program",
+        "test": "Sessions > 0",
+        "pass": true,
+        "value": "3"
+      },
+      {
+        "step": "program",
+        "test": "Schedule = 7 days",
+        "pass": true,
+        "value": "7"
+      },
+      {
+        "step": "program",
+        "test": "Training days ≤ available",
+        "pass": true,
+        "value": "3 ≤ 3"
+      },
+      {
+        "step": "program",
+        "test": "All sessions have goalSources",
+        "pass": true,
+        "value": "fat_loss | fat_loss | fat_loss"
+      },
+      {
+        "step": "program",
+        "test": "All sessions have exercises",
+        "pass": true,
+        "value": "3, 7, 4"
+      },
+      {
+        "step": "program",
+        "test": "Phase = Base at week 1",
+        "pass": true,
+        "value": "Base"
+      },
+      {
+        "step": "program",
+        "test": "Total weeks = 12",
+        "pass": true,
+        "value": "12"
+      },
+      {
+        "step": "program",
+        "test": "Split matches day count (3d)",
+        "pass": true,
+        "value": "Full Body (expected Full*)"
+      },
+      {
+        "step": "program",
+        "test": "Session modalities ⊂ goal modalities",
+        "pass": true,
+        "value": "sessions: hiit,strength,cardio · goals: hiit,strength,cardio,endurance"
+      },
+      {
+        "step": "program",
+        "test": "All sessions have warmup",
+        "pass": true,
+        "value": "yes"
+      },
+      {
+        "step": "program",
+        "test": "All sessions have cooldown",
+        "pass": true,
+        "value": "yes"
+      },
+      {
+        "step": "program",
+        "test": "Estimated mins reasonable (20-90)",
+        "pass": true,
+        "value": "30, 55, 35"
+      },
+      {
+        "step": "constraints",
+        "test": "No injury-excluded exercises",
+        "pass": true,
+        "value": "clean"
+      },
+      {
+        "step": "constraints",
+        "test": "All exercises use available equipment",
+        "pass": true,
+        "value": "clean"
+      },
+      {
+        "step": "constraints",
+        "test": "No duplicate exercises in Mon",
+        "pass": true,
+        "value": "clean"
+      },
+      {
+        "step": "constraints",
+        "test": "No duplicate exercises in Wed",
+        "pass": true,
+        "value": "clean"
+      },
+      {
+        "step": "constraints",
+        "test": "No duplicate exercises in Fri",
+        "pass": true,
+        "value": "clean"
+      },
+      {
+        "step": "grouping",
+        "test": "circuit 1 has ≥2 items",
+        "pass": true,
+        "value": "5 items"
+      },
+      {
+        "step": "grouping",
+        "test": "circuit 1 has restAfter",
+        "pass": true,
+        "value": "60s"
+      },
+      {
+        "step": "grouping",
+        "test": "Flatten preserves _groupId",
+        "pass": true,
+        "value": "5 items"
+      },
+      {
+        "step": "browser",
+        "test": "Recommended exercises available",
+        "pass": true,
+        "value": "4"
+      },
+      {
+        "step": "browser",
+        "test": "All exercises have category",
+        "pass": true,
+        "value": "0 missing"
+      },
+      {
+        "step": "browser",
+        "test": "All exercises have muscles[]",
+        "pass": true,
+        "value": "0 missing"
+      },
+      {
+        "step": "swap",
+        "test": "Swap candidates for Push-up (Mon)",
+        "pass": true,
+        "value": "3 alternatives"
+      },
+      {
+        "step": "swap",
+        "test": "Swap candidates for Inverted Row (Wed)",
+        "pass": true,
+        "value": "1 alternatives"
+      },
+      {
+        "step": "swap",
+        "test": "Swap candidates for DB Romanian DL (Fri)",
+        "pass": true,
+        "value": "2 alternatives"
+      },
+      {
+        "step": "phases",
+        "test": "Week 1 → Base",
+        "pass": true,
+        "value": "Base"
+      },
+      {
+        "step": "phases",
+        "test": "Week 5 → Build",
+        "pass": true,
+        "value": "Build"
+      },
+      {
+        "step": "phases",
+        "test": "Week 9 → Peak",
+        "pass": true,
+        "value": "Peak"
+      },
+      {
+        "step": "phases",
+        "test": "Week 12 → Peak",
+        "pass": true,
+        "value": "Peak"
+      },
+      {
+        "step": "nutrition",
+        "test": "Meal prep derived",
+        "pass": true,
+        "value": "Balanced Prep"
+      },
+      {
+        "step": "intensity",
+        "test": "RIR target for hiit",
+        "pass": true,
+        "value": "RIR 0-1"
+      },
+      {
+        "step": "intensity",
+        "test": "RIR target for strength",
+        "pass": true,
+        "value": "RIR 0-2"
+      },
+      {
+        "step": "intensity",
+        "test": "RIR target for cardio",
+        "pass": true,
+        "value": "RIR 3-5"
+      },
+      {
+        "step": "loads",
+        "test": "Load for Push-up (beginner)",
+        "pass": true,
+        "value": "12kg"
+      },
+      {
+        "step": "loads",
+        "test": "Load for Pull-up (beginner)",
+        "pass": true,
+        "value": "12kg"
+      },
+      {
+        "step": "history",
+        "test": "Volume computable",
+        "pass": true,
+        "value": "0 kg"
+      },
+      {
+        "step": "history",
+        "test": "Bodyweight user volume note",
+        "pass": true,
+        "value": "all bodyweight (0 kg is expected)"
+      },
+      {
+        "step": "training-flow",
+        "test": "Session has core exercises",
+        "pass": true,
+        "value": "5 exercises"
+      },
+      {
+        "step": "training-flow",
+        "test": "All sets logged",
+        "pass": true,
+        "value": "19 sets"
+      },
+      {
+        "step": "training-flow",
+        "test": "Every exercise has logged data",
+        "pass": true,
+        "value": "4, 4, 4, 4, 3"
+      },
+      {
+        "step": "training-flow",
+        "test": "Rest events occurred",
+        "pass": true,
+        "value": "14 rest periods"
+      },
+      {
+        "step": "training-flow",
+        "test": "Superset/circuit transitions (no rest)",
+        "pass": true,
+        "value": "4 group transitions"
+      },
+      {
+        "step": "training-flow",
+        "test": "Load suggestions triggered",
+        "pass": true,
+        "value": "2 suggestions"
+      },
+      {
+        "step": "training-flow",
+        "test": "Summary volume computable",
+        "pass": true,
+        "value": "1,670 kg"
+      },
+      {
+        "step": "training-flow",
+        "test": "Summary avg RPE in range (5-10)",
+        "pass": true,
+        "value": "8.2"
+      },
+      {
+        "step": "training-flow",
+        "test": "Summary avg RIR in range (0-5)",
+        "pass": true,
+        "value": "1.8"
+      },
+      {
+        "step": "training-flow",
+        "test": "Workout log entry has name",
+        "pass": true,
+        "value": "Full Body A · HIIT"
+      },
+      {
+        "step": "training-flow",
+        "test": "Workout log entry has loggedSets",
+        "pass": true,
+        "value": "5"
+      },
+      {
+        "step": "training-flow",
+        "test": "Workout log entry has modality",
+        "pass": true,
+        "value": "hiit"
+      },
+      {
+        "step": "training-flow",
+        "test": "History can read volume from log",
+        "pass": true,
+        "value": "1670 === 1670"
+      },
+      {
+        "step": "training-flow",
+        "test": "History can read RPE from log",
+        "pass": true,
+        "value": "8.2 === 8.2"
+      },
+      {
+        "step": "training-flow",
+        "test": "Session ID matchable for completion",
+        "pass": true,
+        "value": "Mon-0"
+      },
+      {
+        "step": "training-flow",
+        "test": "Load overrides applied to exercises",
+        "pass": true,
+        "value": "2 exercises adjusted"
+      },
+      {
+        "step": "training-flow",
+        "test": "Load adjusted for DB Romanian DL",
+        "pass": true,
+        "value": "override: 15kg"
+      },
+      {
+        "step": "training-flow",
+        "test": "Load adjusted for DB Row",
+        "pass": true,
+        "value": "override: 15kg"
+      }
+    ],
+    "summary": {
+      "total": 66,
+      "passed": 66,
+      "failed": 0
+    }
+  },
+  {
+    "agent": "Jordan",
+    "profile": {
+      "goals": [
+        "recomposition",
+        "max_strength"
+      ],
+      "equipment": "full_gym",
+      "days": 4,
+      "injuries": [
+        "Shoulders"
+      ],
+      "experience": "advanced"
+    },
+    "timestamp": "2026-07-07T07:15:45.816Z",
+    "elapsed_ms": 0,
+    "checks": [
+      {
+        "step": "onboarding",
+        "test": "TDEE > 0",
+        "pass": true,
+        "value": "3808"
+      },
+      {
+        "step": "onboarding",
+        "test": "TDEE is reasonable (1200-5000)",
+        "pass": true,
+        "value": "3808"
+      },
+      {
+        "step": "onboarding",
+        "test": "Target kcal > 0",
+        "pass": true,
+        "value": "3658"
+      },
+      {
+        "step": "onboarding",
+        "test": "Protein > 0",
+        "pass": true,
+        "value": "202g"
+      },
+      {
+        "step": "onboarding",
+        "test": "Carbs > 0",
+        "pass": true,
+        "value": "508g"
+      },
+      {
+        "step": "onboarding",
+        "test": "Fat > 0",
+        "pass": true,
+        "value": "91g"
+      },
+      {
+        "step": "onboarding",
+        "test": "Macros sum ≈ target (±100 kcal)",
+        "pass": true,
+        "value": "3659 vs 3658"
+      },
+      {
+        "step": "onboarding",
+        "test": "Caloric modifier applied",
+        "pass": true,
+        "value": "diff=-150, expected=-150"
+      },
+      {
+        "step": "onboarding",
+        "test": "Protein g/kg ≈ 2.2",
+        "pass": true,
+        "value": "2.2 g/kg (target 2.2)"
+      },
+      {
+        "step": "program",
+        "test": "Plan generated",
+        "pass": true,
+        "value": "Upper / Lower · Hypertrophy + Strength + HIIT + Power + Cardio"
+      },
+      {
+        "step": "program",
+        "test": "Sessions > 0",
+        "pass": true,
+        "value": "4"
+      },
+      {
+        "step": "program",
+        "test": "Schedule = 7 days",
+        "pass": true,
+        "value": "7"
+      },
+      {
+        "step": "program",
+        "test": "Training days ≤ available",
+        "pass": true,
+        "value": "4 ≤ 4"
+      },
+      {
+        "step": "program",
+        "test": "All sessions have goalSources",
+        "pass": true,
+        "value": "recomposition | max_strength | recomposition | max_strength"
+      },
+      {
+        "step": "program",
+        "test": "All sessions have exercises",
+        "pass": true,
+        "value": "7, 7, 3, 7"
+      },
+      {
+        "step": "program",
+        "test": "Phase = Base at week 1",
+        "pass": true,
+        "value": "Base"
+      },
+      {
+        "step": "program",
+        "test": "Total weeks = 12",
+        "pass": true,
+        "value": "12"
+      },
+      {
+        "step": "program",
+        "test": "Split matches day count (4d)",
+        "pass": true,
+        "value": "Upper / Lower (expected Upper*)"
+      },
+      {
+        "step": "program",
+        "test": "Session modalities ⊂ goal modalities",
+        "pass": true,
+        "value": "sessions: hypertrophy,strength,hiit,power · goals: hypertrophy,strength,hiit,power,cardio"
+      },
+      {
+        "step": "program",
+        "test": "All sessions have warmup",
+        "pass": true,
+        "value": "yes"
+      },
+      {
+        "step": "program",
+        "test": "All sessions have cooldown",
+        "pass": true,
+        "value": "yes"
+      },
+      {
+        "step": "program",
+        "test": "Estimated mins reasonable (20-90)",
+        "pass": true,
+        "value": "50, 55, 30, 45"
+      },
+      {
+        "step": "constraints",
+        "test": "No injury-excluded exercises",
+        "pass": true,
+        "value": "clean"
+      },
+      {
+        "step": "constraints",
+        "test": "All exercises use available equipment",
+        "pass": true,
+        "value": "clean"
+      },
+      {
+        "step": "constraints",
+        "test": "No duplicate exercises in Mon",
+        "pass": true,
+        "value": "clean"
+      },
+      {
+        "step": "constraints",
+        "test": "No duplicate exercises in Tue",
+        "pass": true,
+        "value": "clean"
+      },
+      {
+        "step": "constraints",
+        "test": "No duplicate exercises in Thu",
+        "pass": true,
+        "value": "clean"
+      },
+      {
+        "step": "constraints",
+        "test": "No duplicate exercises in Fri",
+        "pass": true,
+        "value": "clean"
+      },
+      {
+        "step": "grouping",
+        "test": "superset A has ≥2 items",
+        "pass": true,
+        "value": "2 items"
+      },
+      {
+        "step": "grouping",
+        "test": "superset A has restAfter",
+        "pass": true,
+        "value": "90s"
+      },
+      {
+        "step": "grouping",
+        "test": "Flatten preserves _groupId",
+        "pass": true,
+        "value": "2 items"
+      },
+      {
+        "step": "grouping",
+        "test": "circuit 1 has ≥2 items",
+        "pass": true,
+        "value": "5 items"
+      },
+      {
+        "step": "grouping",
+        "test": "circuit 1 has restAfter",
+        "pass": true,
+        "value": "60s"
+      },
+      {
+        "step": "grouping",
+        "test": "Flatten preserves _groupId",
+        "pass": true,
+        "value": "5 items"
+      },
+      {
+        "step": "browser",
+        "test": "Recommended exercises available",
+        "pass": true,
+        "value": "11"
+      },
+      {
+        "step": "browser",
+        "test": "All exercises have category",
+        "pass": true,
+        "value": "0 missing"
+      },
+      {
+        "step": "browser",
+        "test": "All exercises have muscles[]",
+        "pass": true,
+        "value": "0 missing"
+      },
+      {
+        "step": "swap",
+        "test": "Swap candidates for Push-up (Mon)",
+        "pass": false,
+        "value": "0 alternatives"
+      },
+      {
+        "step": "swap",
+        "test": "Swap candidates for Front Squat (Tue)",
+        "pass": true,
+        "value": "5 alternatives"
+      },
+      {
+        "step": "swap",
+        "test": "Swap candidates for DB Row (Thu)",
+        "pass": true,
+        "value": "1 alternatives"
+      },
+      {
+        "step": "swap",
+        "test": "Swap candidates for Front Squat (Fri)",
+        "pass": true,
+        "value": "4 alternatives"
+      },
+      {
+        "step": "phases",
+        "test": "Week 1 → Base",
+        "pass": true,
+        "value": "Base"
+      },
+      {
+        "step": "phases",
+        "test": "Week 5 → Build",
+        "pass": true,
+        "value": "Build"
+      },
+      {
+        "step": "phases",
+        "test": "Week 9 → Peak",
+        "pass": true,
+        "value": "Peak"
+      },
+      {
+        "step": "phases",
+        "test": "Week 12 → Peak",
+        "pass": true,
+        "value": "Peak"
+      },
+      {
+        "step": "nutrition",
+        "test": "Meal prep derived",
+        "pass": true,
+        "value": "Balanced Prep"
+      },
+      {
+        "step": "intensity",
+        "test": "RIR target for hypertrophy",
+        "pass": true,
+        "value": "RIR 1-3"
+      },
+      {
+        "step": "intensity",
+        "test": "RIR target for strength",
+        "pass": true,
+        "value": "RIR 0-2"
+      },
+      {
+        "step": "intensity",
+        "test": "RIR target for hiit",
+        "pass": true,
+        "value": "RIR 0-1"
+      },
+      {
+        "step": "intensity",
+        "test": "RIR target for power",
+        "pass": true,
+        "value": "RIR 1-2"
+      },
+      {
+        "step": "loads",
+        "test": "Load for Push-up (advanced)",
+        "pass": true,
+        "value": "26kg"
+      },
+      {
+        "step": "loads",
+        "test": "Load for DB Row (advanced)",
+        "pass": true,
+        "value": "31kg"
+      },
+      {
+        "step": "history",
+        "test": "Volume computable",
+        "pass": true,
+        "value": "1,116 kg"
+      },
+      {
+        "step": "training-flow",
+        "test": "Session has core exercises",
+        "pass": true,
+        "value": "6 exercises"
+      },
+      {
+        "step": "training-flow",
+        "test": "All sets logged",
+        "pass": true,
+        "value": "22 sets"
+      },
+      {
+        "step": "training-flow",
+        "test": "Every exercise has logged data",
+        "pass": true,
+        "value": "4, 4, 4, 4, 3, 3"
+      },
+      {
+        "step": "training-flow",
+        "test": "Rest events occurred",
+        "pass": true,
+        "value": "20 rest periods"
+      },
+      {
+        "step": "training-flow",
+        "test": "Superset/circuit transitions (no rest)",
+        "pass": true,
+        "value": "1 group transitions"
+      },
+      {
+        "step": "training-flow",
+        "test": "Load suggestions triggered",
+        "pass": true,
+        "value": "4 suggestions"
+      },
+      {
+        "step": "training-flow",
+        "test": "Summary volume computable",
+        "pass": true,
+        "value": "4,803.5 kg"
+      },
+      {
+        "step": "training-flow",
+        "test": "Summary avg RPE in range (5-10)",
+        "pass": true,
+        "value": "8.2"
+      },
+      {
+        "step": "training-flow",
+        "test": "Summary avg RIR in range (0-5)",
+        "pass": true,
+        "value": "1.8"
+      },
+      {
+        "step": "training-flow",
+        "test": "Workout log entry has name",
+        "pass": true,
+        "value": "Upper A · Hypertrophy"
+      },
+      {
+        "step": "training-flow",
+        "test": "Workout log entry has loggedSets",
+        "pass": true,
+        "value": "6"
+      },
+      {
+        "step": "training-flow",
+        "test": "Workout log entry has modality",
+        "pass": true,
+        "value": "hypertrophy"
+      },
+      {
+        "step": "training-flow",
+        "test": "History can read volume from log",
+        "pass": true,
+        "value": "4803.5 === 4803.5"
+      },
+      {
+        "step": "training-flow",
+        "test": "History can read RPE from log",
+        "pass": true,
+        "value": "8.2 === 8.2"
+      },
+      {
+        "step": "training-flow",
+        "test": "Session ID matchable for completion",
+        "pass": true,
+        "value": "Mon-0"
+      },
+      {
+        "step": "training-flow",
+        "test": "Load overrides applied to exercises",
+        "pass": true,
+        "value": "4 exercises adjusted"
+      },
+      {
+        "step": "training-flow",
+        "test": "Load adjusted for DB Row",
+        "pass": true,
+        "value": "override: 32.5kg"
+      },
+      {
+        "step": "training-flow",
+        "test": "Load adjusted for Barbell Row",
+        "pass": true,
+        "value": "override: 82.5kg"
+      },
+      {
+        "step": "training-flow",
+        "test": "Load adjusted for Bicep Curl",
+        "pass": true,
+        "value": "override: 7.5kg"
+      },
+      {
+        "step": "training-flow",
+        "test": "Load adjusted for Face Pull",
+        "pass": true,
+        "value": "override: 7.5kg"
+      }
+    ],
+    "summary": {
+      "total": 73,
+      "passed": 72,
+      "failed": 1
+    }
+  }
+]

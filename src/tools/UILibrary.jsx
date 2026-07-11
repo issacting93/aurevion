@@ -70,9 +70,9 @@ function TypeSample({ name, preset }) {
   const sample = preset.textTransform === 'uppercase' ? 'SAMPLE LABEL TEXT' : 'The quick brown fox jumps'
   return (
     <div style={{ marginBottom: 14 }}>
-      <div style={{ fontFamily: Font.mono, fontSize: 9, letterSpacing: 1, color: Color.faint, marginBottom: 4 }}>{name}</div>
+      <div style={{ fontFamily: Font.mono, fontSize: 10, letterSpacing: 1, color: Color.faint, marginBottom: 4 }}>{name}</div>
       <div style={merge(preset, { color: Color.text })}>{sample}</div>
-      <div style={{ fontFamily: Font.mono, fontSize: 9, color: Color.faint, marginTop: 2 }}>
+      <div style={{ fontFamily: Font.mono, fontSize: 10, color: Color.faint, marginTop: 2 }}>
         {preset.fontSize}px / w{preset.fontWeight} / ls {preset.letterSpacing}
       </div>
     </div>
@@ -89,7 +89,7 @@ function IconGrid() {
           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
         }}>
           <FIcon path={path} size={20} color={Color.text} stroke={1.8} />
-          <div style={{ fontFamily: Font.mono, fontSize: 8, color: Color.mute, letterSpacing: 0.5, textAlign: 'center' }}>{name}</div>
+          <div style={{ fontFamily: Font.mono, fontSize: 9, color: Color.mute, letterSpacing: 0.5, textAlign: 'center' }}>{name}</div>
         </div>
       ))}
     </div>
@@ -105,7 +105,7 @@ function BrandPlate() {
         <img src="/logo.svg" width="48" height="48" alt="" style={{ borderRadius: 12 }} />
         <div>
           <div style={{ fontFamily: Font.mono, fontSize: 20, fontWeight: 200, letterSpacing: 4 }}>AUREVI0N</div>
-          <div style={{ fontFamily: Font.mono, fontSize: 9, letterSpacing: 1.4, color: Color.mute, textTransform: 'uppercase', marginTop: 2 }}>AI-Native Fitness Platform</div>
+          <div style={{ fontFamily: Font.mono, fontSize: 10, letterSpacing: 1.4, color: Color.mute, textTransform: 'uppercase', marginTop: 2 }}>AI-Native Fitness Platform</div>
         </div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 24, fontFamily: Font.mono, fontSize: 10, color: Color.mute }}>
@@ -238,7 +238,7 @@ export default function UILibrary() {
               {Object.entries(Space).map(([k, v]) => (
                 <div key={k} style={{ textAlign: 'center' }}>
                   <div style={{ width: Math.max(v, 4), height: Math.max(v, 4), background: Color.accentDim, borderRadius: 2, border: `1px solid ${Color.accent}` }} />
-                  <div style={{ fontFamily: Font.mono, fontSize: 9, color: Color.mute, marginTop: 4 }}>{k} · {v}</div>
+                  <div style={{ fontFamily: Font.mono, fontSize: 10, color: Color.mute, marginTop: 4 }}>{k} · {v}</div>
                 </div>
               ))}
             </div>
@@ -249,12 +249,12 @@ export default function UILibrary() {
               {Object.entries(Radius).filter(([k]) => k !== 'full').map(([k, v]) => (
                 <div key={k} style={{ textAlign: 'center' }}>
                   <div style={{ width: 48, height: 48, borderRadius: v, background: Color.surface, border: `1px solid ${Color.border}` }} />
-                  <div style={{ fontFamily: Font.mono, fontSize: 9, color: Color.mute, marginTop: 4 }}>{k} · {v}</div>
+                  <div style={{ fontFamily: Font.mono, fontSize: 10, color: Color.mute, marginTop: 4 }}>{k} · {v}</div>
                 </div>
               ))}
               <div style={{ textAlign: 'center' }}>
                 <div style={{ width: 48, height: 48, borderRadius: Radius.full, background: Color.surface, border: `1px solid ${Color.border}` }} />
-                <div style={{ fontFamily: Font.mono, fontSize: 9, color: Color.mute, marginTop: 4 }}>full</div>
+                <div style={{ fontFamily: Font.mono, fontSize: 10, color: Color.mute, marginTop: 4 }}>full</div>
               </div>
             </div>
           </Section>
@@ -473,15 +473,15 @@ export default function UILibrary() {
             <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
               <div style={{ textAlign: 'center' }}>
                 <FAvatar initials="ZM" tone="warm" size={56} />
-                <div style={{ fontFamily: Font.mono, fontSize: 9, color: Color.faint, marginTop: 6 }}>warm · 56</div>
+                <div style={{ fontFamily: Font.mono, fontSize: 10, color: Color.faint, marginTop: 6 }}>warm · 56</div>
               </div>
               <div style={{ textAlign: 'center' }}>
                 <FAvatar initials="AU" tone="cool" />
-                <div style={{ fontFamily: Font.mono, fontSize: 9, color: Color.faint, marginTop: 6 }}>cool · 48</div>
+                <div style={{ fontFamily: Font.mono, fontSize: 10, color: Color.faint, marginTop: 6 }}>cool · 48</div>
               </div>
               <div style={{ textAlign: 'center' }}>
                 <FAvatar initials="T" tone="neutral" size={32} />
-                <div style={{ fontFamily: Font.mono, fontSize: 9, color: Color.faint, marginTop: 6 }}>neutral · 32</div>
+                <div style={{ fontFamily: Font.mono, fontSize: 10, color: Color.faint, marginTop: 6 }}>neutral · 32</div>
               </div>
             </div>
           </Section>
@@ -497,7 +497,7 @@ export default function UILibrary() {
                 }}>
                   <div style={merge(Type.labelSm, { color: Color.accent })}>{s.flow}</div>
                   <div style={merge(Type.bodyMd, { color: Color.text })}>{s.label}</div>
-                  <div style={{ fontFamily: Font.mono, fontSize: 9, color: Color.faint }}>{s.feature} · {s.id}</div>
+                  <div style={{ fontFamily: Font.mono, fontSize: 10, color: Color.faint }}>{s.feature} · {s.id}</div>
                 </div>
               ))}
             </div>
@@ -512,7 +512,7 @@ export default function UILibrary() {
                 {[14, 18, 20, 24, 32].map(s => (
                   <div key={s} style={{ textAlign: 'center' }}>
                     <FIcon path={ICONS.flame} size={s} color={Color.accent} stroke={1.8} />
-                    <div style={{ fontFamily: Font.mono, fontSize: 9, color: Color.mute, marginTop: 4 }}>{s}px</div>
+                    <div style={{ fontFamily: Font.mono, fontSize: 10, color: Color.mute, marginTop: 4 }}>{s}px</div>
                   </div>
                 ))}
               </div>

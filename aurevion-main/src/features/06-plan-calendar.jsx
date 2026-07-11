@@ -393,7 +393,6 @@ function DayView() {
               background: ev.active
                 ? `repeating-linear-gradient(135deg, rgba(0,0,0,0.20) 0 1.5px, transparent 1.5px 5px), ${ev.c}`
                 : `${ev.c}1f`,
-              borderLeft: `2px solid ${ev.c}`,
               opacity: ev.done ? 0.5 : 1,
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>

@@ -4,42 +4,12 @@
 import { useState } from 'react'
 import { Color, Font, Space, Radius, Type } from '../../ui/tokens'
 import { ICONS, FSurface, Phone, FNavBar, FLabel, FMono, FNum, FIcon, FTag, FTabBar } from '../../ui/components'
+import { MOCK_HEATMAP, MOCK_TARGETS } from '../../context/mockUser'
 
 // ── Sample data: 8 weeks of adherence percentages ──
 // 100 = exact target, <100 = under, >100 = over
 
-const HEATMAP_DATA = {
-  protein: [
-    [96,  102, 94,  98,  92,  74,  68],
-    [98,  95,  100, 97,  88,  70,  72],
-    [102, 98,  96,  100, 94,  78,  65],
-    [97,  104, 98,  96,  90,  82,  70],
-    [100, 98,  102, 100, 96,  80,  76],
-    [104, 100, 98,  102, 98,  86,  80],
-    [100, 102, 104, 98,  100, 88,  84],
-    [102, 100, 100, 104, 102, 92,  88],
-  ],
-  carbs: [
-    [92,  98,  96,  90,  104, 128, 134],
-    [96,  94,  100, 96,  108, 122, 130],
-    [98,  100, 94,  98,  102, 118, 126],
-    [94,  96,  98,  94,  100, 114, 120],
-    [100, 98,  96,  100, 98,  112, 116],
-    [98,  102, 100, 96,  96,  108, 112],
-    [100, 98,  102, 100, 100, 106, 108],
-    [98,  100, 98,  102, 98,  104, 106],
-  ],
-  fat: [
-    [110, 104, 108, 102, 114, 126, 130],
-    [106, 100, 104, 98,  110, 120, 124],
-    [104, 102, 100, 104, 106, 116, 118],
-    [100, 98,  102, 100, 104, 112, 114],
-    [98,  100, 98,  102, 100, 108, 110],
-    [102, 98,  100, 98,  98,  106, 108],
-    [100, 100, 98,  100, 100, 104, 104],
-    [98,  100, 100, 98,  98,  102, 102],
-  ],
-}
+const HEATMAP_DATA = MOCK_HEATMAP
 
 const DAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 const WEEKS = ['W12', 'W13', 'W14', 'W15', 'W16', 'W17', 'W18', 'W19']
@@ -82,7 +52,7 @@ function MacroHeatmap({ label, data, rgb, color, target, unit }) {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2, marginBottom: 3 }}>
         {DAYS.map((d, i) => (
           <div key={i} style={{
-            textAlign: 'center', fontFamily: Font.mono, fontSize: 8,
+            textAlign: 'center', fontFamily: Font.mono, fontSize: 9,
             color: i >= 5 ? `${color}88` : Color.mute, letterSpacing: 0.5,
           }}>{d}</div>
         ))}
@@ -121,7 +91,7 @@ function MacroHeatmap({ label, data, rgb, color, target, unit }) {
                       padding: '3px 6px', borderRadius: Radius.sm,
                       background: 'rgba(0,0,0,0.9)', border: `1px solid ${Color.borderSoft}`,
                       whiteSpace: 'nowrap', zIndex: 10,
-                      fontFamily: Font.mono, fontSize: 9, color: Color.text,
+                      fontFamily: Font.mono, fontSize: 10, color: Color.text,
                     }}>
                       {val}%
                     </div>
@@ -135,8 +105,8 @@ function MacroHeatmap({ label, data, rgb, color, target, unit }) {
 
       {/* Summary */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 8 }}>
-        <span style={{ fontFamily: Font.mono, fontSize: 9, color: Color.mute }}>{hitPct}% ON TARGET</span>
-        <span style={{ fontFamily: Font.mono, fontSize: 9, color: avg >= 85 && avg <= 110 ? Color.green : Color.accent }}>
+        <span style={{ fontFamily: Font.mono, fontSize: 10, color: Color.mute }}>{hitPct}% ON TARGET</span>
+        <span style={{ fontFamily: Font.mono, fontSize: 10, color: avg >= 85 && avg <= 110 ? Color.green : Color.accent }}>
           AVG {avg}%
         </span>
       </div>
@@ -170,7 +140,7 @@ function HeatmapLegend() {
   const steps = [0.08, 0.2, 0.4, 0.65, 0.85, 1.0]
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-      <span style={{ fontFamily: Font.mono, fontSize: 8, color: Color.mute }}>MISS</span>
+      <span style={{ fontFamily: Font.mono, fontSize: 9, color: Color.mute }}>MISS</span>
       <div style={{ display: 'flex', gap: 2 }}>
         {steps.map((a, i) => (
           <div key={i} style={{
@@ -179,13 +149,13 @@ function HeatmapLegend() {
           }} />
         ))}
       </div>
-      <span style={{ fontFamily: Font.mono, fontSize: 8, color: Color.mute }}>HIT</span>
+      <span style={{ fontFamily: Font.mono, fontSize: 9, color: Color.mute }}>HIT</span>
     </div>
   )
 }
 
-// ── Full screen ──
-export function MacroHeatmapScreen() {
+// ── Content (for Shell) ──
+export function MacroHeatmapContent() {
   const allVals = [
     ...HEATMAP_DATA.protein.flat(),
     ...HEATMAP_DATA.carbs.flat(),
@@ -220,17 +190,10 @@ export function MacroHeatmapScreen() {
   const improving = last4Hit > first4Hit
 
   return (
-    <Phone label="Macro adherence" group="ANALYTICS">
-      <FNavBar
-        title="Adherence"
-        leading={<FIcon path={ICONS.back} size={20} color={Color.text} />}
-        trailing={<FIcon path={ICONS.more} size={20} color={Color.text} />}
-      />
-      <div style={{ flex: 1, padding: '20px 24px 40px', overflowY: 'auto' }}>
-        {/* Hero stat */}
-        <FLabel>Macro adherence · 8 weeks</FLabel>
-        <div style={{ marginTop: 4, display: 'flex', alignItems: 'baseline', gap: Space[3] }}>
-          <FNum size={68} weight={200} unit="%">{overallPct}</FNum>
+    <div style={{ flex: 1, padding: '20px 24px 40px', overflowY: 'auto' }}>
+      {/* Hero stat */}
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: Space[3] }}>
+          <FNum size={40} weight={200} unit="%">{overallPct}</FNum>
         </div>
         <div style={{ marginTop: 6, display: 'flex', gap: 10, alignItems: 'center' }}>
           <FMono color={Color.dim}>DAYS WITHIN ±15% OF TARGET</FMono>
@@ -243,7 +206,7 @@ export function MacroHeatmapScreen() {
 
         {/* Three heatmaps */}
         <FSurface style={{
-          marginTop: 32, padding: 16, borderRadius: Radius.lg,
+          marginTop: 32,
         }}>
           <div style={{ display: 'flex', gap: Space[3] }}>
             {/* Week labels */}
@@ -265,17 +228,17 @@ export function MacroHeatmapScreen() {
             </div>
 
             <MacroHeatmap label="Protein" data={HEATMAP_DATA.protein}
-              rgb="255,110,80" color={Color.accent} target="147" unit="g" />
+              rgb="255,110,80" color={Color.accent} target={String(MOCK_TARGETS.protein)} unit="g" />
 
             <div style={{ width: 1, background: Color.borderSoft, flexShrink: 0 }} />
 
             <MacroHeatmap label="Carbs" data={HEATMAP_DATA.carbs}
-              rgb="96,165,250" color={Color.blue} target="160" unit="g" />
+              rgb="96,165,250" color={Color.blue} target={String(MOCK_TARGETS.carbs)} unit="g" />
 
             <div style={{ width: 1, background: Color.borderSoft, flexShrink: 0 }} />
 
             <MacroHeatmap label="Fat" data={HEATMAP_DATA.fat}
-              rgb="161,161,161" color={Color.dim} target="60" unit="g" />
+              rgb="161,161,161" color={Color.dim} target={String(MOCK_TARGETS.fat)} unit="g" />
           </div>
 
           {/* Legend */}
@@ -285,27 +248,27 @@ export function MacroHeatmapScreen() {
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           }}>
             <HeatmapLegend />
-            <FMono color={Color.faint} size={8}>BRIGHTER = CLOSER TO TARGET</FMono>
+            <FMono color={Color.faint} size={9}>BRIGHTER = CLOSER TO TARGET</FMono>
           </div>
         </FSurface>
 
         {/* Weekend vs weekday */}
         <div style={{ marginTop: 24, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-          <FSurface style={{ padding: 14, borderRadius: Radius.lg }}>
+          <FSurface style={{ padding: 16, borderRadius: Radius.lg }}>
             <FLabel mb={4}>Weekdays</FLabel>
             <FNum size={22} weight={300} unit="%">{protWkdayAvg}</FNum>
-            <FMono color={Color.mute} size={9}>PROTEIN AVG</FMono>
+            <FMono color={Color.mute} size={10}>PROTEIN AVG</FMono>
           </FSurface>
-          <FSurface accent={Color.accent} style={{ padding: 14, borderRadius: Radius.lg }}>
+          <FSurface accent={Color.accent} style={{ padding: 16, borderRadius: Radius.lg }}>
             <FLabel mb={4} color={Color.accent}>Weekends</FLabel>
             <FNum size={22} weight={300} unit="%" color={Color.accent}>{protWkendAvg}</FNum>
-            <FMono color={Color.accent} size={9}>PROTEIN AVG</FMono>
+            <FMono color={Color.accent} size={10}>PROTEIN AVG</FMono>
           </FSurface>
         </div>
 
         {/* Insights */}
         <FSurface style={{
-          marginTop: 24, padding: 16, borderRadius: Radius.lg,
+          marginTop: 24,
         }}>
           <FLabel mb={8}>Patterns detected</FLabel>
 
@@ -329,7 +292,7 @@ export function MacroHeatmapScreen() {
 
         {/* 8-week trend bar */}
         <FSurface style={{
-          marginTop: 24, padding: 16, borderRadius: Radius.lg,
+          marginTop: 24,
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12 }}>
             <FLabel mb={0}>8-week trend</FLabel>
@@ -360,11 +323,24 @@ export function MacroHeatmapScreen() {
             })}
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
-            <FMono color={Color.mute} size={8}>W12</FMono>
-            <FMono color={Color.accent} size={8}>W19</FMono>
+            <FMono color={Color.mute} size={9}>W12</FMono>
+            <FMono color={Color.accent} size={9}>W19</FMono>
           </div>
         </FSurface>
-      </div>
+    </div>
+  )
+}
+
+// ── Screen (standalone) ──
+export function MacroHeatmapScreen() {
+  return (
+    <Phone label="Macro adherence" group="ANALYTICS">
+      <FNavBar
+        title="Adherence"
+        leading={<FIcon path={ICONS.back} size={20} color={Color.text} />}
+        trailing={<FIcon path={ICONS.more} size={20} color={Color.text} />}
+      />
+      <MacroHeatmapContent />
       <FTabBar active={3} />
     </Phone>
   )

@@ -116,7 +116,8 @@ No dedicated `Skeleton` or `EmptyState` components exist yet. Empty states are b
 | Onboarding — complete | "Enter AUREVI0N" | Transition to dashboard with generated program | Built |
 | Goal contract — signed | Goal activated | Button changes to "Signed" state | Partially (no celebration) |
 | Training — set logged | Set completed | Set card fills with checkmark, counter updates | Built |
-| Training — session done | All exercises complete | Hero celebration (green check + stats summary) | Built |
+| Training — load suggestion | RIR ≥ 3 or RIR = 0 after set | FSurface card during rest: "Bump to Xkg?" / "Drop to Xkg?" with Keep/Use buttons | Built |
+| Training — session done | All exercises complete | Hero celebration (green check + 4-stat summary: volume, sets, RPE, RIR) | Built |
 | Cook mode — all steps | Cooking complete | Timer shows "DONE" in green | Built |
 | Check-in — logged | Body data recorded | Summary card with decision result | Built |
 | Food log — entry saved | Intake logged | Not implemented |

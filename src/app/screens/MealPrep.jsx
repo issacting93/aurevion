@@ -1,20 +1,83 @@
 // 05 Meal Prep — three screens: merge view, parallel timeline, active cook mode.
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Color, Font, Space, Radius, Type } from '../../ui/tokens'
-import { ICONS, FSurface, FNavBar, FLabel, FMono, FNum, FTexBar, FIcon, FCheckbox, FBtn, FSection, FToolbar, FTabBar, FListRow, Phone } from '../../ui/components'
+import { ICONS, FSurface, FNavBar, FLabel, FMono, FNum, FTexBar, FIcon, FCheckbox, FBtn, FSection, FToolbar, FTabBar, FListRow, FTag, Phone } from '../../ui/components'
 import { COOK_ICONS } from '../../ui/icons'
+import { MOCK_MEAL_PREP } from '../../context/mockUser'
+import { useNav } from '../../context/NavigationContext'
+import { useUser } from '../../context/UserContext'
+import { deriveBatches } from './nutrition-data'
 
 // ════════════════════════════════════════════════
 // 5A · Recipe Merge View
 // ════════════════════════════════════════════════
 export function MealPrepMergeContent() {
-  const ings = [
+  const { pushDetail } = useNav()
+  const { mealPlan, mealPrepApproach } = useUser()
+  const prepApproach = mealPrepApproach || MOCK_MEAL_PREP
+
+  const HARDCODED_INGS = [
     { n: 'Garlic', d: 'Cut 4 cloves total', breakdown: 'salmon 2 · chili 2' },
     { n: 'Onion',  d: 'Dice 2 medium',       breakdown: 'rice bowl 1 · chili 1' },
     { n: 'Cumin',  d: 'Measure 1.5 tsp',     breakdown: 'rice bowl 0.5 · chili 1' },
     { n: 'Olive oil', d: 'Measure 3 tbsp',   breakdown: 'salmon 2 · chili 1' },
   ];
+
+  const HARDCODED_RECIPES = [
+    { n: 'Garlic salmon · greens', tone: Color.accent, parts: 3, dur: '32 m' },
+    { n: 'Chicken rice bowls',     tone: Color.blue, parts: 5, dur: '48 m' },
+    { n: 'Beef chili',              tone: Color.purple, parts: 4, dur: '1h 04m' },
+  ];
+
+  const TONE_CYCLE = [Color.accent, Color.blue, Color.purple, Color.green]
+
+  const { ings, recipes, totalPortions, totalTime } = useMemo(() => {
+    if (!mealPlan) {
+      return { ings: HARDCODED_INGS, recipes: HARDCODED_RECIPES, totalPortions: 9, totalTime: '1H 18M' }
+    }
+    const batches = deriveBatches(mealPlan)
+    // Build recipe list from batch + slow_cook methods (prep-worthy)
+    const prepBatches = batches.filter(b => b.type !== 'fresh')
+    const recs = prepBatches.flatMap((b, bi) =>
+      b.recipes.map((r, ri) => {
+        const fmtDur = (r.prepTime + r.cookTime) >= 60
+          ? `${Math.floor((r.prepTime + r.cookTime) / 60)}h ${String((r.prepTime + r.cookTime) % 60).padStart(2, '0')}m`
+          : `${r.prepTime + r.cookTime} m`
+        return {
+          n: r.name,
+          tone: TONE_CYCLE[(bi * 3 + ri) % TONE_CYCLE.length],
+          parts: Math.round(r.servings),
+          dur: fmtDur,
+        }
+      })
+    )
+    // Aggregate shared ingredients from meal plan
+    const ingMap = {}
+    for (const meal of mealPlan.meals) {
+      if (meal.recipe.method === 'fresh') continue
+      for (const ing of meal.recipe.ingredients) {
+        const key = ing.name.toLowerCase()
+        if (!ingMap[key]) ingMap[key] = { n: ing.name, total: 0, unit: ing.unit, sources: new Set() }
+        ingMap[key].total += ing.amount * meal.servings
+        ingMap[key].sources.add(meal.recipe.name)
+      }
+    }
+    const ingList = Object.values(ingMap)
+      .filter(i => i.sources.size > 0)
+      .sort((a, b) => b.sources.size - a.sources.size)
+      .slice(0, 8)
+      .map(i => ({
+        n: i.n,
+        d: `${Math.round(i.total)} ${i.unit} total`,
+        breakdown: [...i.sources].join(' · '),
+      }))
+    const tp = recs.reduce((s, r) => s + r.parts, 0)
+    const tt = prepBatches.reduce((s, b) => s + b.totalTime, 0)
+    const fmtTotal = tt >= 60 ? `${Math.floor(tt / 60)}H ${String(tt % 60).padStart(2, '0')}M` : `${tt}M`
+    return { ings: ingList.length > 0 ? ingList : HARDCODED_INGS, recipes: recs.length > 0 ? recs : HARDCODED_RECIPES, totalPortions: tp || 9, totalTime: fmtTotal }
+  }, [mealPlan])
+
   const [done, setDone] = useState({});
   const toggle = (n) => setDone(s => ({ ...s, [n]: !s[n] }));
   const completed = Object.values(done).filter(Boolean).length;
@@ -22,16 +85,20 @@ export function MealPrepMergeContent() {
     <div style={{ flex: 1, padding: '20px 24px 40px', overflowY: 'auto' }}>
       <FLabel>Tonight's prep</FLabel>
       <div style={{ marginTop: 4 }}>
-        <FMono color={Color.text} size={10} style={{ fontWeight: 700, letterSpacing: 0.8 }}>3 RECIPES · 1 KITCHEN.</FMono>
+        <FMono color={Color.text} size={10} style={{ fontWeight: 700, letterSpacing: 0.8 }}>{recipes.length} RECIPES · 1 KITCHEN.</FMono>
       </div>
-      <FMono color={Color.mute}>EST. 1H 18M · 9 PORTIONS</FMono>
+      <FMono color={Color.mute}>EST. {totalTime} · {totalPortions} PORTIONS</FMono>
+
+      {/* Approach badges from goal engine */}
+      <div style={{ display: 'flex', gap: 6, marginTop: 12 }}>
+        <FTag tone="accent">{prepApproach.primary.toUpperCase()}</FTag>
+        {(prepApproach.supporting || []).map((s, i) => (
+          <FTag key={i} tone="mute">{s.toUpperCase()}</FTag>
+        ))}
+      </div>
 
       <div style={{ marginTop: 32, display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {[
-          { n: 'Garlic salmon · greens', tone: Color.accent, parts: 3, dur: '32 m' },
-          { n: 'Chicken rice bowls',     tone: Color.blue, parts: 5, dur: '48 m' },
-          { n: 'Beef chili',              tone: Color.purple, parts: 4, dur: '1h 04m' },
-        ].map((r, i) => (
+        {recipes.map((r, i) => (
           <FSurface key={i} style={{
             padding: '14px 16px', borderRadius: Radius.lg,
             display: 'flex', alignItems: 'center', gap: Space[3],
@@ -48,7 +115,7 @@ export function MealPrepMergeContent() {
       <FSection label="Combined ingredients" mt={40} mb={12}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
           <FNum size={26} weight={200}>{completed} / {ings.length} prepped</FNum>
-          <FMono color={Color.green}>3 DUPES MERGED</FMono>
+          <FMono color={Color.green}>{ings.length > 0 ? `${ings.filter(i => i.breakdown && i.breakdown.includes('·')).length} DUPES MERGED` : '3 DUPES MERGED'}</FMono>
         </div>
       </FSection>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -77,7 +144,7 @@ export function MealPrepMergeContent() {
       </FSurface>
 
       <div style={{ marginTop: 32 }}>
-        <FBtn variant="split" full>Start parallel cook</FBtn>
+        <FBtn variant="split" full onClick={() => pushDetail('prep-timeline', 'Timeline')}>Start parallel cook</FBtn>
       </div>
     </div>
   );
@@ -100,7 +167,8 @@ export function MealPrepMergeScreen() {
 // ════════════════════════════════════════════════
 // 5B · Parallel Step Timeline (Gantt-style)
 // ════════════════════════════════════════════════
-export function MealPrepTimelineScreen() {
+export function MealPrepTimelineContent() {
+  const { pushDetail } = useNav()
   const TOTAL = 78;
   const [elapsedSec, setElapsedSec] = useState(22 * 60);
   const [paused, setPaused] = useState(false);
@@ -186,13 +254,7 @@ export function MealPrepTimelineScreen() {
   const rulerMarks = [0, 20, 40, 60, TOTAL].filter(m => Math.abs(m - now) > 3);
 
   return (
-    <Phone label="Parallel timeline" group="MEAL PREP">
-      <FNavBar
-        title={`Cook · ${elapsed} m elapsed`}
-        leading={<FIcon path={ICONS.close} size={22} color={Color.text}/>}
-        trailing={<FIcon path={ICONS.expand} size={20} color={Color.text}/>}
-      />
-
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
       <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px 16px' }}>
         {/* Time ruler */}
         <div style={{ position: 'relative' }}>
@@ -200,12 +262,12 @@ export function MealPrepTimelineScreen() {
             {rulerMarks.map(m => (
               <span key={m} style={{
                 position: 'absolute', left: `${X(m)}%`, transform: 'translateX(-50%)',
-                fontFamily: Font.mono, fontSize: 9, color: Color.mute, letterSpacing: 1,
+                fontFamily: Font.mono, fontSize: 10, color: Color.mute, letterSpacing: 1,
               }}>{m}</span>
             ))}
             <span style={{
               position: 'absolute', left: `${X(now)}%`, transform: 'translateX(-50%)',
-              fontFamily: Font.mono, fontSize: 9, color: Color.accent, letterSpacing: 1, fontWeight: 600,
+              fontFamily: Font.mono, fontSize: 10, color: Color.accent, letterSpacing: 1, fontWeight: 600,
             }}>NOW</span>
           </div>
 
@@ -247,7 +309,7 @@ export function MealPrepTimelineScreen() {
                         display: 'flex', alignItems: 'center', padding: '0 6px',
                         overflow: 'hidden',
                       }}>
-                        <FMono color={isDone ? Color.mute : Color.surface} size={9} letter={0.5}>
+                        <FMono color={isDone ? Color.mute : Color.surface} size={10} letter={0.5}>
                           {st.l}
                         </FMono>
                       </div>
@@ -261,7 +323,7 @@ export function MealPrepTimelineScreen() {
 
         {/* Active timers */}
         {timers.length > 0 && (
-          <FSurface style={{ marginTop: 24, padding: 16, borderRadius: Radius.lg }}>
+          <FSurface style={{ marginTop: 24 }}>
             <FLabel mb={10}>Active timers</FLabel>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {timers.map((t, i) => (
@@ -280,7 +342,7 @@ export function MealPrepTimelineScreen() {
 
         {/* Up next */}
         {nextStep && (
-          <FSurface style={{ marginTop: 16, padding: 16, borderRadius: Radius.lg }}>
+          <FSurface style={{ marginTop: 16 }}>
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
               <div>
                 <FLabel mb={4}>Up next</FLabel>
@@ -296,9 +358,22 @@ export function MealPrepTimelineScreen() {
       <div style={{ padding: '12px 24px 24px', flexShrink: 0 }}>
         <FToolbar cells={[
           { icon: paused ? ICONS.play : ICONS.pause, label: paused ? 'Resume' : 'Pause', stay: true, onClick: () => setPaused(p => !p) },
-          { icon: ICONS.fwd, label: 'Cook mode', primary: true },
+          { icon: ICONS.fwd, label: 'Cook mode', primary: true, onClick: () => pushDetail('prep-cook', 'Cook Mode') },
         ]}/>
       </div>
+    </div>
+  );
+}
+
+export function MealPrepTimelineScreen() {
+  return (
+    <Phone label="Parallel timeline" group="MEAL PREP">
+      <FNavBar
+        title="Cook · Timeline"
+        leading={<FIcon path={ICONS.close} size={22} color={Color.text}/>}
+        trailing={<FIcon path={ICONS.expand} size={20} color={Color.text}/>}
+      />
+      <MealPrepTimelineContent />
     </Phone>
   );
 }
@@ -306,7 +381,8 @@ export function MealPrepTimelineScreen() {
 // ════════════════════════════════════════════════
 // 5C · Active Cook Mode (full focus)
 // ════════════════════════════════════════════════
-export function MealPrepCookModeScreen() {
+export function MealPrepCookModeContent() {
+  const { pushDetail } = useNav()
   // Live countdowns + step advance.
   const [timers, setTimers] = useState([
     { c: Color.accent,  l: 'SALMON', total: 372, rem: 372 },
@@ -340,8 +416,8 @@ export function MealPrepCookModeScreen() {
   const curStep = STEPS[step - 1];
 
   return (
-    <Phone label="Active cook mode" group="MEAL PREP">
-      {/* persistent timer bar */}
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+      {/* persistent timer bar — sticky header */}
       <div style={{
         padding: '8px 24px 12px', flexShrink: 0,
         borderBottom: `1px solid ${Color.borderSoft}`,
@@ -360,7 +436,7 @@ export function MealPrepCookModeScreen() {
             return (
               <div key={i} style={{ flex: tm.big ? 2 : 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <FMono color={tm.c} size={9} letter={1}>{tm.l}</FMono>
+                  <FMono color={tm.c} size={10} letter={1}>{tm.l}</FMono>
                   <FMono color={done ? Color.green : tm.c} size={10}>{done ? 'DONE' : fmt(tm.rem)}</FMono>
                 </div>
                 <div style={{ height: 4, background: 'rgba(255,255,255,0.05)', borderRadius: Radius.full, overflow: 'hidden' }}>
@@ -385,7 +461,7 @@ export function MealPrepCookModeScreen() {
             {curStep.t}
           </div>
 
-        <FSurface style={{ marginTop: 16, padding: 16, borderRadius: Radius.lg }}>
+        <FSurface style={{ marginTop: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <FIcon path={curStep.i} size={18} color={Color.accent} stroke={1.8}/>
             <FMono color={Color.text}>{curStep.cue}</FMono>
@@ -454,14 +530,22 @@ export function MealPrepCookModeScreen() {
                 ? 'cookFloat 3s ease-in-out infinite'
                 : curStep.anim === 'plate'
                   ? 'cookSettle 2.5s ease-in-out infinite'
-                  : undefined,
+                  : curStep.anim === 'heat'
+                    ? 'cookIconGlow 2s ease-in-out infinite'
+                    : curStep.anim === 'steam'
+                      ? 'cookIconFloat 3s ease-in-out infinite'
+                      : undefined,
           }}>
             <FIcon path={curStep.i} size={64} color={Color.accent} stroke={1.4}/>
             <FMono color={Color.mute} size={10}>STEP {step} OF {totalSteps}</FMono>
           </div>
         </FSurface>
 
-        <div style={{ display: 'flex', gap: 10, padding: '16px 0' }}>
+      </div>
+
+      {/* Fixed toolbar — outside scrollable body */}
+      <div style={{ padding: '10px 24px 20px', flexShrink: 0, borderTop: `1px solid ${Color.borderSoft}` }}>
+        <div style={{ display: 'flex', gap: 10 }}>
           <button
             onClick={() => setStep(s => Math.max(1, s - 1))}
             style={{
@@ -471,7 +555,10 @@ export function MealPrepCookModeScreen() {
               cursor: 'pointer',
             }}><FIcon path={ICONS.back} size={20}/></button>
           <button
-            onClick={() => setStep(s => Math.min(totalSteps, s + 1))}
+            onClick={() => {
+              if (step === totalSteps) { pushDetail('cook-summary', 'Summary'); return }
+              setStep(s => Math.min(totalSteps, s + 1))
+            }}
             data-stay="true"
             style={{
               flex: 1, height: 56, borderRadius: Radius.md, background: Color.accent, color: Color.accentText,
@@ -516,10 +603,26 @@ export function MealPrepCookModeScreen() {
           0%, 100% { transform: scale(1) rotate(0deg); }
           50%      { transform: scale(1.04) rotate(2deg); }
         }
+        @keyframes cookIconGlow {
+          0%, 100% { transform: scale(1); opacity: 0.9; }
+          50%      { transform: scale(1.05); opacity: 1; }
+        }
+        @keyframes cookIconFloat {
+          0%, 100% { transform: translateY(0); }
+          50%      { transform: translateY(-4px); }
+        }
         @media (prefers-reduced-motion: reduce) {
           [style*="animation"] { animation: none !important; }
         }
       `}</style>
+    </div>
+  );
+}
+
+export function MealPrepCookModeScreen() {
+  return (
+    <Phone label="Active cook mode" group="MEAL PREP">
+      <MealPrepCookModeContent />
     </Phone>
   );
 }

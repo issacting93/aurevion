@@ -1,11 +1,17 @@
 // 04 Fridge Tracker — simple list, delta-focused.
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Color, Font, Space, Radius, Type } from '../../ui/tokens'
-import { ICONS, FButtonGroup, FNavBar, FLabel, FMono, FNum, FIcon, FCheckbox, FToolbar, FTabBar, FListRow, Phone } from '../../ui/components'
+import { ICONS, FButtonGroup, FNavBar, FLabel, FMono, FNum, FIcon, FCheckbox, FToolbar, FTabBar, FListRow, FBtn, Phone } from '../../ui/components'
+import { useNav } from '../../context/NavigationContext'
+import { useUser } from '../../context/UserContext'
+import { computeShoppingList } from './nutrition-data'
 
 export function FridgeContent() {
-  const cats = [
+  const { pushDetail } = useNav()
+  const { mealPlan, pantry, updatePantry } = useUser()
+
+  const HARDCODED_CATS = [
     { name: 'Produce', items: [
       { n: 'Cucumber',     have: 2,    unit: '',      need: 4,    use: 'Salmon bowls · Wed' },
       { n: 'Baby spinach', have: 0,    unit: 'g',     need: 500,  use: 'Tofu stir-fry · Thu' },
@@ -27,9 +33,30 @@ export function FridgeContent() {
     ]},
   ];
 
+  const cats = useMemo(() => {
+    if (!mealPlan) return HARDCODED_CATS
+    const list = computeShoppingList(mealPlan, pantry || {})
+    // Single grouped list — items sorted by delta descending
+    const items = list.map(item => ({
+      n: item.name,
+      have: item.have,
+      unit: item.unit === 'whole' ? '' : item.unit,
+      need: item.need,
+    }))
+    return [{ name: 'All ingredients', items }]
+  }, [mealPlan, pantry])
+
   const [filter, setFilter] = useState('MISSING');
   const [bought, setBought] = useState({});
-  const toggle = (n) => setBought(s => ({ ...s, [n]: !s[n] }));
+  const toggle = (n) => {
+    setBought(s => ({ ...s, [n]: !s[n] }))
+    // Sync to pantry context when marking as bought
+    if (mealPlan && updatePantry && !bought[n]) {
+      const allItems = cats.flatMap(c => c.items)
+      const item = allItems.find(it => it.n === n)
+      if (item) updatePantry(n.toLowerCase(), item.need)
+    }
+  };
 
   const isShort = (it) => (it.need - it.have) > 0;
   const passes = (it) => {
@@ -45,9 +72,8 @@ export function FridgeContent() {
 
   return (
     <div style={{ flex: 1, padding: '20px 24px 40px', overflowY: 'auto' }}>
-      <FLabel>What's home</FLabel>
       <div style={{ marginTop: 4, display: 'flex', alignItems: 'baseline', gap: 14 }}>
-        <FNum size={64} weight={200}>{totalSkus}</FNum>
+        <FNum size={40} weight={200}>{totalSkus}</FNum>
         <div>
           <FMono color={Color.dim}>SKUS · 6 USED THIS WEEK</FMono>
           <div style={{ marginTop: 6 }}>
@@ -91,7 +117,7 @@ export function FridgeContent() {
                         {it.have}{it.unit ? ' ' + it.unit : ''}
                       </FMono>
                       <div style={{ marginTop: 2 }}>
-                        <FMono color={Color.mute} size={9}>/ {it.need}{it.unit ? ' ' + it.unit : ''}</FMono>
+                        <FMono color={Color.mute} size={10}>/ {it.need}{it.unit ? ' ' + it.unit : ''}</FMono>
                       </div>
                     </div>
                   }
@@ -111,6 +137,8 @@ export function FridgeContent() {
           { icon: ICONS.filter, label: 'Filter', stay: true },
         ]}/>
       </div>
+
+      <FBtn variant="split" full iconLeading={ICONS.play} onClick={() => pushDetail('prep', 'Meal Prep')}>Start prep</FBtn>
     </div>
   );
 }

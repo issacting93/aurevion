@@ -20,7 +20,7 @@ function PhoneScaler({ children, transition, direction, onAdvance, idx, maxIdx }
   useEffect(() => {
     const update = () => {
       const avail = Math.max(420, window.innerHeight - 160)
-      setScale(Math.min(1, avail / 874))
+      setScale(Math.min(1, avail / 926))
     }
     update()
     window.addEventListener('resize', update)
@@ -128,7 +128,6 @@ export default function PresentationDemo() {
                   width: '100%', textAlign: 'left', padding: '10px 24px',
                   background: active ? 'rgba(255,110,80,0.10)' : 'transparent',
                   border: 'none', cursor: 'pointer',
-                  borderLeft: active ? `2px solid ${D.accent}` : '2px solid transparent',
                   color: active ? D.text : D.dim,
                   fontFamily: '"Geist", system-ui, sans-serif',
                   display: 'flex', alignItems: 'center', gap: 12,

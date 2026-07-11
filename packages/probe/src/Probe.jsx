@@ -356,7 +356,7 @@ export function Probe({ children }) {
         onClick={() => setActive((a) => !a)}
         style={{
           all: 'unset', cursor: 'pointer',
-          position: 'fixed', bottom: 16, left: 16, zIndex: 9999,
+          position: 'fixed', bottom: 16, right: pinned ? 340 : 16, zIndex: 9999,
           display: 'flex', alignItems: 'center', gap: 8,
           padding: '7px 14px',
           fontFamily: mono, fontSize: 10, fontWeight: 600,

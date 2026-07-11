@@ -40,14 +40,14 @@ export const NODES = [
   { id: 'save_money',        category: 'nutrition_goal', label: 'Save Money',        sub: 'Reduce food spending via batch prep',           icon: ICONS.chart },
 
   // Training Modalities
-  { id: 'lifting_hyp',   category: 'training', label: 'Hypertrophy Lifting', sub: '6-12 reps, 60-90s rest, volume focus',                icon: ICONS.dumb },
-  { id: 'lifting_str',   category: 'training', label: 'Strength Lifting',    sub: '1-5 reps, heavy compound, 3-5 min rest',              icon: ICONS.dumb },
-  { id: 'hiit',          category: 'training', label: 'HIIT',                sub: 'High-intensity intervals, 15-30 min sessions',        icon: ICONS.flame },
-  { id: 'zone2_cardio',  category: 'training', label: 'Zone 2 Cardio',       sub: '60-70% max HR, 30-90 min aerobic base',               icon: ICONS.timer },
-  { id: 'circuits',      category: 'training', label: 'Circuits',            sub: 'Multi-exercise rounds, minimal rest, metabolic',       icon: ICONS.swap },
-  { id: 'plyometrics',   category: 'training', label: 'Plyometrics',         sub: 'Jump training, explosive movements, CNS-heavy',       icon: ICONS.play },
-  { id: 'mobility_yoga', category: 'training', label: 'Mobility / Yoga',     sub: 'Flexibility, recovery, parasympathetic activation',   icon: ICONS.expand },
-  { id: 'calisthenics',  category: 'training', label: 'Calisthenics',        sub: 'Bodyweight progressive overload, no equipment',       icon: ICONS.person },
+  { id: 'lifting_hyp',   category: 'training', label: 'Hypertrophy Lifting', sub: '6-12 reps, RPE 7.5-9 / RIR 1-2.5, supersets on isolations', icon: ICONS.dumb },
+  { id: 'lifting_str',   category: 'training', label: 'Strength Lifting',    sub: '1-5 reps, RPE 8.5-10 / RIR 0-1.5, supersets on isolations', icon: ICONS.dumb },
+  { id: 'hiit',          category: 'training', label: 'HIIT',                sub: 'High-intensity intervals, circuit format, 3 rounds',         icon: ICONS.flame },
+  { id: 'zone2_cardio',  category: 'training', label: 'Zone 2 Cardio',       sub: '60-70% max HR, 30-90 min aerobic base',                     icon: ICONS.timer },
+  { id: 'circuits',      category: 'training', label: 'Circuits',            sub: 'Multi-exercise rounds, circuit format, 3 rounds, minimal rest', icon: ICONS.swap },
+  { id: 'plyometrics',   category: 'training', label: 'Plyometrics',         sub: 'Jump training, explosive movements, CNS-heavy',              icon: ICONS.play },
+  { id: 'mobility_yoga', category: 'training', label: 'Mobility / Yoga',     sub: 'Flexibility, recovery, parasympathetic activation',          icon: ICONS.expand },
+  { id: 'calisthenics',  category: 'training', label: 'Calisthenics',        sub: 'Bodyweight progressive overload, no equipment, supersets',   icon: ICONS.person },
 
   // Meal Prep Approaches
   { id: 'lean_prep',      category: 'meal_prep', label: 'Lean Prep',          sub: 'High protein, high volume, low calorie — grilled, steamed',   icon: ICONS.meal },

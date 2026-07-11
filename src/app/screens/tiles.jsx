@@ -12,6 +12,7 @@
 
 import { Color, Space, Radius } from '../../ui/tokens'
 import { ICONS, FLabel, FMono, FNum, FTexBar, FIcon, FTag } from '../../ui/components'
+import { MOCK_TDEE } from '../../context/mockUser'
 
 const TILE_PAD = { full: Space[4], mid: 14, compact: 10 };
 const TILE_RAD = { full: 14, mid: Space[3], compact: 10 };
@@ -103,7 +104,7 @@ export function MacroTile({ kcal, protein, carbs, fat, deficit, density = 'mid',
       <FTile density={density} span={span || 2} style={style} onClick={onClick}>
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-            <FLabel size={9} mb={0} letter={1}>DAILY</FLabel>
+            <FLabel size={10} mb={0} letter={1}>DAILY</FLabel>
             <FNum size={24} weight={200} unit="kcal">{kcal.toLocaleString()}</FNum>
           </div>
           {deficit && <FMono size={10} color={Color.accent}>{deficit}</FMono>}
@@ -111,7 +112,7 @@ export function MacroTile({ kcal, protein, carbs, fat, deficit, density = 'mid',
         <div style={{ display: 'flex', gap: Space[4] }}>
           {macros.map(m => (
             <div key={m.label} style={{ display: 'flex', alignItems: 'baseline', gap: Space[1] }}>
-              <FMono size={9} color={Color.mute}>{m.label}</FMono>
+              <FMono size={10} color={Color.mute}>{m.label}</FMono>
               <FMono size={13} color={Color.text}>{m.value}g</FMono>
             </div>
           ))}
@@ -131,7 +132,7 @@ export function MacroTile({ kcal, protein, carbs, fat, deficit, density = 'mid',
             padding: '10px 12px', borderRadius: 10,
             background: Color.bg, border: `1px solid ${m.label === 'PROT' ? 'rgba(255,110,80,0.2)' : Color.borderSoft}`,
           }}>
-            <FLabel size={9} mb={4} color={m.label === 'PROT' ? Color.accent : Color.mute}>{m.label}</FLabel>
+            <FLabel size={10} mb={4} color={m.label === 'PROT' ? Color.accent : Color.mute}>{m.label}</FLabel>
             <FNum size={22} weight={300} unit="g">{m.value}</FNum>
             <div style={{ marginTop: 6 }}>
               <FTexBar pct={m.pct} height={4} color={m.color} radius={2} />
@@ -178,7 +179,7 @@ export function CalendarTile({ days, density = 'mid', span, style, onClick }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: Space[1] }}>
           {days.map((d, i) => (
             <div key={i} style={{ textAlign: 'center' }}>
-              <FMono size={9} color={d.today ? Color.accent : Color.mute}>{d.label}</FMono>
+              <FMono size={10} color={d.today ? Color.accent : Color.mute}>{d.label}</FMono>
               <div style={{
                 width: '100%', aspectRatio: '1', borderRadius: 6, marginTop: 4,
                 background: d.done ? COLORS[d.type] || Color.accent : 'rgba(255,255,255,0.04)',
@@ -209,7 +210,7 @@ export function CalendarTile({ days, density = 'mid', span, style, onClick }) {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: Space[1] }}>
         {days.map((d, i) => (
           <div key={i} style={{ textAlign: 'center' }}>
-            <FMono size={9} color={d.today ? Color.accent : Color.mute}>{d.label}</FMono>
+            <FMono size={10} color={d.today ? Color.accent : Color.mute}>{d.label}</FMono>
             <div style={{
               width: '100%', aspectRatio: '1', borderRadius: Radius.md, marginTop: 4,
               background: d.done
@@ -251,7 +252,7 @@ export function SessionTile({ name, time, exercises, exerciseCount, day, density
           </div>
           <FMono size={12} color={Color.text}>{name}</FMono>
         </div>
-        <FMono size={9} color={Color.mute}>{time}</FMono>
+        <FMono size={10} color={Color.mute}>{time}</FMono>
       </FTile>
     );
   }
@@ -313,7 +314,7 @@ export function PrepTile({ recipes, totalTime, readyPct, nextLabel, density = 'm
           </div>
           <FMono size={12} color={Color.text}>{recipes.length} recipes</FMono>
         </div>
-        <FMono size={9} color={Color.mute}>{totalTime}</FMono>
+        <FMono size={10} color={Color.mute}>{totalTime}</FMono>
       </FTile>
     );
   }
@@ -445,7 +446,7 @@ export function FridgeTile({ total, missing, expiring, topMissing, density = 'mi
         <FLabel size={8} mb={0} letter={1}>FRIDGE</FLabel>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: Space[1] }}>
           <FNum size={20} weight={200} color={missing > 0 ? Color.accent : Color.green}>{missing}</FNum>
-          <FMono size={9} color={Color.mute}>missing</FMono>
+          <FMono size={10} color={Color.mute}>missing</FMono>
         </div>
       </FTile>
     );
@@ -479,7 +480,7 @@ export function FridgeTile({ total, missing, expiring, topMissing, density = 'mi
       </div>
       {topMissing && topMissing.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-          <FLabel size={9} mb={4} mt={4}>NEED TO BUY</FLabel>
+          <FLabel size={10} mb={4} mt={4}>NEED TO BUY</FLabel>
           {topMissing.map((item, i) => (
             <div key={i} style={{
               padding: '5px 0',
@@ -547,7 +548,7 @@ export function StreakTile({ count, best, density = 'mid', span, style, onClick 
 // ─────────────────────────────────────────────────────────────────────────────
 export function TDEETile({ value, confidence, trend, density = 'mid', span, style, onClick }) {
   // Mini sparkline for the TDEE trend
-  const points = trend || [2380, 2420, 2350, 2400, 2440, 2410, 2420];
+  const points = trend || MOCK_TDEE.trend7d;
   const min = Math.min(...points);
   const max = Math.max(...points);
   const range = max - min || 1;
@@ -608,7 +609,7 @@ export function TDEETile({ value, confidence, trend, density = 'mid', span, styl
       </svg>
       <div style={{ display: 'flex', gap: Space[4], marginTop: 4 }}>
         <div>
-          <FLabel size={9} mb={2}>MODEL CONFIDENCE</FLabel>
+          <FLabel size={10} mb={2}>MODEL CONFIDENCE</FLabel>
           <FTexBar pct={confidence} height={4} radius={2} />
         </div>
       </div>
@@ -631,7 +632,7 @@ export function GoalTile({ current, target, unit, weeks, elapsed, density = 'mid
         <div style={{ display: 'flex', alignItems: 'baseline', gap: Space[1] }}>
           <FNum size={18} weight={200}>{current}</FNum>
           <FMono size={10} color={Color.accent}>→ {target}</FMono>
-          <FMono size={9} color={Color.mute}>{unit}</FMono>
+          <FMono size={10} color={Color.mute}>{unit}</FMono>
         </div>
         <FTexBar pct={progressPct} height={3} radius={2} />
       </FTile>
@@ -671,6 +672,76 @@ export function GoalTile({ current, target, unit, weeks, elapsed, density = 'mid
       </div>
     </FTile>
   );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TILE: Water — hydration progress
+// ─────────────────────────────────────────────────────────────────────────────
+export function WaterTile({ current = 0, target = 2500, trend7d = [], density = 'mid', span, style, onClick }) {
+  const pct = Math.min(100, Math.round((current / target) * 100))
+  const DROP = 'M12 2c0 0-7 8.5-7 12.5a7 7 0 0014 0C19 10.5 12 2 12 2z'
+
+  if (density === 'compact') {
+    return (
+      <FTile density={density} span={span || 1} style={style} onClick={onClick}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <FIcon path={DROP} size={14} color={Color.blue} stroke={1.5} />
+          <FNum size={18} weight={200}>{current}</FNum>
+          <FMono size={10} color={Color.mute}>/ {target} ml</FMono>
+        </div>
+        <FTexBar pct={pct} height={3} radius={2} color={Color.blue} />
+      </FTile>
+    )
+  }
+
+  if (density === 'mid') {
+    return (
+      <FTile density={density} span={span || 1} style={style} onClick={onClick}>
+        <TileHead label="HYDRATION" density={density} />
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+          <FIcon path={DROP} size={16} color={Color.blue} stroke={1.5} />
+          <FNum size={22} weight={200}>{current.toLocaleString()}</FNum>
+          <FMono size={10} color={Color.mute}>/ {target.toLocaleString()} ml</FMono>
+        </div>
+        <FTexBar pct={pct} height={5} radius={3} color={Color.blue} />
+        {trend7d.length > 0 && (
+          <div style={{ display: 'flex', gap: 2, alignItems: 'flex-end', height: 20, marginTop: 6 }}>
+            {trend7d.slice(-7).map((v, i) => (
+              <div key={i} style={{
+                flex: 1, borderRadius: 1.5,
+                height: `${Math.max(15, (v / target) * 100)}%`,
+                background: v >= target ? Color.blue : `${Color.blue}40`,
+              }} />
+            ))}
+          </div>
+        )}
+      </FTile>
+    )
+  }
+
+  // full
+  return (
+    <FTile density={density} span={span || 2} style={style} onClick={onClick}>
+      <TileHead label="HYDRATION" tag={<FTag tone="neutral" size="sm">{pct}%</FTag>} density={density} />
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+        <FIcon path={DROP} size={20} color={Color.blue} stroke={1.5} />
+        <FNum size={32} weight={200}>{current.toLocaleString()}</FNum>
+        <FMono size={12} color={Color.mute}>/ {target.toLocaleString()} ml</FMono>
+      </div>
+      <FTexBar pct={pct} height={8} radius={4} color={Color.blue} />
+      {trend7d.length > 0 && (
+        <div style={{ display: 'flex', gap: 3, alignItems: 'flex-end', height: 32, marginTop: 8 }}>
+          {trend7d.slice(-7).map((v, i) => (
+            <div key={i} style={{
+              flex: 1, borderRadius: 2,
+              height: `${Math.max(15, (v / target) * 100)}%`,
+              background: v >= target ? Color.blue : `${Color.blue}40`,
+            }} />
+          ))}
+        </div>
+      )}
+    </FTile>
+  )
 }
 
 export { TILE_PAD, TILE_RAD, TILE_GAP };

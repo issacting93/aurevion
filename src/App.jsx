@@ -5,6 +5,7 @@ import { DemoProvider } from './context/DemoContext'
 // Product pages
 import Home from './pages/Home'
 import AppFlow from './pages/AppFlow'
+import TestAgents from './pages/TestAgents'
 import Landing from './pages/Landing'
 import BodyViewer from './pages/BodyViewer'
 
@@ -13,12 +14,17 @@ import UILibrary from './tools/UILibrary'
 import DevHandover from './tools/DevHandover'
 import Scenes from './tools/Scenes'
 import Trailer from './tools/Trailer'
+import TemplateShowcase from './tools/TemplateShowcase'
+import ConsistencyCheck from './tools/consistency-check'
+import FitnessFlowDemo from './tools/FitnessFlowDemo'
 
 // Journey sub-routes
 import JourneyLayout from './tools/journey/JourneyLayout'
 import JourneyHub from './tools/journey/JourneyHub'
 import ModeOverview from './tools/journey/ModeOverview'
 import FlowPage from './tools/journey/FlowPage'
+import AllScreens from './tools/journey/AllScreens'
+import AllScreensExport from './tools/journey/AllScreensExport'
 import GoalNetwork from './tools/goal-network/GoalNetwork'
 import OntologyExplorer from './tools/ontology/OntologyExplorer'
 import ScenarioPlanner from './tools/ontology/ScenarioPlanner'
@@ -32,6 +38,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/app" element={<AppFlow />} />
+          <Route path="/test" element={<TestAgents />} />
           <Route path="/landing" element={<Landing />} />
           <Route path="/library" element={<UILibrary />} />
           <Route path="/demo" element={<DevHandover />} />
@@ -44,6 +51,7 @@ export default function App() {
             <Route path="exercise" element={<ModeOverview mode="exercise" />} />
             <Route path="exercise/:flow" element={<FlowPage mode="exercise" />} />
             <Route path="observe" element={<ModeOverview mode="observe" />} />
+            <Route path="all" element={<AllScreens />} />
             <Route path="goals" element={<GoalNetwork />} />
             <Route path="explore" element={<OntologyExplorer />}>
               <Route index element={<ScenarioPlanner />} />
@@ -52,10 +60,14 @@ export default function App() {
               <Route path="goal-cards" element={<GoalDetailCards />} />
             </Route>
           </Route>
+          <Route path="/journey/all/export" element={<AllScreensExport />} />
           <Route path="/screens" element={<Navigate to="/journey" replace />} />
           <Route path="/body" element={<BodyViewer />} />
           <Route path="/scenes" element={<Scenes />} />
           <Route path="/trailer" element={<Trailer />} />
+          <Route path="/flow-demo" element={<FitnessFlowDemo />} />
+          <Route path="/templates" element={<TemplateShowcase />} />
+          <Route path="/check" element={<ConsistencyCheck />} />
         </Routes>
       </DemoProvider>
     </UserProvider>

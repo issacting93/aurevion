@@ -200,7 +200,7 @@ function GoalDecisionTree() {
       <FLabel size={10} mb={12} letter={1.6}>GOAL DECISION TREE</FLabel>
       <svg width="100%" viewBox="0 0 990 540" fill="none" style={{ overflow: 'visible' }}>
         {/* ── Root node ── */}
-        <SvgNode x={colC} y={rootY} w={160} h={36} label="GOAL SELECTION" sub="onboarding step 10" color={Color.text} />
+        <SvgNode x={colC} y={rootY} w={160} h={36} label="GOAL SELECTION" sub="onboarding step 5" color={Color.text} />
 
         {/* ── Root → classify lines ── */}
         <line x1={colC} y1={rootY + 18} x2={colC} y2={rootY + 30} stroke={Color.faint} strokeWidth="1" />

@@ -1,21 +1,17 @@
 // ════════════════════════════════════════════════════════════
 // Exercise Detail — single exercise deep-dive
-// Form cues, muscles, equipment, injury exclusions, goals.
+// R1–R4 compliant: hero icon + muscle bars, weighted sections,
+// dot-label goal pills, muted injury text.
 // ════════════════════════════════════════════════════════════
 
 import { useMemo } from 'react'
-import { Color, Font, Space, Radius, Type } from '../../ui/tokens'
-import { ICONS, FSurface, FNavBar, FLabel, FMono, FIcon, FTag, FListRow, Phone } from '../../ui/components'
+import { Color, Font, Space, Radius, Type, alpha } from '../../ui/tokens'
+import { ICONS, FNavBar, FLabel, FMono, FNum, FIcon, FBtn, Phone } from '../../ui/components'
 import { GOAL_META } from '../../tools/ontology/ontology-data'
-import { EXERCISES } from './fitness-data'
-
-const GOAL_MODALITIES = {
-  hypertrophy: ['hypertrophy'], fat_loss: ['hiit', 'strength', 'cardio'],
-  recomposition: ['hypertrophy', 'hiit'], max_strength: ['strength', 'power'],
-  cardio_endurance: ['cardio', 'endurance'], power: ['power', 'strength'],
-  agility: ['hiit', 'power'], flexibility: ['mobility'],
-  balance: ['mobility', 'endurance'], overall_wellness: ['cardio', 'mobility', 'hypertrophy'],
-}
+import { EXERCISES, getSwapCandidates, flattenSessionExercises } from './fitness-data'
+import { deriveModalities } from '../../context/goalEngine'
+import { useUser } from '../../context/UserContext'
+import { useNav } from '../../context/NavigationContext'
 
 const MODALITY_CONFIG = {
   hypertrophy: { label: 'Hypertrophy', sets: '3-4', reps: '8-12', rest: '90s' },
@@ -32,6 +28,16 @@ const CATEGORY_COLORS = {
   cardio: Color.green, hiit: Color.red, mobility: Color.purple,
 }
 
+const CATEGORY_ICONS = {
+  compound: ICONS.dumb, isolation: ICONS.dumb, core: ICONS.flame,
+  cardio: ICONS.timer, hiit: ICONS.flame, mobility: ICONS.expand,
+}
+
+/* Muscle activation % derived from array position */
+const MUSCLE_PCT = [90, 55, 35, 20]
+
+const fmt = s => s.replace(/_/g, ' ').replace(/^./, c => c.toUpperCase())
+
 export function ExerciseDetailContent({ data }) {
   const exercise = data?.exercise
   if (!exercise) return (
@@ -45,93 +51,182 @@ export function ExerciseDetailContent({ data }) {
   )
 
   const catColor = CATEGORY_COLORS[exercise.category] || Color.mute
+  const catIcon = CATEGORY_ICONS[exercise.category] || ICONS.dumb
 
+  const ALL_GOAL_KEYS = ['hypertrophy','fat_loss','recomposition','max_strength','cardio_endurance','power','agility','flexibility','balance','overall_wellness']
   const goalKeys = useMemo(() => {
-    return Object.entries(GOAL_MODALITIES)
-      .filter(([, mods]) => exercise.modality.some(m => mods.includes(m)))
-      .map(([key]) => key)
+    return ALL_GOAL_KEYS.filter(g => {
+      const mods = deriveModalities([g])
+      return exercise.modality.some(m => mods.includes(m))
+    })
   }, [exercise])
 
   const modalityConfigs = exercise.modality.map(m => MODALITY_CONFIG[m]).filter(Boolean)
 
   return (
     <div style={{ flex: 1, padding: '20px 24px 40px', overflowY: 'auto' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
-        <div style={{ width: 44, height: 44, borderRadius: Radius.lg, background: `${catColor}15`, display: 'grid', placeItems: 'center' }}>
-          <FIcon path={ICONS.dumb} size={22} color={catColor} />
-        </div>
-        <div>
-          <div style={{ ...Type.headingLg }}>{exercise.name}</div>
-          <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
-            <FTag tone="mute" size="sm">{exercise.category.toUpperCase()}</FTag>
-            <FTag tone="mute" size="sm">{exercise.equipment.toUpperCase()}</FTag>
+
+      {/* ── Hero — icon circle + flat label + title + muscle bars ── */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+          <div style={{
+            width: 44, height: 44, borderRadius: '50%', flexShrink: 0,
+            background: catColor, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <FIcon path={catIcon} size={22} color={Color.bg} stroke={1.8} />
+          </div>
+          <div>
+            <div style={{ ...Type.labelSm, color: catColor, marginBottom: 2 }}>{exercise.category.toUpperCase()}</div>
+            <div style={{ fontFamily: Font.sans, fontSize: 28, fontWeight: 500, color: Color.text, lineHeight: 1.1 }}>{exercise.name}</div>
           </div>
         </div>
-      </div>
-
-      {/* Muscles */}
-      <div style={{ marginTop: 24 }}>
-        <FLabel size={9} mb={10}>MUSCLES</FLabel>
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          {exercise.muscles.map((m, i) => (
-            <div key={m} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <div style={{ width: 8, height: 8, borderRadius: 4, background: i === 0 ? catColor : Color.dim }} />
-              <span style={{ ...Type.bodyMd, color: i === 0 ? Color.text : Color.dim, textTransform: 'capitalize' }}>{m.replace(/_/g, ' ')}</span>
-            </div>
-          ))}
+        <div style={{ ...Type.bodyMd, color: Color.dim, marginBottom: 16 }}>
+          {fmt(exercise.equipment)} exercise
         </div>
-      </div>
 
-      {/* Form cue */}
-      <FSurface style={{ marginTop: 20 }}>
-        <FLabel size={9} mb={8}>FORM CUE</FLabel>
-        <div style={{ ...Type.bodyMd, color: Color.text, lineHeight: 1.6 }}>{exercise.cue}</div>
-      </FSurface>
-
-      {/* Injury cautions */}
-      {exercise.injury_exclude.length > 0 && (
-        <div style={{ marginTop: 20 }}>
-          <FLabel size={9} mb={10}>INJURY CAUTIONS</FLabel>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {exercise.injury_exclude.map(inj => (
-              <FTag key={inj} tone="red" size="sm">{inj.replace(/_/g, ' ').toUpperCase()}</FTag>
-            ))}
-          </div>
-          <FMono size={9} color={Color.dim} style={{ marginTop: 6, display: 'block' }}>
-            This exercise is excluded from programs when these injuries are selected.
-          </FMono>
-        </div>
-      )}
-
-      {/* Used in goals */}
-      <div style={{ marginTop: 20 }}>
-        <FLabel size={9} mb={10}>USED IN GOALS</FLabel>
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          {goalKeys.map(key => {
-            const meta = GOAL_META[key]
-            return meta ? (
-              <span key={key} style={{
-                padding: '4px 10px', borderRadius: 9999,
-                background: `${meta.color}12`, color: meta.color,
-                fontFamily: Font.mono, fontSize: 10, letterSpacing: 0.8, fontWeight: 500,
-              }}>{meta.label}</span>
-            ) : null
+        {/* Muscle activation bars */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {exercise.muscles.map((m, i) => {
+            const pct = MUSCLE_PCT[i] || 15
+            return (
+              <div key={m} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ ...Type.bodySm, color: i === 0 ? catColor : Color.dim, width: 46, flexShrink: 0 }}>
+                  {fmt(m)}
+                </span>
+                <div style={{ flex: 1, height: 4, borderRadius: 2, background: alpha(Color.text, 0.08) }}>
+                  <div style={{ width: `${pct}%`, height: '100%', borderRadius: 2, background: catColor, opacity: i === 0 ? 1 : 0.5 }} />
+                </div>
+              </div>
+            )
           })}
         </div>
       </div>
 
-      {/* Modality prescriptions */}
-      <div style={{ marginTop: 20 }}>
-        <FLabel size={9} mb={10}>MODALITY PRESCRIPTIONS</FLabel>
-        {modalityConfigs.map(config => (
-          <FListRow key={config.label}
-            title={config.label}
-            subtitle={`${config.sets} sets × ${config.reps} reps · ${config.rest} rest`}
-            divider
-          />
+      {/* ── Prescriptions — flat rows with dividers, large numbers ── */}
+      <div style={{ marginBottom: 28 }}>
+        {modalityConfigs.map((config, i) => (
+          <div key={config.label} style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            padding: '14px 0',
+            borderTop: `1px solid ${Color.borderSoft}`,
+          }}>
+            <div>
+              <div style={{ ...Type.bodyMd, fontWeight: 500, color: Color.text }}>{config.label}</div>
+              <div style={{ ...Type.labelSm, color: Color.mute, marginTop: 3 }}>REST {config.rest}</div>
+            </div>
+            <div style={{ fontFamily: Font.sans, fontSize: 20, fontWeight: 500, color: Color.text }}>
+              {config.sets} <span style={{ ...Type.labelSm, color: Color.mute, fontWeight: 400 }}>sets</span>
+              {' '}× {config.reps} <span style={{ ...Type.labelSm, color: Color.mute, fontWeight: 400 }}>reps</span>
+            </div>
+          </div>
         ))}
       </div>
+
+      {/* ── Form cue — tinted card ── */}
+      <div style={{
+        background: alpha(catColor, 0.06), borderRadius: Radius.lg,
+        padding: '16px 18px', marginBottom: 28,
+      }}>
+        <div style={{ ...Type.labelSm, color: Color.mute, marginBottom: 6 }}>FORM CUE</div>
+        <div style={{ ...Type.bodyMd, color: Color.text, lineHeight: 1.6 }}>{exercise.cue}</div>
+      </div>
+
+      {/* ── Goals — dot + label pills ── */}
+      <div style={{ marginBottom: 28 }}>
+        <div style={{ ...Type.labelSm, color: Color.mute, marginBottom: 8 }}>USED IN GOALS</div>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          {goalKeys.map(key => {
+            const meta = GOAL_META[key]
+            if (!meta) return null
+            return (
+              <span key={key} style={{
+                display: 'flex', alignItems: 'center', gap: 5,
+                fontSize: 12, fontFamily: Font.sans,
+                padding: '4px 10px', borderRadius: 999,
+                background: alpha(meta.color, 0.10), color: meta.color,
+              }}>
+                <span style={{ width: 5, height: 5, borderRadius: '50%', background: meta.color, flexShrink: 0 }} />
+                {meta.label}
+              </span>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* ── R4-tertiary: Injury cautions — muted plain text ── */}
+      {exercise.injury_exclude.length > 0 && (
+        <div style={{ marginBottom: data?.fromProgram ? 28 : 0 }}>
+          <div style={{ ...Type.labelSm, color: Color.mute, marginBottom: 4 }}>INJURY CAUTIONS</div>
+          <div style={{ ...Type.bodySm, color: Color.mute, lineHeight: 1.5 }}>
+            Avoid heavy loading with active {exercise.injury_exclude.map(i => fmt(i).toLowerCase()).join(' or ')} injuries. Reduce ROM if mobility is limited.
+          </div>
+        </div>
+      )}
+
+      {/* ── Swap section — only when opened from program ── */}
+      {data?.fromProgram && <SwapSection exercise={exercise} data={data} />}
+    </div>
+  )
+}
+
+function SwapSection({ exercise, data }) {
+  const { swapExercise, workoutPlan, profile } = useUser()
+  const { popDetail } = useNav()
+
+  const sessionExercises = useMemo(() => {
+    if (!workoutPlan?.schedule || !data.sessionId) return []
+    const session = workoutPlan.schedule.find(s => s.id === data.sessionId)
+    if (!session?.exercises) return []
+    return flattenSessionExercises(session.exercises.filter(e => e.category !== 'warmup' && e.category !== 'cooldown'))
+  }, [workoutPlan, data.sessionId])
+
+  const candidates = useMemo(() => {
+    if (!profile) return []
+    return getSwapCandidates(exercise, sessionExercises, {
+      equipment: profile.equipment || 'full_gym',
+      injuries: profile.injuries || [],
+      goals: profile.goals || [],
+    })
+  }, [exercise, sessionExercises, profile])
+
+  const handleSwap = (candidate) => {
+    swapExercise(data.sessionId, data.exerciseId, candidate.id)
+    popDetail()
+  }
+
+  if (candidates.length === 0) return null
+
+  return (
+    <div>
+      <div style={{ borderTop: `1px solid ${Color.borderSoft}`, paddingTop: 20 }}>
+        <div style={{ ...Type.labelSm, color: Color.mute, marginBottom: 4 }}>SWAP ALTERNATIVES</div>
+        <div style={{ ...Type.bodySm, color: Color.faint, marginBottom: 14 }}>Same muscle · your equipment · injury-safe</div>
+      </div>
+      {candidates.map((c, i) => {
+        const cColor = CATEGORY_COLORS[c.category] || Color.mute
+        const cIcon = CATEGORY_ICONS[c.category] || ICONS.dumb
+        return (
+          <div key={c.id} style={{
+            display: 'flex', alignItems: 'center', gap: 12,
+            padding: '12px 0',
+            borderTop: i > 0 ? `1px solid ${Color.borderSoft}` : 'none',
+          }}>
+            <div style={{
+              width: 32, height: 32, borderRadius: Radius.md, flexShrink: 0,
+              background: alpha(cColor, 0.10), display: 'grid', placeItems: 'center',
+            }}>
+              <FIcon path={cIcon} size={14} color={cColor} />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ ...Type.bodyMd, color: Color.text }}>{c.name}</div>
+              <FMono size={10} color={Color.mute} style={{ marginTop: 2 }}>
+                {fmt(c.equipment)} · {fmt(c.muscles[0])}
+              </FMono>
+            </div>
+            <FBtn variant="ghost" size="sm" onClick={() => handleSwap(c)} data-stay="true">Select</FBtn>
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -139,7 +234,7 @@ export function ExerciseDetailContent({ data }) {
 export function ExerciseDetailScreen({ goalKey } = {}) {
   const exercise = useMemo(() => {
     if (goalKey) {
-      const mods = GOAL_MODALITIES[goalKey] || []
+      const mods = deriveModalities([goalKey])
       const match = EXERCISES?.find(ex => ex.modality.some(m => mods.includes(m)))
       if (match) return match
     }

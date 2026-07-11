@@ -4,13 +4,16 @@
 // Bold hierarchy, generous spacing, hero data treatment.
 // ════════════════════════════════════════════════════════════
 
-import { Color, Font, Space, Radius, Type } from '../../ui/tokens'
+import { Color, Font, Space, Radius, Type, alpha } from '../../ui/tokens'
 import { ICONS, FSurface, FNavBar, FLabel, FMono, FNum, FIcon, FBtn, FTag, FTexBar, Phone } from '../../ui/components'
 import { useUser } from '../../context/UserContext'
 import { useNav } from '../../context/NavigationContext'
-import { MODALITY_COLORS, getProgramPhase } from './fitness-data'
+import { getProgramPhase, flattenSessionExercises, formatTime } from './fitness-data'
 
-const TODAY_INDEX = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1
+function getTodayIndex() {
+  const d = new Date().getDay()
+  return d === 0 ? 6 : d - 1
+}
 
 const PHASE_COLORS = {
   Base:  Color.blue,
@@ -19,23 +22,34 @@ const PHASE_COLORS = {
 }
 
 export function ProgramOverviewContent({ onStartSession }) {
-  const { workoutPlan: plan, advanceWeek } = useUser()
+  const { workoutPlan: plan, advanceWeek, activeSession } = useUser()
   const { pushDetail, switchTab } = useNav()
 
   if (!plan) {
     return (
-      <div style={{ flex: 1, padding: '60px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20, textAlign: 'center' }}>
-        <div style={{ width: 64, height: 64, borderRadius: '50%', background: `${Color.accent}15`, display: 'grid', placeItems: 'center' }}>
-          <FIcon path={ICONS.dumb} size={28} color={Color.accent} />
+      <div style={{ flex: 1, padding: '40px 24px 60px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20, textAlign: 'center' }}>
+        <div style={{
+          width: 80, height: 80, borderRadius: '50%',
+          background: `linear-gradient(135deg, ${alpha(Color.accent, 0.15)}, ${alpha(Color.accent, 0.05)})`,
+          border: `2px solid ${alpha(Color.accent, 0.25)}`,
+          display: 'grid', placeItems: 'center',
+        }}>
+          <FIcon path={ICONS.dumb} size={36} color={Color.accent} stroke={1.5} />
         </div>
-        <div style={{ ...Type.headingLg }}>No program yet</div>
-        <div style={{ ...Type.bodyLg, color: Color.dim, maxWidth: 280 }}>
-          Complete onboarding to generate a training program based on your goals.
+        <div>
+          <div style={{ ...Type.headingLg, marginBottom: 8 }}>Your program starts here</div>
+          <div style={{ ...Type.bodyMd, color: Color.dim, maxWidth: 260, margin: '0 auto', lineHeight: 1.6 }}>
+            Complete onboarding to generate a training plan built for your goals, equipment, and schedule.
+          </div>
         </div>
+        <FBtn variant="primary" size="lg" icon={ICONS.play} data-stay="true">
+          Start onboarding
+        </FBtn>
       </div>
     )
   }
 
+  const todayIndex = getTodayIndex()
   const currentWeek = plan.currentWeek || 1
   const totalWeeks = plan.totalWeeks || 12
   const phase = getProgramPhase(currentWeek)
@@ -45,149 +59,159 @@ export function ProgramOverviewContent({ onStartSession }) {
 
   const getStatus = (entry) => {
     if (entry.completed) return 'done'
-    if (entry.dayIndex === TODAY_INDEX) return 'today'
-    if (entry.dayIndex < TODAY_INDEX) return 'missed'
+    if (entry.dayIndex === todayIndex) return 'today'
+    if (entry.dayIndex < todayIndex) return 'missed'
     return 'upcoming'
   }
 
   const restDays = plan.schedule.filter(d => d.isRest)
   const trainingDays = plan.schedule.filter(d => !d.isRest)
 
+  const todayEntry = plan.schedule.find(s => s.dayIndex === todayIndex)
+
   return (
     <div style={{ flex: 1, padding: '24px 24px 48px', overflowY: 'auto' }}>
 
-      {/* ── Hero Header ── */}
-      <FMono color={Color.mute} size={10}>YOUR PROGRAM</FMono>
-      <div style={{ ...Type.headingLg, fontSize: 24, marginTop: 8, marginBottom: 6 }}>
-        {plan.programName || `${plan.splitLabel} Split`}
-      </div>
-      {goalLabels && (
-        <FMono color={Color.mute} size={10}>BASED ON: {goalLabels.toUpperCase()}</FMono>
+      {/* ── Resume Banner ── */}
+      {activeSession && (
+        <div style={{
+          marginBottom: Space[5],
+          padding: `${Space[4]}px ${Space[5]}px`,
+          borderRadius: Radius.xl,
+          background: `${Color.accent}10`,
+          border: `1px solid ${Color.accent}30`,
+          display: 'flex', alignItems: 'center', gap: Space[4],
+        }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <FMono color={Color.accent} size={10} style={{ marginBottom: 4, display: 'block' }}>RESUME WORKOUT</FMono>
+            <div style={{ ...Type.bodyMd, color: Color.text, marginBottom: 4 }}>
+              {activeSession.sessionName}
+            </div>
+            <FMono color={Color.dim} size={10}>
+              {formatTime(activeSession.elapsed || 0)} elapsed
+            </FMono>
+          </div>
+          <FBtn variant="primary" size="sm" onClick={() => {
+            const matchSession = plan?.schedule?.find(s => s.id === activeSession.sessionId)
+            if (matchSession) {
+              pushDetail('active-session', activeSession.sessionName, { session: matchSession, restoreState: activeSession })
+            }
+          }} data-stay="true">
+            Resume
+          </FBtn>
+        </div>
       )}
 
-      {/* ── Week Hero ── */}
-      <div style={{ marginTop: 32, display: 'flex', alignItems: 'baseline', gap: 14 }}>
-        <FNum size={56} weight={200}>{String(currentWeek).padStart(2, '0')}</FNum>
-        <div>
-          <FMono color={Color.mute} size={10}>/ {totalWeeks} WEEKS</FMono>
-          <div style={{ marginTop: 4 }}>
-            <FTag tone="mute" size="sm">{phase.name.toUpperCase()} PHASE</FTag>
+      {/* ── Header ── */}
+      <FMono color={Color.mute} size={10}>
+        WEEK {currentWeek} OF {totalWeeks} · {phase.name.toUpperCase()} PHASE
+      </FMono>
+      <div style={{ ...Type.headingLg, marginTop: Space[2], marginBottom: Space[1] }}>
+        {plan.programName || `${plan.splitLabel} Split`}
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <FMono color={Color.dim} size={10}>
+          {completedSessions}/{plan.sessions.length} SESSIONS
+        </FMono>
+        {goalLabels && (
+          <>
+            <FMono color={Color.faint} size={10}>·</FMono>
+            <FMono color={Color.mute} size={10}>{goalLabels.toUpperCase()}</FMono>
+          </>
+        )}
+      </div>
+      <div style={{ marginTop: Space[3] }}>
+        <FTexBar pct={(currentWeek / totalWeeks) * 100} height={3} />
+      </div>
+
+      {/* ── Today's Session (compact) ── */}
+      {todayEntry && !todayEntry.isRest && !todayEntry.completed && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: Space[3],
+          padding: `${Space[4]}px ${Space[5]}px`,
+          marginTop: Space[6], marginBottom: Space[4],
+          borderRadius: Radius.xl,
+          background: alpha(Color.accent, 0.06),
+          border: `1px solid ${alpha(Color.accent, 0.15)}`,
+          cursor: 'pointer',
+        }}
+        onClick={() => onStartSession ? onStartSession(todayEntry) : pushDetail('active-session', todayEntry.name, { session: todayEntry })}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+              <FTag tone="accent" size="sm">TODAY</FTag>
+              <FMono color={Color.mute} size={10}>~{todayEntry.estimatedMins} min</FMono>
+            </div>
+            <div style={{ ...Type.bodyLg, fontWeight: 500, color: Color.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {todayEntry.name}
+            </div>
+          </div>
+          <div style={{
+            width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
+            background: Color.accent,
+            display: 'grid', placeItems: 'center',
+          }}>
+            <FIcon path={ICONS.play} size={14} color={Color.accentText} />
           </div>
         </div>
-      </div>
-      <div style={{ marginTop: 16 }}>
-        <FTexBar pct={(currentWeek / totalWeeks) * 100} height={4} />
-      </div>
+      )}
 
-      {/* ── Phase Timeline ── */}
-      <div style={{ display: 'flex', gap: 6, marginTop: 32 }}>
-        {[
-          { name: 'Base', weeks: [1, 4], color: PHASE_COLORS.Base },
-          { name: 'Build', weeks: [5, 8], color: PHASE_COLORS.Build },
-          { name: 'Peak', weeks: [9, 12], color: PHASE_COLORS.Peak },
-        ].map(p => {
-          const isActive = phase.name === p.name
-          return (
-            <div key={p.name} style={{
-              flex: 1, padding: '12px 10px', borderRadius: Radius.lg,
-              background: isActive ? `${p.color}15` : Color.surface,
-              border: `1px solid ${isActive ? `${p.color}40` : Color.borderSoft}`,
-              textAlign: 'center',
-            }}>
-              <FMono color={isActive ? p.color : Color.mute} size={11}>
-                {p.name.toUpperCase()}
-              </FMono>
-              <div style={{ marginTop: 4 }}>
-                <FMono color={Color.faint} size={9}>WK {p.weeks[0]}–{p.weeks[1]}</FMono>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* ── This Week ── */}
-      <div style={{ marginTop: 40 }}>
-        <FMono color={Color.mute} size={10}>THIS WEEK</FMono>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginTop: 8 }}>
-          <FNum size={32} weight={300}>{completedSessions} / {plan.sessions.length}</FNum>
-          <FMono color={completedSessions === plan.sessions.length ? Color.green : Color.dim} size={10}>
-            {completedSessions === plan.sessions.length ? 'ALL DONE' : 'SESSIONS'}
-          </FMono>
+      {/* ── Today's Session (completed) ── */}
+      {todayEntry && !todayEntry.isRest && todayEntry.completed && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: Space[3],
+          padding: `${Space[3]}px ${Space[5]}px`,
+          marginTop: Space[6], marginBottom: Space[4],
+          borderRadius: Radius.lg,
+          background: alpha(Color.green, 0.06),
+          border: `1px solid ${alpha(Color.green, 0.15)}`,
+        }}>
+          <FIcon path={ICONS.check} size={14} color={Color.green} stroke={2.5} />
+          <div style={{ ...Type.bodyMd, color: Color.text }}>{todayEntry.name}</div>
+          <FTag tone="green" size="sm" style={{ marginLeft: 'auto' }}>DONE</FTag>
         </div>
-      </div>
+      )}
 
-      {/* ── Training Session Cards ── */}
-      <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {trainingDays.map((entry) => {
+      {/* ── Remaining Sessions ── */}
+      <div style={{ marginTop: Space[4] }}>
+        {trainingDays.filter(entry => entry.dayIndex !== todayIndex).map((entry, idx, arr) => {
           const status = getStatus(entry)
-          const color = MODALITY_COLORS[entry.modalityLabel] || Color.faint
-          const isToday = status === 'today'
           const isDone = status === 'done'
           const isMissed = status === 'missed'
-          const coreExercises = entry.exercises.filter(e => e.category !== 'warmup' && e.category !== 'cooldown')
+          const nonUtil = entry.exercises.filter(e => e.category !== 'warmup' && e.category !== 'cooldown')
+          const hasGroups = nonUtil.some(e => e.groupType)
+          const coreExercises = hasGroups ? flattenSessionExercises(nonUtil) : nonUtil
 
           return (
-            <FSurface key={entry.day} style={{
-              padding: 20,
-              border: isToday ? `1px solid ${color}40` : `1px solid ${Color.borderSoft}`,
-              background: isToday ? `${color}06` : Color.surface,
-              opacity: isMissed ? 0.45 : 1,
-            }}>
-              {/* Day + status row */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                <div style={{
-                  fontFamily: Font.mono, fontSize: 12, fontWeight: 600, letterSpacing: 1,
-                  color: isToday ? Color.accent : Color.dim,
-                }}>{entry.day.toUpperCase()}</div>
-                {isToday && <FTag tone="accent" size="sm">TODAY</FTag>}
+            <div key={entry.day}>
+              <div onClick={() => !isDone && pushDetail('active-session', entry.name, { session: entry })} style={{
+                display: 'flex', alignItems: 'center', gap: Space[3],
+                padding: `${Space[4]}px 0`,
+                opacity: isMissed ? 0.45 : 1,
+                cursor: isDone ? 'default' : 'pointer',
+              }}>
+                <FMono color={Color.mute} size={11} style={{ width: 28, flexShrink: 0 }}>
+                  {entry.day.slice(0, 3).toUpperCase()}
+                </FMono>
+                <div style={{ ...Type.bodyMd, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {entry.name}
+                </div>
+                <FMono color={Color.faint} size={10}>{coreExercises.length} exercises</FMono>
                 {isDone && <FTag tone="green" size="sm">DONE</FTag>}
                 {isMissed && <FTag tone="mute" size="sm">MISSED</FTag>}
-                <div style={{ marginLeft: 'auto' }}>
-                  <FTag tone="mute" size="sm">{entry.modalityLabel.toUpperCase()}</FTag>
-                </div>
-              </div>
-
-              {/* Session name */}
-              <div style={{ ...Type.headingMd, fontSize: 18, marginBottom: 8 }}>{entry.name}</div>
-
-              {/* Meta */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-                <FMono color={Color.mute} size={10}>{coreExercises.length} EXERCISES</FMono>
-                <FMono color={Color.faint} size={10}>·</FMono>
-                <FMono color={Color.mute} size={10}>~{entry.estimatedMins} MIN</FMono>
-              </div>
-
-              {/* Exercise preview */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 18 }}>
-                {coreExercises.slice(0, 3).map((ex, j) => (
-                    <div key={j} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <div style={{ width: 5, height: 5, borderRadius: 2.5, background: color, flexShrink: 0 }} />
-                      <FMono color={Color.dim} size={10}>{ex.name}</FMono>
-                      <FMono color={Color.faint} size={10} style={{ marginLeft: 'auto' }}>
-                        {ex.load > 0 ? `${ex.sets}×${ex.reps} @ ${ex.load}kg` : ex.duration > 0 ? `${ex.duration} min` : `${ex.sets}×${ex.reps}`}
-                      </FMono>
-                    </div>
-                  ))}
-                {coreExercises.length > 3 && (
-                  <FMono color={Color.faint} size={9} style={{ paddingLeft: 15 }}>
-                    +{coreExercises.length - 3} more
-                  </FMono>
+                {!isDone && !isMissed && (
+                  <div style={{
+                    width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
+                    background: alpha(Color.accent, 0.08),
+                    display: 'grid', placeItems: 'center',
+                  }}>
+                    <FIcon path={ICONS.play} size={10} color={Color.accent} />
+                  </div>
                 )}
               </div>
-
-              {/* Start button */}
-              {!isDone && onStartSession && (
-                <FBtn
-                  variant="primary"
-                  size="sm"
-                  icon={ICONS.play}
-                  onClick={() => onStartSession(entry)}
-                  data-stay="true"
-                >
-                  {isToday ? 'Start session' : 'Preview'}
-                </FBtn>
+              {idx < arr.length - 1 && (
+                <div style={{ height: 1, background: Color.borderSoft }} />
               )}
-            </FSurface>
+            </div>
           )
         })}
       </div>
@@ -195,58 +219,39 @@ export function ProgramOverviewContent({ onStartSession }) {
       {/* ── Rest Days ── */}
       {restDays.length > 0 && (
         <div style={{
-          marginTop: 12, padding: '14px 20px', borderRadius: Radius.lg,
-          background: Color.surface, border: `1px solid ${Color.borderSoft}`,
-          display: 'flex', alignItems: 'center', gap: 12,
+          marginTop: Space[3],
+          display: 'flex', alignItems: 'center', gap: Space[2],
+          padding: '10px 0',
         }}>
-          <div style={{ width: 6, height: 6, borderRadius: 3, background: Color.faint }} />
-          <FMono color={Color.mute} size={10}>
-            REST · {restDays.map(d => d.day.toUpperCase()).join(', ')}
+          <FMono color={Color.faint} size={10}>
+            REST · {restDays.map(d => d.day.slice(0, 3).toUpperCase()).join(', ')}
           </FMono>
-          <FMono color={Color.faint} size={10} style={{ marginLeft: 'auto' }}>{restDays.length} DAYS</FMono>
         </div>
       )}
 
       {/* ── Quick Actions ── */}
-      <div style={{ marginTop: 40, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-        <FBtn variant="ghost" size="sm" icon={ICONS.search} onClick={() => pushDetail('exercises', 'Exercises')} data-stay="true">
-          Browse exercises
-        </FBtn>
-        {plan.goals?.[0] && (
-          <FBtn variant="ghost" size="sm" icon={ICONS.goal} onClick={() => pushDetail('goal-detail', 'Goal', { goalKey: plan.goals[0] })} data-stay="true">
-            Goal details
-          </FBtn>
-        )}
-        <FBtn variant="ghost" size="sm" icon={ICONS.fwd} onClick={() => switchTab('plan')} data-stay="true">
-          View in calendar
-        </FBtn>
-      </div>
-
-      {/* ── Program Stats ── */}
-      <div style={{ marginTop: 32, display: 'flex', gap: 10 }}>
-        <FSurface style={{ flex: 1, padding: 20, textAlign: 'center' }}>
-          <FLabel mb={8}>Sessions</FLabel>
-          <FNum size={28} weight={300}>{plan.sessions.length}</FNum>
-          <FMono color={Color.mute} size={9}>/WEEK</FMono>
-        </FSurface>
-        <FSurface style={{ flex: 1, padding: 20, textAlign: 'center' }}>
-          <FLabel mb={8}>Phase</FLabel>
-          <FMono color={phaseColor} size={12}>{phase.name.toUpperCase()}</FMono>
-          <div style={{ marginTop: 4 }}>
-            <FMono color={Color.faint} size={9}>WK {phase.weeks}</FMono>
-          </div>
-        </FSurface>
-        <FSurface style={{ flex: 1, padding: 20, textAlign: 'center' }}>
-          <FLabel mb={8}>Split</FLabel>
-          <FMono color={Color.accent} size={12}>{plan.splitLabel.toUpperCase()}</FMono>
-        </FSurface>
+      <div style={{ display: 'flex', gap: 8, marginTop: Space[5], flexWrap: 'wrap' }}>
+        {[
+          { icon: ICONS.search, label: 'Exercises', action: () => pushDetail('exercises', 'Exercises') },
+          { icon: ICONS.dumb, label: 'History', action: () => pushDetail('workout-history', 'History') },
+          { icon: ICONS.goal, label: plan.goals?.[0]?.replace(/_/g, ' ') || 'Goal', action: plan.goals?.[0] ? () => pushDetail('goal-detail', 'Goal', { goalKey: plan.goals[0] }) : null },
+        ].filter(a => a.action).map(a => (
+          <button key={a.label} onClick={a.action} style={{
+            flex: 1, minWidth: 0, padding: '10px 12px', borderRadius: Radius.md,
+            background: Color.surface, border: `1px solid ${Color.borderSoft}`,
+            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
+          }}>
+            <FIcon path={a.icon} size={14} color={Color.dim} stroke={1.8} />
+            <FMono size={10} color={Color.dim}>{a.label}</FMono>
+          </button>
+        ))}
       </div>
 
       {/* ── Advance Week (prototype) ── */}
       {currentWeek < totalWeeks && (
-        <div style={{ marginTop: 24 }}>
+        <div style={{ marginTop: Space[6] }}>
           <FBtn variant="ghost" size="sm" full onClick={advanceWeek} data-stay="true">
-            Advance to week {currentWeek + 1} →
+            Next week →
           </FBtn>
         </div>
       )}

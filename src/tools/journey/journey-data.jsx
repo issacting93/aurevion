@@ -4,10 +4,10 @@
 import { Color, Phase } from '../../ui/tokens'
 import { ICONS, Phone, ErrorBoundary } from '../../ui/components'
 import { SCREENS } from '../../app/screens'
-import { OB_Welcome, OB_Sex, OB_Birthday, OB_BodyMetrics, OB_BodyFat, OB_Activity, OB_Experience, OB_DietConstraints, OB_TrainingConstraints, OB_Goals, OB_FocusAreas, OB_TDEE, OB_Ready } from '../../app/screens/Onboarding'
+import { OB_Welcome, OB_Sex, OB_Birthday, OB_BodyMetrics, OB_GoalsActivity, OB_TrainingFreq, OB_TDEE, OB_Ready, FOB_Intro, FOB_BodyComp, FOB_Timeline, FOB_Experience, FOB_Equipment, FOB_FocusAreas, FOB_Injuries, FOB_Summary } from '../../app/screens/Onboarding'
 
 /* ── Layout constants ── */
-export const PW = 402, PH = 874
+export const PW = 428, PH = 926
 export const FW = 320, FH = 694
 export const SCALE = FW / PW
 export const COMPACT_FW = 180, COMPACT_FH = Math.round(874 * 180 / 402)
@@ -19,7 +19,7 @@ export function screenById(id) {
   return entry ? entry.C : null
 }
 
-const OB_SAMPLE = { sex: 'male', birthYear: 1993, birthMonth: 3, height: 180, weight: 82, bodyFat: '18-23%', exerciseFreq: '4-6', activityLevel: 'moderate', liftingExp: 'intermediate', cardioExp: 'beginner', goal: 'recomp', goals: ['recomposition', 'cook_more'], dietary: ['Nut Free'], equipment: 'full_gym', availableDays: ['Mon','Tue','Wed','Fri'], injuries: [] }
+const OB_SAMPLE = { sex: 'male', birthYear: 1993, birthMonth: 3, height: 180, weight: 82, bodyFat: 22.4, targetBodyFat: 15, exerciseFreq: '4-6', activityLevel: 'moderate', liftingExp: 'intermediate', cardioExp: 'beginner', goal: 'recomp', goals: ['recomposition', 'cook_more'], dietary: ['Nut Free'], equipment: 'full_gym', availableDays: ['Mon','Tue','Wed','Fri'], injuries: [], focusMuscles: ['chest', 'back', 'quads'] }
 const noop = () => {}
 export function obWrap(Step, props = {}) {
   return function OBScreen() {
@@ -38,6 +38,8 @@ export const DATA_MODELS = {
       { k: 'recovery', v: '... needs more research' },
       { k: 'behavioral', v: 'adherence, protein_hit_ratio_7d, home_cook_7d, water_intake_rate_7d' },
       { k: 'wearables', v: '...' },
+      { k: 'nutrition', v: 'mealPrepApproach (primary + supporting), mealTiming per session' },
+      { k: 'goal_engine', v: 'derived modalities, caloric modifier, macro split from goal network' },
     ],
   },
   user_constraints: {
@@ -79,6 +81,8 @@ export const INTERVENTIONS = [
   { label: 'Training', desc: 'New workouts, increase flexibility', icon: ICONS.dumb },
   { label: 'Nutrition', desc: 'Plan caloric intake, adjust deficit', icon: ICONS.meal },
   { label: 'Notification', desc: 'Push alerts, behavioural nudges', icon: ICONS.bell },
+  { label: 'Macro Adjustment', desc: 'Check-in triggered target recalculation via goal engine', icon: ICONS.chart },
+  { label: 'Meal Prep', desc: 'Approach recommendation derived from goal network edges', icon: ICONS.pan },
 ]
 
 export const OBSERVATION_CHANNELS = [
@@ -94,23 +98,28 @@ export const PHASES = [
     id: 'onboarding',
     phase: '01 \u00b7 SEED',
     title: 'Onboarding & Profiling',
-    description: 'Capture user metrics, constraints, and goals. Estimate TDEE, compute baseline macro targets.',
+    description: 'General onboarding (8 steps) captures demographics, goals, and TDEE. Fitness onboarding (9 steps) captures body composition, experience, equipment, and focus areas.',
     color: Phase.seed,
     dataFlow: ['user_state', 'user_constraints', 'user_goal'],
     screens: [
+      // General onboarding (8 steps)
       { label: 'Welcome', C: obWrap(OB_Welcome, { onBack: undefined, setData: undefined }), reads: [], writes: [] },
       { label: 'Sex', C: obWrap(OB_Sex), reads: [], writes: ['user_state'] },
-      { label: 'Birthday', C: obWrap(OB_Birthday), reads: [], writes: ['user_state'] },
       { label: 'Body Metrics', C: obWrap(OB_BodyMetrics), reads: [], writes: ['user_state'] },
-      { label: 'Body Fat', C: obWrap(OB_BodyFat), reads: [], writes: ['user_state'] },
-      { label: 'Activity', C: obWrap(OB_Activity), reads: [], writes: ['user_state'] },
-      { label: 'Experience', C: obWrap(OB_Experience), reads: [], writes: ['user_state'] },
-      { label: 'Diet Constraints', C: obWrap(OB_DietConstraints), reads: [], writes: ['user_constraints'] },
-      { label: 'Training Setup', C: obWrap(OB_TrainingConstraints), reads: [], writes: ['user_constraints'] },
-      { label: 'Goals', C: obWrap(OB_Goals), reads: [], writes: ['user_goal'] },
-      { label: 'Focus Areas', C: obWrap(OB_FocusAreas), reads: [], writes: ['user_constraints'] },
+      { label: 'Birthday', C: obWrap(OB_Birthday), reads: [], writes: ['user_state'] },
+      { label: 'Goals + Activity', C: obWrap(OB_GoalsActivity), reads: [], writes: ['user_goal', 'user_state'] },
+      { label: 'Training Freq', C: obWrap(OB_TrainingFreq), reads: [], writes: ['user_state'] },
       { label: 'TDEE Reveal', C: obWrap(OB_TDEE, { setData: undefined }), reads: ['user_state'], writes: [] },
-      { label: 'Ready', C: obWrap(OB_Ready, { onNext: undefined, onBack: undefined, setData: undefined }), reads: ['user_state', 'user_constraints', 'user_goal'], writes: [] },
+      { label: 'Ready', C: obWrap(OB_Ready, { onNext: undefined, onBack: undefined, setData: undefined }), reads: ['user_state', 'user_goal'], writes: [] },
+      // Fitness onboarding (8 steps)
+      { label: 'Fitness Intro', C: obWrap(FOB_Intro, { onBack: undefined, setData: undefined }), reads: [], writes: [] },
+      { label: 'Body Composition', C: obWrap(FOB_BodyComp), reads: [], writes: ['user_state', 'user_goal'] },
+      { label: 'Timeline', C: obWrap(FOB_Timeline), reads: ['user_state'], writes: ['user_goal'] },
+      { label: 'Experience', C: obWrap(FOB_Experience), reads: [], writes: ['user_state'] },
+      { label: 'Equipment', C: obWrap(FOB_Equipment), reads: [], writes: ['user_constraints'] },
+      { label: 'Focus Areas', C: obWrap(FOB_FocusAreas), reads: [], writes: ['user_constraints'] },
+      { label: 'Injuries', C: obWrap(FOB_Injuries), reads: [], writes: ['user_constraints'] },
+      { label: 'Fitness Summary', C: obWrap(FOB_Summary, { onNext: undefined, onBack: undefined, setData: undefined }), reads: ['user_state', 'user_constraints', 'user_goal'], writes: [] },
     ],
   },
   {
@@ -121,6 +130,7 @@ export const PHASES = [
     color: Phase.decide,
     dataFlow: ['user_state', 'user_constraints', 'user_goal'],
     screens: [
+      { label: 'Today',           C: screenById('today'),    reads: ['user_state', 'user_constraints', 'user_goal'], writes: [] },
       { label: 'Balanced',        C: screenById('dash-bal'), reads: ['user_state', 'user_constraints', 'user_goal'], writes: [] },
       { label: 'Nutrition Focus', C: screenById('dash-nut'), reads: ['user_state', 'user_constraints', 'user_goal'], writes: [] },
       { label: 'Training Focus',  C: screenById('dash-trn'), reads: ['user_state', 'user_constraints', 'user_goal'], writes: [] },
@@ -134,12 +144,13 @@ export const PHASES = [
     color: Phase.plan,
     dataFlow: [],
     screens: [
-      { label: 'Set Goal',        C: screenById('goal-a'), reads: ['user_goal'], writes: ['user_goal'] },
-      { label: 'Goal Contract',   C: screenById('goal-b'), reads: ['user_goal'], writes: ['user_goal'] },
-      { label: 'TDEE Model',      C: screenById('tdee-a'), reads: ['user_state'], writes: [] },
-      { label: 'TDEE Confidence', C: screenById('tdee-b'), reads: ['user_state'], writes: [] },
-      { label: 'Macro Targets',   C: screenById('macro-a'), reads: ['user_state', 'user_goal'], writes: [] },
-      { label: 'Meal Queue',      C: screenById('macro-b'), reads: ['user_state', 'user_goal'], writes: [] },
+      { label: 'Set Goal',        C: screenById('goal-a'), reads: ['user_goal'], writes: ['user_goal', 'meal_prep_approach'] },
+      { label: 'Goal Contract',   C: screenById('goal-b'), reads: ['user_goal'], writes: ['user_goal', 'meal_prep_approach'] },
+      { label: 'Goal Detail',     C: screenById('goal-det'), reads: ['user_goal', 'goal_engine'], writes: [] },
+      { label: 'TDEE Model',      C: screenById('tdee-a'), reads: ['user_state', 'goal_engine'], writes: [] },
+      { label: 'TDEE Confidence', C: screenById('tdee-b'), reads: ['user_state', 'goal_engine'], writes: [] },
+      { label: 'Macro Targets',   C: screenById('macro-a'), reads: ['user_state', 'user_goal', 'goal_engine'], writes: [] },
+      { label: 'Meal Queue',      C: screenById('macro-b'), reads: ['user_state', 'user_goal', 'goal_engine'], writes: [] },
       { label: 'Batch Strategy',  C: screenById('batch-a'), reads: ['user_constraints'], writes: [] },
       { label: 'Shopping List',   C: screenById('macro-c'), reads: ['user_constraints'], writes: [] },
       { label: 'Fridge / Pantry', C: screenById('fridge-a'), reads: ['user_constraints'], writes: [] },
@@ -157,8 +168,12 @@ export const PHASES = [
     dataFlow: [],
     screens: [
       { label: 'Program Overview',   C: screenById('train-prog'), reads: ['user_goal', 'user_constraints'], writes: [] },
+      { label: 'Exercise Browser',   C: screenById('ex-browse'), reads: ['user_goal', 'user_constraints'], writes: [] },
+      { label: 'Exercise Detail',    C: screenById('ex-detail'), reads: ['user_goal'], writes: [] },
+      { label: 'Workout Template',   C: screenById('wk-template'), reads: ['user_goal', 'user_constraints'], writes: [] },
       { label: 'Active Session',     C: screenById('train-a'), reads: ['user_state'], writes: ['user_state'] },
       { label: 'Workout Summary',    C: screenById('train-sum'), reads: ['user_state'], writes: ['user_state'] },
+      { label: 'Workout History',    C: screenById('wk-history'), reads: ['user_state'], writes: [] },
       { label: 'Ingredient Merge',  C: screenById('prep-a'), reads: ['user_constraints'], writes: [] },
       { label: 'Card \u2192 Cook',  C: screenById('morph'), reads: ['user_constraints'], writes: [] },
       { label: 'Parallel Timeline', C: screenById('prep-b'), reads: ['user_constraints'], writes: [] },
@@ -288,6 +303,18 @@ export const EXERCISE_COLOR = Phase.seed
 
 export const EXERCISE_PHASES = [
   {
+    id: 'ex-onboarding',
+    phase: 'ONBOARDING',
+    title: 'Fitness Onboarding',
+    description: 'Body composition, training experience, equipment access, focus areas, and injury accommodations — everything needed to generate a personalized program.',
+    color: Phase.seed,
+    dataFlow: ['user_state', 'user_constraints'],
+    screens: [
+      // Pulls from PHASES[0] fitness onboarding screens (indices 8–15)
+      ...PHASES[0].screens.slice(8, 16),
+    ],
+  },
+  {
     id: 'ex-goals',
     phase: 'GOALS',
     title: 'Goal Setting & TDEE',
@@ -310,6 +337,7 @@ export const EXERCISE_PHASES = [
     color: Phase.decide,
     dataFlow: ['user_goal', 'user_constraints'],
     screens: [
+      { label: 'Today',              C: screenById('today'), reads: ['user_goal', 'user_state'], writes: [] },
       { label: 'Program Overview',   C: screenById('train-prog'), reads: ['user_goal', 'user_constraints'], writes: [] },
       { label: 'Exercise Browser',   C: screenById('ex-browse'), reads: ['user_constraints'], writes: [] },
       { label: 'Exercise Detail',    C: screenById('ex-detail'), reads: [], writes: [] },
@@ -337,6 +365,7 @@ export const EXERCISE_PHASES = [
     color: Phase.observe,
     dataFlow: ['user_state'],
     screens: [
+      { label: 'Workout History',  C: screenById('wk-history'), reads: ['user_state'], writes: [] },
       { label: 'Check-in Flow',   C: screenById('checkin'), reads: [], writes: ['user_state'] },
       { label: 'Macro Heatmap',   C: screenById('macro-heat'), reads: ['user_state'], writes: ['user_state'] },
       { label: 'Water Tracking',  C: screenById('water'), reads: ['user_state'], writes: ['user_state'] },
@@ -387,37 +416,55 @@ export const SEED_PHASES = [
     id: 'seed-profile',
     phase: 'PROFILE',
     title: 'Identity & Body',
-    description: 'Capture biological sex, age, body metrics, composition, activity level, and training experience.',
+    description: 'Capture biological sex, body metrics, and age.',
     color: Phase.seed,
     dataFlow: ['user_state'],
-    screens: PHASES[0].screens.slice(0, 7),
-  },
-  {
-    id: 'seed-constraints',
-    phase: 'CONSTRAINTS',
-    title: 'Dietary & Training Limits',
-    description: 'Allergies, intolerances, equipment access, available training days, and injuries.',
-    color: Phase.plan,
-    dataFlow: ['user_constraints'],
-    screens: PHASES[0].screens.slice(7, 9),
+    screens: PHASES[0].screens.slice(0, 4),   // Welcome, Sex, Body Metrics, Birthday
   },
   {
     id: 'seed-goals',
     phase: 'GOALS',
-    title: 'Goal Selection',
-    description: 'Primary goal and focus area refinement across fitness and nutrition domains.',
+    title: 'Goals & Activity',
+    description: 'Goal selection, daily activity level, and training frequency.',
     color: Phase.decide,
-    dataFlow: ['user_goal'],
-    screens: PHASES[0].screens.slice(9, 11),
+    dataFlow: ['user_goal', 'user_state'],
+    screens: PHASES[0].screens.slice(4, 6),   // GoalsActivity, TrainingFreq
   },
   {
     id: 'seed-compute',
     phase: 'COMPUTE',
-    title: 'TDEE & Program Generation',
-    description: 'Mifflin-St Jeor × activity multiplier → macro split → training program.',
+    title: 'TDEE & Summary',
+    description: 'Mifflin-St Jeor × activity multiplier → macro split → daily targets.',
     color: Phase.act,
     dataFlow: ['user_state', 'user_goal'],
-    screens: PHASES[0].screens.slice(11, 13),
+    screens: PHASES[0].screens.slice(6, 8),   // TDEE Reveal, Ready
+  },
+  {
+    id: 'seed-body-comp',
+    phase: 'BODY COMP',
+    title: 'Body Composition',
+    description: 'Current and target body fat estimation with 3D body preview.',
+    color: Phase.seed,
+    dataFlow: ['user_state', 'user_goal'],
+    screens: PHASES[0].screens.slice(8, 11),  // Fitness Intro, Body Comp, Timeline
+  },
+  {
+    id: 'seed-training',
+    phase: 'TRAINING',
+    title: 'Training Setup',
+    description: 'Experience level, equipment access, focus areas, and injury accommodations.',
+    color: Phase.plan,
+    dataFlow: ['user_constraints', 'user_state'],
+    screens: PHASES[0].screens.slice(11, 15), // Experience, Equipment, Focus Areas, Injuries
+  },
+  {
+    id: 'seed-program',
+    phase: 'PROGRAM',
+    title: 'Program Generation',
+    description: 'Body composition target → training constraints → personalized program summary.',
+    color: Phase.act,
+    dataFlow: ['user_state', 'user_constraints', 'user_goal'],
+    screens: PHASES[0].screens.slice(15, 16), // Fitness Summary
   },
 ]
 
@@ -492,7 +539,7 @@ export const MODE_CONFIG = {
     breadcrumb: 'Seed',
     titlePrefix: 'SEED',
     sectionLabel: 'ONBOARDING SCREENS BY PHASE',
-    description: 'First-time user onboarding — 13-step linear flow capturing body metrics, constraints, and goals. Computes TDEE and generates initial program.',
+    description: 'Two-phase onboarding — general (8 steps: demographics, goals, TDEE) then fitness (9 steps: body composition, experience, equipment, focus, program).',
     routePrefix: '/journey/seed',
   },
   decide: {
@@ -528,7 +575,7 @@ export const MODE_CONFIG = {
     breadcrumb: 'Exercise',
     titlePrefix: 'EXERCISE',
     sectionLabel: 'FITNESS MODE — GOALS → PROGRAM → TRAIN → TRACK',
-    description: 'Full fitness pipeline: set goals → generate personalized program from constraints → execute sessions with set logging, RPE, rest timers → track progress via check-ins and macro adherence.',
+    description: 'Full fitness pipeline: fitness onboarding (body comp, experience, equipment, focus) → goals → program generation → session execution → progress tracking.',
     routePrefix: '/journey/exercise',
   },
   observe: {

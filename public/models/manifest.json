@@ -227,5 +227,119 @@
         "Box Jump"
       ]
     }
-  }
+  },
+  "bodyFatVariants": [
+    {
+      "id": "male-bf08",
+      "label": "Male \u00b7 8% BF",
+      "gender": "male",
+      "bodyFat": 8,
+      "file": "/models/male-bf08.glb"
+    },
+    {
+      "id": "male-bf12",
+      "label": "Male \u00b7 12% BF",
+      "gender": "male",
+      "bodyFat": 12,
+      "file": "/models/male-bf12.glb"
+    },
+    {
+      "id": "male-bf16",
+      "label": "Male \u00b7 16% BF",
+      "gender": "male",
+      "bodyFat": 16,
+      "file": "/models/male-bf16.glb"
+    },
+    {
+      "id": "male-bf20",
+      "label": "Male \u00b7 20% BF",
+      "gender": "male",
+      "bodyFat": 20,
+      "file": "/models/male-bf20.glb"
+    },
+    {
+      "id": "male-bf25",
+      "label": "Male \u00b7 25% BF",
+      "gender": "male",
+      "bodyFat": 25,
+      "file": "/models/male-bf25.glb"
+    },
+    {
+      "id": "male-bf30",
+      "label": "Male \u00b7 30% BF",
+      "gender": "male",
+      "bodyFat": 30,
+      "file": "/models/male-bf30.glb"
+    },
+    {
+      "id": "male-bf35",
+      "label": "Male \u00b7 35% BF",
+      "gender": "male",
+      "bodyFat": 35,
+      "file": "/models/male-bf35.glb"
+    },
+    {
+      "id": "male-bf40",
+      "label": "Male \u00b7 40% BF",
+      "gender": "male",
+      "bodyFat": 40,
+      "file": "/models/male-bf40.glb"
+    },
+    {
+      "id": "female-bf08",
+      "label": "Female \u00b7 8% BF",
+      "gender": "female",
+      "bodyFat": 8,
+      "file": "/models/female-bf08.glb"
+    },
+    {
+      "id": "female-bf12",
+      "label": "Female \u00b7 12% BF",
+      "gender": "female",
+      "bodyFat": 12,
+      "file": "/models/female-bf12.glb"
+    },
+    {
+      "id": "female-bf16",
+      "label": "Female \u00b7 16% BF",
+      "gender": "female",
+      "bodyFat": 16,
+      "file": "/models/female-bf16.glb"
+    },
+    {
+      "id": "female-bf20",
+      "label": "Female \u00b7 20% BF",
+      "gender": "female",
+      "bodyFat": 20,
+      "file": "/models/female-bf20.glb"
+    },
+    {
+      "id": "female-bf25",
+      "label": "Female \u00b7 25% BF",
+      "gender": "female",
+      "bodyFat": 25,
+      "file": "/models/female-bf25.glb"
+    },
+    {
+      "id": "female-bf30",
+      "label": "Female \u00b7 30% BF",
+      "gender": "female",
+      "bodyFat": 30,
+      "file": "/models/female-bf30.glb"
+    },
+    {
+      "id": "female-bf35",
+      "label": "Female \u00b7 35% BF",
+      "gender": "female",
+      "bodyFat": 35,
+      "file": "/models/female-bf35.glb"
+    },
+    {
+      "id": "female-bf40",
+      "label": "Female \u00b7 40% BF",
+      "gender": "female",
+      "bodyFat": 40,
+      "file": "/models/female-bf40.glb"
+    }
+  ]
 }

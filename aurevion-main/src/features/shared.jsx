@@ -356,7 +356,6 @@ function FBtn({
         </span>
         <span style={{
           background: hover ? 'rgba(0,0,0,0.28)' : 'rgba(0,0,0,0.18)',
-          borderLeft: '1px solid rgba(0,0,0,0.18)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           transition: 'background .14s ease'
         }}>

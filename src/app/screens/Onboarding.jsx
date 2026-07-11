@@ -5,19 +5,23 @@
 //             FLabel, FTag, FStagger, Phone, ErrorBoundary
 // ════════════════════════════════════════════════════════════
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo, Suspense } from 'react'
 import { Color, Font, Space, Radius, Duration, Ease, Type } from '../../ui/tokens'
 import { useSpring, useTransitionLock, SpringPreset } from '../../ui/motion'
 import { ICONS, FRing, FBtn, FIcon, FNum, FTexBar, FScale, FLabel, FTag, FStagger, Phone, ErrorBoundary } from '../../ui/components'
 import { useUser } from '../../context/UserContext'
+import { deriveCaloricMod, deriveMacroSplit } from '../../context/goalEngine'
 import BodyPreview from '../../ui/BodyPreview'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { useGLTF, OrbitControls } from '@react-three/drei'
+import * as THREE from 'three'
 
 function SegBar({ pct = 0, segments = 12, height = 28 }) {
   const lit = Math.round(segments * pct / 100)
   return (
     <div style={{ display: 'flex', gap: 3, height, alignItems: 'flex-end' }}>
       {Array.from({ length: segments }).map((_, i) => (
-        <div key={i} style={{ flex: 1, borderRadius: 2, background: i < lit ? Color.accent : 'rgba(255,255,255,0.08)', height: i < lit ? '100%' : '60%', transition: 'height 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.15s' }} />
+        <div key={i} style={{ flex: 1, borderRadius: 2, background: i < lit ? Color.accent : 'rgba(255,255,255,0.08)', height: i < lit ? '100%' : '60%', transition: 'height 0.25s cubic-bezier(0.22, 1, 0.36, 1), background 0.15s' }} />
       ))}
     </div>
   )
@@ -57,10 +61,11 @@ if (typeof document !== 'undefined' && !document.getElementById('ob-css')) {
 
 /* ── Shared constants ───────────────────────────────────── */
 
-const OB_TOTAL_STEPS = 12;
+const OB_TOTAL_STEPS = 6;
+const FOB_TOTAL_STEPS = 7;
 const OB_GUTTER = `${Space[6]}px`;             // 24px
 const OB_ACTIVITY_MULT = { sedentary: 1.2, moderate: 1.55, active: 1.9 };
-const OB_GOAL_MOD = { lose: -480, build: 300, maintain: 0, recomp: -150 };
+// Caloric modifiers now derived from ontology via goalEngine.deriveCaloricMod()
 
 /* ── Goal & constraint taxonomies ──────────────────────── */
 
@@ -125,12 +130,9 @@ export function computeTDEE(data) {
 
 export function computeMacros(data) {
   const tdee   = computeTDEE(data);
-  const target = tdee + (OB_GOAL_MOD[data.goal] || 0);
-  const w       = data.weight || 70;
-  const protein = Math.round(w * 2);
-  const fatCals = Math.round(target * 0.25);
-  const fat     = Math.round(fatCals / 9);
-  const carbs   = Math.round((target - protein * 4 - fatCals) / 4);
+  const target = tdee + deriveCaloricMod(data.goal);
+  const w      = data.weight || 70;
+  const { protein, fat, carbs } = deriveMacroSplit(data.goal, w, target);
   return { tdee, target, protein, fat, carbs };
 }
 
@@ -588,7 +590,7 @@ export function OB_Birthday({ onNext, onBack, data, setData }) {
   return (
     <OBStep>
       <OBNav title="Basics" onBack={onBack}/>
-      <OBProgress current={1} total={OB_TOTAL_STEPS}/>
+      <OBProgress current={2} total={OB_TOTAL_STEPS}/>
       <OBBody>
         <OBQuestion>When were you born?</OBQuestion>
         <div style={{ marginTop: Space[10], display: 'flex', height: 220 }}>
@@ -623,7 +625,7 @@ export function OB_BodyMetrics({ onNext, onBack, data, setData }) {
   return (
     <OBStep>
       <OBNav title="Basics" onBack={onBack}/>
-      <OBProgress current={2} total={OB_TOTAL_STEPS}/>
+      <OBProgress current={1} total={OB_TOTAL_STEPS}/>
       <OBBody scroll style={{ gap: Space[8] }}>
         {/* Height */}
         <div>
@@ -1097,7 +1099,7 @@ export function OB_FocusAreas({ onNext, onBack, data, setData }) {
               {activeData.label}
             </span>
             <span style={{
-              fontFamily: Font.mono, fontSize: 9, letterSpacing: 1,
+              fontFamily: Font.mono, fontSize: 10, letterSpacing: 1,
               color: focusMuscles.includes(activeData.key) ? Color.accent : Color.mute,
             }}>
               {focusMuscles.includes(activeData.key) ? '✓' : 'TAP'}
@@ -1115,7 +1117,7 @@ export function OB_FocusAreas({ onNext, onBack, data, setData }) {
         {pillRows.map(row => (
           <div key={row.label} style={{ marginBottom: Space[2] }}>
             <div style={{
-              ...Type.labelSm, color: Color.faint, fontSize: 9,
+              ...Type.labelSm, color: Color.faint, fontSize: 10,
               letterSpacing: 1.2, marginBottom: Space[1],
             }}>{row.label}</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: Space[1] }}>
@@ -1170,7 +1172,7 @@ export function OB_FocusAreas({ onNext, onBack, data, setData }) {
    STEP 8 · TDEE Result
    ══════════════════════════════════════════════════════════ */
 
-export function OB_TDEE({ onNext, onBack, data }) {
+export function OB_TDEE({ onNext, onBack, data, progressIdx }) {
   const tdee = computeTDEE(data);
   const [phase, setPhase]     = useState(0);
   const [ringPct, setRingPct] = useState(0);
@@ -1199,7 +1201,7 @@ export function OB_TDEE({ onNext, onBack, data }) {
   return (
     <OBStep>
       <OBNav title="Your Estimate" onBack={onBack}/>
-      <OBProgress current={9} total={OB_TOTAL_STEPS}/>
+      <OBProgress current={progressIdx ?? 5} total={OB_TOTAL_STEPS}/>
       <OBBody style={{ overflowY: 'auto' }}>
         {/* Ring — vertically centered */}
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 180 }}>
@@ -1235,9 +1237,14 @@ export function OB_TDEE({ onNext, onBack, data }) {
    STEP 9 · Ready
    ══════════════════════════════════════════════════════════ */
 
-export function OB_Ready({ data }) {
+export function OB_Ready({ data, onComplete }) {
   const { completeOnboarding } = useUser();
   const { target, protein, fat, carbs } = computeMacros(data);
+
+  const handleComplete = () => {
+    if (onComplete) onComplete(data);
+    else completeOnboarding(data);
+  };
 
   return (
     <OBStep>
@@ -1260,7 +1267,7 @@ export function OB_Ready({ data }) {
             <FNum size={40} weight={200} unit="KCAL">{target}</FNum>
             <div style={{ display: 'flex', gap: Space[1], marginTop: Space[2] }}>
               <FTag tone="accent">{(data.goal || 'maintain').toUpperCase()}</FTag>
-              <FTag tone="mute">{(OB_GOAL_MOD[data.goal] || 0) > 0 ? '+' : ''}{OB_GOAL_MOD[data.goal] || 0} KCAL</FTag>
+              <FTag tone="mute">{deriveCaloricMod(data.goal) > 0 ? '+' : ''}{deriveCaloricMod(data.goal)} KCAL</FTag>
             </div>
           </OBSurface>
 
@@ -1292,9 +1299,6 @@ export function OB_Ready({ data }) {
             <FTag tone="mute">{data.weight} {data.weightUnit || 'kg'}</FTag>
             <FTag tone="mute">{data.height} cm</FTag>
             <FTag tone="mute">{data.exerciseFreq} / WK</FTag>
-            <FTag tone="mute">{data.bodyFat || '—'} BF</FTag>
-            {(data.dietary || []).length > 0 && <FTag tone="mute">{data.dietary.length} DIETARY</FTag>}
-            {data.equipment && <FTag tone="mute">{data.equipment.replace('_', ' ').toUpperCase()}</FTag>}
             {(data.goals || []).length > 0 && <FTag tone="accent">{data.goals.length} GOALS</FTag>}
           </OBSurface>
         </FStagger>
@@ -1302,27 +1306,781 @@ export function OB_Ready({ data }) {
         <div style={{ flex: 1 }}/>
       </div>
       <div style={{ padding: `${Space[4]}px ${OB_GUTTER} ${Space[5]}px` }}>
-        <FBtn variant="split" full iconLeading={ICONS.fwd} onClick={() => completeOnboarding(data)}>Enter AUREVI0N</FBtn>
+        <FBtn variant="split" full iconLeading={ICONS.fwd} onClick={handleComplete}>
+          {onComplete ? 'Continue' : 'Enter AUREVI0N'}
+        </FBtn>
       </div>
     </OBStep>
   );
 }
 
 /* ══════════════════════════════════════════════════════════
-   Flow orchestration
+   STEP 4 · Goals + Activity Level (combined)
    ══════════════════════════════════════════════════════════ */
 
-export function OnboardingFlow() {
+export function OB_GoalsActivity({ onNext, onBack, data, setData }) {
+  const goals = data.goals || [];
+  const MAX_GOALS = 3;
+
+  const toggle = (item) => {
+    let next;
+    if (goals.includes(item.val)) {
+      next = goals.filter(v => v !== item.val);
+    } else if (goals.length < MAX_GOALS) {
+      next = [...goals, item.val];
+    } else {
+      return;
+    }
+    let caloricGoal = data.goal || 'maintain';
+    const allFitness = OB_FITNESS_GOALS.flatMap(g => g.items);
+    const firstFitness = next.map(v => allFitness.find(f => f.val === v)).find(Boolean);
+    if (firstFitness) caloricGoal = firstFitness.caloricGoal;
+    setData({ ...data, goals: next, goal: caloricGoal });
+  };
+
+  const levelOptions = [
+    { val: 'sedentary', label: 'Mostly Sedentary', sub: 'Under 5,000 steps a day', icon: 'M5 18l3-3h8l3 3 M9 10V6 M15 10V6' },
+    { val: 'moderate',  label: 'Moderately Active', sub: '5,000 – 15,000 steps a day', icon: 'M13 4v16 M7 8l6-4 6 4 M7 16l6 4 6-4' },
+    { val: 'active',    label: 'Very Active',       sub: 'More than 15,000 steps a day', icon: ICONS.flame },
+  ];
+
+  return (
+    <OBStep>
+      <OBNav title="Goals" onBack={onBack}/>
+      <OBProgress current={3} total={OB_TOTAL_STEPS}/>
+      <OBBody scroll>
+        <OBQuestion sub={`Pick up to ${MAX_GOALS} goals.`}>
+          What are you working toward?
+        </OBQuestion>
+        <div style={{ marginTop: Space[2], marginBottom: Space[3] }}>
+          <FTag tone={goals.length >= MAX_GOALS ? 'accent' : 'mute'}>
+            {goals.length} / {MAX_GOALS} SELECTED
+          </FTag>
+        </div>
+
+        {OB_FITNESS_GOALS.map(group => (
+          <div key={group.section} style={{ marginBottom: Space[4] }}>
+            <FLabel mt={Space[2]} mb={Space[2]}>{group.section}</FLabel>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: Space[2] }}>
+              {group.items.map(item => (
+                <OBCard key={item.val}
+                  selected={goals.includes(item.val)}
+                  onClick={() => toggle(item)}
+                  label={item.label} sub={item.sub}
+                  icon={<FIcon path={item.icon} size={18}
+                    color={goals.includes(item.val) ? Color.accent : Color.dim}/>}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+
+        <div style={{ marginTop: Space[4] }}>
+          <OBQuestion sub="Outside of exercise — work and leisure time.">Daily activity level</OBQuestion>
+          <div style={{ marginTop: Space[4], display: 'flex', flexDirection: 'column', gap: Space[2], marginBottom: Space[4] }}>
+            {levelOptions.map(o => (
+              <OBCard key={o.val} selected={data.activityLevel === o.val}
+                onClick={() => setData({ ...data, activityLevel: o.val })}
+                label={o.label} sub={o.sub}
+                icon={<FIcon path={o.icon} size={18} color={data.activityLevel === o.val ? Color.accent : Color.dim}/>}
+              />
+            ))}
+          </div>
+        </div>
+      </OBBody>
+      <OBNextBtn onClick={onNext} disabled={goals.length === 0 || !data.activityLevel}/>
+    </OBStep>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════
+   STEP 5 · Training Frequency (standalone)
+   ══════════════════════════════════════════════════════════ */
+
+export function OB_TrainingFreq({ onNext, onBack, data, setData }) {
+  const freqOptions = ['1-2', '3-4', '5-6', '7'];
+
+  return (
+    <OBStep>
+      <OBNav title="Activity" onBack={onBack}/>
+      <OBProgress current={4} total={OB_TOTAL_STEPS}/>
+      <OBBody style={{ justifyContent: 'center' }}>
+        <OBQuestion>How often do you train?</OBQuestion>
+        <div style={{ marginTop: Space[6], display: 'grid', gridTemplateColumns: '1fr 1fr', gap: Space[3] }}>
+          {freqOptions.map(val => (
+            <OBGridBtn key={val} mono selected={data.exerciseFreq === val}
+              onClick={() => setData({ ...data, exerciseFreq: val })}>
+              {val} / week
+            </OBGridBtn>
+          ))}
+        </div>
+      </OBBody>
+      <OBNextBtn onClick={onNext} disabled={!data.exerciseFreq}/>
+    </OBStep>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════
+   Fitness Onboarding — 9-step training-specific setup
+   ══════════════════════════════════════════════════════════ */
+
+const BF_STEPS = [8, 12, 16, 20, 25, 30, 35, 40];
+
+function bodyFatToVariant(sex, bf) {
+  const g = sex === 'female' ? 'female' : 'male';
+  // Snap to nearest available body-fat model
+  let best = BF_STEPS[0];
+  let bestDist = Math.abs(bf - best);
+  for (const step of BF_STEPS) {
+    const d = Math.abs(bf - step);
+    if (d < bestDist) { best = step; bestDist = d; }
+  }
+  return `${g}-bf${String(best).padStart(2, '0')}`;
+}
+
+/* Derive available days from training frequency */
+function freqToDays(freq) {
+  switch (freq) {
+    case '1-2': return ['Mon', 'Thu'];
+    case '3-4': return ['Mon', 'Wed', 'Fri', 'Sat'];
+    case '5-6': return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    case '7':   return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    default:    return ['Mon', 'Wed', 'Fri'];
+  }
+}
+
+export function FOB_Intro({ onNext }) {
+  const [ready, setReady] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setReady(true), 600); return () => clearTimeout(t); }, []);
+
+  const fade = (delay) => ({
+    opacity: ready ? 1 : 0,
+    transform: ready ? 'translateY(0)' : 'translateY(12px)',
+    transition: `opacity 0.4s ease ${delay}s, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`,
+  });
+
+  return (
+    <OBStep>
+      <div style={{ flex: 1, padding: `80px ${OB_GUTTER} ${OB_GUTTER}`, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: Space[7] }}>
+        <div style={{ ...fade(0) }}>
+          <div style={{ ...Type.labelSm, color: Color.accent, letterSpacing: 2, marginBottom: Space[3] }}>TRAINING SETUP</div>
+          <div style={{
+            fontFamily: Font.sans, fontSize: 36, fontWeight: 200,
+            letterSpacing: -1.2, lineHeight: 1.1, color: Color.text,
+          }}>
+            Onboarding<br/>Fitness
+          </div>
+        </div>
+        <div style={{ ...Type.bodyLg, color: Color.dim, maxWidth: 300, ...fade(0.3) }}>
+          Body composition, training experience, equipment, and focus areas — let's build your program.
+        </div>
+      </div>
+      <div style={{ padding: `${Space[4]}px ${OB_GUTTER} ${Space[5]}px`, ...fade(0.5) }}>
+        <FBtn variant="primary" full onClick={onNext}>Get Started</FBtn>
+      </div>
+    </OBStep>
+  );
+}
+
+/* (dual-thumb slider removed — using OBSlider directly in FOB_BodyComp) */
+
+/* ── Inline 3D body for body-comp screen ── */
+
+const BC_VERT = /* glsl */ `
+  varying vec3 vNormal;
+  varying vec3 vViewDir;
+  void main() {
+    vec4 wp = modelMatrix * vec4(position, 1.0);
+    vNormal  = normalize(normalMatrix * normal);
+    vViewDir = normalize(cameraPosition - wp.xyz);
+    gl_Position = projectionMatrix * viewMatrix * wp;
+  }
+`
+const BC_FRAG_CURRENT = /* glsl */ `
+  varying vec3 vNormal;
+  varying vec3 vViewDir;
+  void main() {
+    float fresnel = pow(1.0 - max(dot(vNormal, vViewDir), 0.0), 2.0);
+    vec3 col = vec3(1.0, 0.43, 0.31) * fresnel;
+    float alpha = fresnel * 0.6 + 0.08;
+    gl_FragColor = vec4(col, alpha);
+  }
+`
+const BC_FRAG_TARGET = /* glsl */ `
+  varying vec3 vNormal;
+  varying vec3 vViewDir;
+  void main() {
+    float fresnel = pow(1.0 - max(dot(vNormal, vViewDir), 0.0), 2.0);
+    vec3 col = vec3(0.2, 0.9, 0.5) * fresnel;
+    float alpha = fresnel * 0.6 + 0.08;
+    gl_FragColor = vec4(col, alpha);
+  }
+`
+
+function BCMesh({ url, fragmentShader, transparent = false, depthWrite = true, renderOrder = 0 }) {
+  const gltf = useGLTF(url);
+  const geo = useMemo(() => {
+    let g = null;
+    gltf.scene.traverse(c => { if (c.isMesh && !g) g = c.geometry; });
+    if (g) g.computeVertexNormals();
+    return g;
+  }, [gltf.scene]);
+
+  const mat = useMemo(() => new THREE.ShaderMaterial({
+    vertexShader: BC_VERT,
+    fragmentShader,
+    side: THREE.DoubleSide,
+    transparent,
+    depthWrite,
+  }), [fragmentShader, transparent, depthWrite]);
+
+  if (!geo) return null;
+  return <mesh geometry={geo} material={mat} renderOrder={renderOrder} />;
+}
+
+function BodyCompCanvas({ currentVariant, targetVariant, showTarget }) {
+  return (
+    <Canvas
+      camera={{ position: [0, 0, 3.8], fov: 40 }}
+      gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.4, alpha: true }}
+      style={{ touchAction: 'none', background: 'transparent' }}
+    >
+      <ambientLight intensity={0.6} />
+      <directionalLight position={[3, 5, 4]} intensity={1.2} color="#c0d4ff" />
+      <directionalLight position={[-2, 3, -2]} intensity={0.5} color="#8090b0" />
+      <OrbitControls
+        enablePan={false} enableZoom={false}
+        minPolarAngle={Math.PI / 2} maxPolarAngle={Math.PI / 2}
+        enableDamping dampingFactor={0.05}
+        rotateSpeed={0.6}
+        touches={{ ONE: THREE.TOUCH.ROTATE }}
+      />
+      <Suspense fallback={null}>
+        {/* Current body — orange fresnel */}
+        <BCMesh key={'cur-' + currentVariant} url={`/models/${currentVariant}.glb`}
+          fragmentShader={BC_FRAG_CURRENT} transparent depthWrite={false} renderOrder={0} />
+        {/* Target body — transparent fresnel overlay */}
+        {showTarget && (
+          <BCMesh key={'tgt-' + targetVariant} url={`/models/${targetVariant}.glb`}
+            fragmentShader={BC_FRAG_TARGET} transparent depthWrite={false} renderOrder={1} />
+        )}
+      </Suspense>
+    </Canvas>
+  );
+}
+
+/* ── Body Composition — dual-slider screen ── */
+
+export function FOB_BodyComp({ onNext, onBack, data, setData }) {
+  const [currentBf, setCurrentBf] = useState(data.bodyFat || 22);
+  const [targetBf, setTargetBf]   = useState(data.targetBodyFat || 15);
+  const [showTarget, setShowTarget] = useState(false);
+  const [activeThumb, setActiveThumb] = useState('current');
+
+  const currentVariant = bodyFatToVariant(data.sex, currentBf);
+  const targetVariant  = bodyFatToVariant(data.sex, targetBf);
+
+  // Sync local → parent on change
+  useEffect(() => { setData(d => ({ ...d, bodyFat: currentBf })); }, [currentBf]);
+  useEffect(() => { if (showTarget) setData(d => ({ ...d, targetBodyFat: targetBf })); }, [targetBf, showTarget]);
+
+  const handleCurrentChange = (v) => {
+    setCurrentBf(v);
+    setActiveThumb('current');
+    if (!showTarget) {
+      setShowTarget(true);
+      setTargetBf(Math.max(8, v - 7));
+    }
+  };
+
+  return (
+    <OBStep>
+      <OBNav title="STEP 01 / 04" onBack={onBack}/>
+      <div style={{ padding: `0 ${OB_GUTTER}`, marginTop: Space[2] }}>
+        <div style={{ fontFamily: Font.mono, fontSize: 10, letterSpacing: 1.6, color: Color.mute }}>WHERE YOU ARE</div>
+      </div>
+
+      {/* 3D body preview — current (solid) + target (fresnel overlay) */}
+      <div style={{ flex: 1, minHeight: 200, margin: `${Space[1]}px 0` }}>
+        <BodyCompCanvas currentVariant={currentVariant} targetVariant={targetVariant} showTarget={showTarget} />
+      </div>
+
+      {/* Current body fat slider */}
+      <div style={{ padding: `0 ${OB_GUTTER}` }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: Space[1] }}>
+          <span style={{ fontFamily: Font.sans, fontSize: 16, fontWeight: 600, color: Color.text }}>CURRENT BODY FAT</span>
+          <span style={{ fontFamily: Font.mono, fontSize: 20, fontWeight: 600, color: Color.accent }}>{currentBf.toFixed(1)}%</span>
+        </div>
+        <OBSlider min={5} max={50} step={0.5} value={currentBf} onChange={handleCurrentChange}
+          ticks={{ count: 19, majorEvery: 5 }} />
+      </div>
+
+      {/* Target body fat slider — appears after first interaction */}
+      {showTarget && (
+        <div style={{ padding: `${Space[3]}px ${OB_GUTTER} 0` }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: Space[1] }}>
+            <span style={{ fontFamily: Font.sans, fontSize: 16, fontWeight: 600, color: Color.text }}>TARGET BODY FAT</span>
+            <span style={{ fontFamily: Font.mono, fontSize: 20, fontWeight: 600, color: '#4ade80' }}>{targetBf.toFixed(1)}%</span>
+          </div>
+          <OBSlider min={5} max={45} step={0.5} value={targetBf}
+            onChange={v => { setTargetBf(v); setActiveThumb('target'); }}
+            ticks={{ count: 17, majorEvery: 4 }} />
+        </div>
+      )}
+
+      {/* Next */}
+      <div style={{ padding: `${Space[4]}px ${OB_GUTTER} ${Space[5]}px`, flexShrink: 0 }}>
+        {showTarget ? (
+          <FBtn variant="primary" full onClick={onNext}>Next</FBtn>
+        ) : (
+          <div style={{ height: 48 }} />
+        )}
+      </div>
+    </OBStep>
+  );
+}
+
+/* ── Timeline — week picker + pace ── */
+
+const TIMELINE_OPTIONS = [
+  { val: 8, label: '8 WK' },
+  { val: 12, label: '12 WK' },
+  { val: 16, label: '16 WK' },
+  { val: 20, label: '20 WK' },
+  { val: 24, label: '24 WK' },
+];
+
+function paceRating(pace) {
+  if (pace <= 0.5) return { label: 'SUSTAINABLE', color: '#4ade80', bg: 'rgba(74,222,128,0.12)', border: 'rgba(74,222,128,0.25)' };
+  if (pace <= 0.8) return { label: 'MODERATE', color: Color.accent, bg: Color.accentFaint, border: Color.accentDim };
+  return { label: 'AGGRESSIVE', color: '#f87171', bg: 'rgba(248,113,113,0.12)', border: 'rgba(248,113,113,0.25)' };
+}
+
+export function FOB_Timeline({ onNext, onBack, data, setData }) {
+  const bf = data.bodyFat || 22;
+  const target = data.targetBodyFat || 15;
+  const weeks = data.timelineWeeks || 16;
+  const delta = bf - target;
+  const pace = delta > 0 ? delta / weeks : 0;
+  const rating = paceRating(pace);
+
+  return (
+    <OBStep>
+      <OBNav title="STEP 01 / 04" onBack={onBack}/>
+      <OBBody style={{ gap: Space[4] }}>
+        <div style={{ padding: `0`, marginTop: Space[2] }}>
+          <div style={{ fontFamily: Font.mono, fontSize: 10, letterSpacing: 1.6, color: Color.mute, marginBottom: Space[3] }}>WHERE YOU ARE</div>
+          <FNum size={72} weight={200} unit="%">{bf.toFixed(1)}</FNum>
+        </div>
+
+        {/* Target row */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+          <div style={{ fontFamily: Font.sans, fontSize: 20, fontWeight: 600, color: Color.text }}>TARGET BODY FAT</div>
+          <span style={{ fontFamily: Font.mono, fontSize: 22, fontWeight: 600, color: '#4ade80' }}>{target.toFixed(1)}%</span>
+        </div>
+
+        {/* Timeline selector */}
+        <div>
+          <div style={{ fontFamily: Font.mono, fontSize: 10, letterSpacing: 1.6, color: Color.mute, marginBottom: Space[3] }}>TIMELINE</div>
+          <div style={{ display: 'flex', gap: Space[2] }}>
+            {TIMELINE_OPTIONS.map(o => (
+              <OBGridBtn key={o.val} mono selected={weeks === o.val}
+                onClick={() => setData({ ...data, timelineWeeks: o.val })}>
+                {o.label}
+              </OBGridBtn>
+            ))}
+          </div>
+        </div>
+
+        {/* Pace card */}
+        <OBSurface style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ fontFamily: Font.mono, fontSize: 10, letterSpacing: 1.4, color: Color.mute, marginBottom: Space[1] }}>PACE</div>
+            <FNum size={28} weight={300} unit="%/WK">{pace.toFixed(2)}</FNum>
+          </div>
+          <div style={{
+            padding: `${Space[1]}px ${Space[3]}px`, borderRadius: Radius.full,
+            background: rating.bg, border: `1px solid ${rating.border}`,
+            fontFamily: Font.mono, fontSize: 10, fontWeight: 600,
+            color: rating.color, letterSpacing: 1,
+          }}>{rating.label}</div>
+        </OBSurface>
+      </OBBody>
+      <OBNextBtn onClick={onNext}/>
+    </OBStep>
+  );
+}
+
+export function FOB_Experience({ onNext, onBack, data, setData }) {
+  const levels = [
+    { val: 'none',         label: 'None',         sub: 'Not currently training' },
+    { val: 'beginner',     label: 'Beginner',     sub: 'Less than a year' },
+    { val: 'intermediate', label: 'Intermediate', sub: '1–4 years' },
+    { val: 'advanced',     label: 'Advanced',     sub: '4+ years' },
+  ];
+  const barPct = { none: 0, beginner: 25, intermediate: 60, advanced: 100 };
+
+  function ExpSection({ label, field }) {
+    return (
+      <>
+        <FLabel mt={Space[6]} mb={Space[2]}>{label}</FLabel>
+        <div style={{ marginBottom: Space[2] }}>
+          <SegBar pct={barPct[data[field]] || 0} />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: Space[2], marginBottom: Space[2] }}>
+          {levels.map(o => (
+            <OBGridBtn key={o.val} selected={data[field] === o.val}
+              onClick={() => setData({ ...data, [field]: o.val })}>
+              <div>{o.label}</div>
+              <div style={{ ...Type.labelSm, color: Color.mute, marginTop: 2, textTransform: 'none', letterSpacing: 0 }}>{o.sub}</div>
+            </OBGridBtn>
+          ))}
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <OBStep>
+      <OBNav title="STEP 02 / 04" onBack={onBack}/>
+      <OBBody scroll>
+        <OBQuestion>Training experience</OBQuestion>
+        <ExpSection label="Lifting" field="liftingExp"/>
+        <ExpSection label="Cardio" field="cardioExp"/>
+      </OBBody>
+      <OBNextBtn onClick={onNext} disabled={!data.liftingExp || !data.cardioExp}/>
+    </OBStep>
+  );
+}
+
+export function FOB_Equipment({ onNext, onBack, data, setData }) {
+  const days = data.availableDays || [];
+  const toggleDay = (d) => {
+    const next = days.includes(d) ? days.filter(v => v !== d) : [...days, d];
+    setData({ ...data, availableDays: next });
+  };
+
+  return (
+    <OBStep>
+      <OBNav title="STEP 02 / 04" onBack={onBack}/>
+      <OBBody scroll style={{ gap: Space[7] }}>
+        <div>
+          <OBQuestion>Equipment access</OBQuestion>
+          <div style={{ marginTop: Space[4], display: 'flex', flexDirection: 'column', gap: Space[2] }}>
+            {OB_EQUIPMENT_OPTIONS.map(o => (
+              <OBCard key={o.val} selected={data.equipment === o.val}
+                onClick={() => setData({ ...data, equipment: o.val })}
+                label={o.label} sub={o.sub}/>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <OBQuestion sub="Which days can you train?">Available days</OBQuestion>
+          <div style={{ marginTop: Space[4], display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: Space[1] }}>
+            {OB_DAYS.map(d => (
+              <OBGridBtn key={d} selected={days.includes(d)} onClick={() => toggleDay(d)} mono>
+                {d}
+              </OBGridBtn>
+            ))}
+          </div>
+        </div>
+      </OBBody>
+      <OBNextBtn onClick={onNext} disabled={!data.equipment || days.length === 0}/>
+    </OBStep>
+  );
+}
+
+export function FOB_FocusAreas({ onNext, onBack, data, setData }) {
+  const focusMuscles = data.focusMuscles || [];
+  const [activeIdx, setActiveIdx] = useState(null);
+
+  const toggleMuscle = (key) => {
+    const next = focusMuscles.includes(key)
+      ? focusMuscles.filter(k => k !== key)
+      : [...focusMuscles, key];
+    setData({ ...data, focusMuscles: next });
+  };
+
+  const gender = data.sex === 'female' ? 'female' : 'male';
+  const variantId = `${gender}-athletic`;
+  const activeData = activeIdx != null
+    ? OB_MUSCLE_GROUPS.find(g => g.index === activeIdx)
+    : null;
+
+  const pillRows = [
+    { label: 'Upper',  keys: ['chest','back','shoulders','biceps','triceps','forearms'] },
+    { label: 'Core',   keys: ['abs','glutes'] },
+    { label: 'Lower',  keys: ['quads','hamstrings','calves'] },
+  ];
+
+  return (
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: Color.bg }}>
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10,
+        padding: `${Space[3]}px ${Space[5]}px 0`,
+        background: 'linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)',
+        pointerEvents: 'none',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: Space[2], marginBottom: Space[2], pointerEvents: 'auto' }}>
+          <button onClick={onBack} style={{
+            width: 32, height: 32, borderRadius: Radius.full,
+            background: 'rgba(255,255,255,0.06)', border: `1px solid ${Color.border}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', flexShrink: 0,
+          }}>
+            <FIcon path={ICONS.back} size={16} color={Color.dim}/>
+          </button>
+          <span style={{ fontFamily: Font.mono, fontSize: 11, color: Color.mute, letterSpacing: 1.4 }}>STEP 03 / 04</span>
+        </div>
+        <div style={{ fontFamily: Font.sans, fontSize: 22, fontWeight: 300, color: Color.text, letterSpacing: -0.5 }}>
+          Where do you want to focus?
+        </div>
+        <div style={{ ...Type.bodySm, color: Color.mute, marginTop: Space[1] }}>
+          Flick to rotate · tap a muscle to select
+        </div>
+      </div>
+
+      <div style={{ flex: 1, position: 'relative', minHeight: 0 }}>
+        <BodyPreview
+          variant={variantId}
+          height="100%"
+          autoRotate={false}
+          activeGroup={activeIdx ?? -1}
+          groupColor={activeData?.color}
+          onGroupTap={(idx) => {
+            if (idx == null || idx < 0) { setActiveIdx(null); return }
+            const mg = OB_MUSCLE_GROUPS.find(g => g.index === idx);
+            if (mg) { toggleMuscle(mg.key); setActiveIdx(idx) }
+          }}
+        />
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0, height: 48,
+          background: 'linear-gradient(180deg, transparent, rgba(0,0,0,0.9))',
+          pointerEvents: 'none',
+        }}/>
+        {activeData && (
+          <div style={{
+            position: 'absolute', bottom: Space[8], left: '50%', transform: 'translateX(-50%)',
+            display: 'flex', alignItems: 'center', gap: Space[2],
+            background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            borderRadius: Radius.full, padding: `${Space[1] + 1}px ${Space[3]}px`,
+            border: `1px solid rgba(${activeData.color.join(',')},0.2)`,
+          }}>
+            <div style={{
+              width: 7, height: 7, borderRadius: Radius.full,
+              background: `rgb(${activeData.color.join(',')})`,
+              boxShadow: `0 0 10px rgba(${activeData.color.join(',')},0.6)`,
+            }}/>
+            <span style={{ fontFamily: Font.mono, fontSize: 11, color: Color.text, letterSpacing: 0.5 }}>
+              {activeData.label}
+            </span>
+            <span style={{
+              fontFamily: Font.mono, fontSize: 10, letterSpacing: 1,
+              color: focusMuscles.includes(activeData.key) ? Color.accent : Color.mute,
+            }}>
+              {focusMuscles.includes(activeData.key) ? '✓' : 'TAP'}
+            </span>
+          </div>
+        )}
+      </div>
+
+      <div style={{
+        flexShrink: 0, display: 'flex', flexDirection: 'column',
+        padding: `${Space[2]}px ${Space[5]}px ${Space[5]}px`,
+      }}>
+        {pillRows.map(row => (
+          <div key={row.label} style={{ marginBottom: Space[2] }}>
+            <div style={{
+              ...Type.labelSm, color: Color.faint, fontSize: 10,
+              letterSpacing: 1.2, marginBottom: Space[1],
+            }}>{row.label}</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: Space[1] }}>
+              {row.keys.map(key => {
+                const mg = OB_MUSCLE_GROUPS.find(g => g.key === key);
+                if (!mg) return null;
+                const sel = focusMuscles.includes(key);
+                const c = mg.color.join(',');
+                const isActive = activeIdx === mg.index;
+                return (
+                  <button key={key}
+                    onClick={() => {
+                      toggleMuscle(key);
+                      setActiveIdx(sel ? null : mg.index);
+                    }}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 5,
+                      padding: `${Space[1]}px ${Space[2] + 2}px`,
+                      borderRadius: Radius.full, cursor: 'pointer',
+                      border: `1.5px solid ${sel ? `rgba(${c},0.5)` : isActive ? `rgba(${c},0.25)` : Color.border}`,
+                      background: sel ? `rgba(${c},0.12)` : 'transparent',
+                      color: sel ? `rgb(${c})` : isActive ? `rgba(${c},0.7)` : Color.mute,
+                      fontFamily: Font.mono, fontSize: 10, fontWeight: sel ? 600 : 400,
+                      letterSpacing: 0.8, textTransform: 'uppercase',
+                      transition: `all ${Duration.normal} ease`,
+                    }}>
+                    {sel && <div style={{
+                      width: 5, height: 5, borderRadius: Radius.full,
+                      background: `rgb(${c})`,
+                      boxShadow: `0 0 6px rgba(${c},0.5)`,
+                    }}/>}
+                    {mg.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+        <div style={{ display: 'flex', gap: Space[2], marginTop: Space[1] }}>
+          <FBtn variant="primary" full onClick={onNext}>
+            {focusMuscles.length ? `Continue · ${focusMuscles.length} selected` : 'Skip'}
+          </FBtn>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function FOB_Injuries({ onNext, onBack, data, setData }) {
+  const injuries = data.injuries || [];
+  const toggleInjury = (v) => {
+    if (v === 'None') { setData({ ...data, injuries: [] }); return; }
+    const next = injuries.includes(v) ? injuries.filter(i => i !== v) : [...injuries, v].filter(i => i !== 'None');
+    setData({ ...data, injuries: next });
+  };
+
+  return (
+    <OBStep>
+      <OBNav title="STEP 03 / 04" onBack={onBack}/>
+      <OBBody scroll>
+        <OBQuestion sub="We'll work around these.">Any injuries?</OBQuestion>
+        <FStagger delay={40}>
+          <div style={{ marginTop: OB_GUTTER, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: Space[2] }}>
+            {OB_INJURY_OPTIONS.map(v => (
+              <OBGridBtn key={v}
+                selected={v === 'None' ? injuries.length === 0 : injuries.includes(v)}
+                onClick={() => toggleInjury(v)}>
+                {v}
+              </OBGridBtn>
+            ))}
+          </div>
+        </FStagger>
+      </OBBody>
+      <OBNextBtn onClick={onNext} label={injuries.length === 0 ? 'No injuries' : 'Next'}/>
+    </OBStep>
+  );
+}
+
+export function FOB_Summary({ data, onComplete }) {
+  const { completeOnboarding } = useUser();
+  const bf = data.bodyFat || 22;
+  const targetBf = data.targetBodyFat || 15;
+  const weight = data.weight || 70;
+  const { target, protein } = computeMacros(data);
+
+  // Derived transformation metrics
+  const fatToLose = weight * (bf - targetBf) / 100;
+  const weeklyLoss = 0.5; // ~0.5 kg/week safe rate
+  const weeksNeeded = fatToLose > 0 ? Math.round(fatToLose / weeklyLoss) : 0;
+  const monthsNeeded = (weeksNeeded / 4.3).toFixed(1);
+  const dailyDeficit = fatToLose > 0 ? Math.round((fatToLose * 7700) / (weeksNeeded * 7)) : 0;
+
+  const freqNum = data.exerciseFreq === '7' ? 7 :
+    data.exerciseFreq ? (parseInt(data.exerciseFreq) + parseInt(data.exerciseFreq.split('-')[1] || data.exerciseFreq)) / 2 : 4;
+
+  const handleComplete = () => {
+    const fullData = {
+      ...data,
+      availableDays: data.availableDays || freqToDays(data.exerciseFreq),
+      dietary: data.dietary || [],
+    };
+    if (onComplete) onComplete(fullData);
+    else completeOnboarding(fullData);
+  };
+
+  return (
+    <OBStep>
+      <div style={{ flex: 1, padding: `${Space[7]}px ${OB_GUTTER} ${OB_GUTTER}`, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ textAlign: 'center', marginBottom: Space[6] }}>
+          <div style={{ ...Type.labelSm, color: Color.accent, letterSpacing: 2, marginBottom: Space[2] }}>YOUR PROGRAM</div>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: Space[3] }}>
+            <FNum size={36} weight={200} unit="%">{bf.toFixed(1)}</FNum>
+            <FIcon path={ICONS.fwd} size={16} color={Color.mute}/>
+            <FNum size={36} weight={200} unit="%" color={Color.accent}>{targetBf.toFixed(1)}</FNum>
+          </div>
+        </div>
+
+        <FStagger delay={80}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: Space[2], marginBottom: Space[3] }}>
+            <OBSurface>
+              <FNum size={28} weight={300}>{monthsNeeded}</FNum>
+              <div style={{ ...Type.labelSm, color: Color.mute, marginTop: Space[1] }}>MONTHS</div>
+            </OBSurface>
+            <OBSurface>
+              <FNum size={28} weight={300}>~{dailyDeficit}</FNum>
+              <div style={{ ...Type.labelSm, color: Color.mute, marginTop: Space[1] }}>DEFICIT</div>
+            </OBSurface>
+            <OBSurface>
+              <FNum size={28} weight={300}>{protein}</FNum>
+              <div style={{ ...Type.labelSm, color: Color.mute, marginTop: Space[1] }}>PROTEIN G</div>
+            </OBSurface>
+            <OBSurface>
+              <FNum size={28} weight={300}>{freqNum.toFixed(1)}</FNum>
+              <div style={{ ...Type.labelSm, color: Color.mute, marginTop: Space[1] }}>SESSIONS/WK</div>
+            </OBSurface>
+          </div>
+
+          <OBSurface style={{ display: 'flex', gap: Space[2], flexWrap: 'wrap' }}>
+            <FTag tone="accent">{(data.goal || 'maintain').toUpperCase()}</FTag>
+            {data.equipment && <FTag tone="mute">{data.equipment.replace('_', ' ').toUpperCase()}</FTag>}
+            {data.liftingExp && <FTag tone="mute">{data.liftingExp.toUpperCase()}</FTag>}
+            {(data.focusMuscles || []).length > 0 && <FTag tone="mute">{data.focusMuscles.length} FOCUS</FTag>}
+            {(data.injuries || []).length > 0 && <FTag tone="mute">{data.injuries.length} CAUTION</FTag>}
+          </OBSurface>
+        </FStagger>
+
+        <div style={{ flex: 1 }}/>
+      </div>
+      <div style={{ padding: `${Space[4]}px ${OB_GUTTER} ${Space[5]}px` }}>
+        <FBtn variant="split" full iconLeading={ICONS.fwd} onClick={handleComplete}>Enter AUREVI0N</FBtn>
+      </div>
+    </OBStep>
+  );
+}
+
+/* ── Fitness Onboarding Flow ── */
+
+const FOB_DEMO_PROFILE = {
+  bodyFat: 22.4, targetBodyFat: 15,
+  liftingExp: 'intermediate', cardioExp: 'beginner',
+  equipment: 'full_gym', injuries: [],
+  focusMuscles: ['chest', 'back', 'quads'],
+};
+
+export function FitnessOnboardingFlow({ initialData = {}, onComplete, demoMode = false }) {
   const [step, setStep]           = useState(0);
-  const [data, setData]           = useState({});
+  const [data, setData]           = useState(demoMode ? { ...initialData, ...FOB_DEMO_PROFILE } : { ...initialData });
   const [direction, setDirection] = useState('forward');
   const [transKey, setTransKey]   = useState(0);
   const [rubberBand, setRubberBand] = useState(null);
-  const lock = useTransitionLock(340);
+  const lock = useTransitionLock(demoMode ? 50 : 340);
+  const { completeOnboarding } = useUser();
+
+  const TOTAL = 8;
+  const DEMO_STEPS = [0, 1, 3, 7];
+  const [demoIdx, setDemoIdx] = useState(0);
 
   const next = () => {
     if (!lock()) return;
-    if (step >= 12) {
+    if (demoMode) {
+      const nextDemoIdx = demoIdx + 1;
+      if (nextDemoIdx >= DEMO_STEPS.length) return;
+      setDemoIdx(nextDemoIdx);
+      setDirection('forward'); setTransKey(k => k + 1); setStep(DEMO_STEPS[nextDemoIdx]);
+      return;
+    }
+    if (step >= TOTAL - 1) {
       setRubberBand('right');
       setTimeout(() => setRubberBand(null), 400);
       return;
@@ -1331,6 +2089,12 @@ export function OnboardingFlow() {
   };
   const back = () => {
     if (!lock()) return;
+    if (demoMode) {
+      if (demoIdx <= 0) return;
+      setDemoIdx(d => d - 1);
+      setDirection('back'); setTransKey(k => k + 1); setStep(DEMO_STEPS[demoIdx - 1]);
+      return;
+    }
     if (step <= 0) {
       setRubberBand('left');
       setTimeout(() => setRubberBand(null), 400);
@@ -1340,20 +2104,143 @@ export function OnboardingFlow() {
   };
   const props = { onNext: next, onBack: back, data, setData };
 
+  // Demo auto-advance
+  useEffect(() => {
+    if (!demoMode) return;
+    const dwell = step === 0 ? 1400 : step === 7 ? 2500 : 1200;
+    const t = setTimeout(() => {
+      if (step === 7) {
+        const fullData = { ...data, availableDays: data.availableDays || freqToDays(data.exerciseFreq), dietary: data.dietary || [] };
+        if (onComplete) onComplete(fullData);
+        else completeOnboarding(fullData);
+      } else {
+        next();
+      }
+    }, dwell);
+    return () => clearTimeout(t);
+  }, [demoMode, step, demoIdx]);
+
   const steps = [
-    <OB_Welcome             key="welcome"     onNext={next}/>,
-    <OB_Sex                 key="sex"         {...props}/>,
-    <OB_Birthday            key="birthday"    {...props}/>,
-    <OB_BodyMetrics         key="metrics"     {...props}/>,
-    <OB_BodyFat             key="bodyFat"     {...props}/>,
-    <OB_Activity            key="activity"    {...props}/>,
-    <OB_Experience          key="experience"  {...props}/>,
-    <OB_DietConstraints     key="diet"        {...props}/>,
-    <OB_TrainingConstraints key="training"    {...props}/>,
-    <OB_Goals               key="goals"       {...props}/>,
-    <OB_FocusAreas          key="focus"       {...props}/>,
-    <OB_TDEE                key="tdee"        onNext={next} onBack={back} data={data}/>,
-    <OB_Ready               key="ready"       data={data}/>,
+    <FOB_Intro           key="fob-intro"    onNext={next}/>,
+    <FOB_BodyComp        key="fob-body"     {...props}/>,
+    <FOB_Timeline        key="fob-time"     {...props}/>,
+    <FOB_Experience      key="fob-exp"      {...props}/>,
+    <FOB_Equipment       key="fob-equip"    {...props}/>,
+    <FOB_FocusAreas      key="fob-focus"    {...props}/>,
+    <FOB_Injuries        key="fob-injury"   {...props}/>,
+    <FOB_Summary         key="fob-summary"  data={data} onComplete={onComplete}/>,
+  ];
+
+  const rubberStyle = rubberBand
+    ? { transform: rubberBand === 'left' ? 'translateX(16px)' : 'translateX(-16px)', transition: `transform ${Duration.morph} ${Ease.spring}` }
+    : { transform: 'translateX(0)', transition: `transform ${Duration.morph} ${Ease.spring}` };
+
+  return (
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', ...rubberStyle }}>
+      <div key={transKey}
+        className={step === 0 ? '' : direction === 'forward' ? 'ob-fwd' : 'ob-back'}
+        style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        {steps[step] || steps[0]}
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════
+   Flow orchestration — General Onboarding
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Demo mode preset profile ─────────────────────────── */
+
+const DEMO_PROFILE = {
+  sex: 'male', birthMonth: 3, birthDay: 12, birthYear: 1998,
+  height: 180, heightUnit: 'cm', weight: 82, weightUnit: 'kg',
+  bodyFat: '13-17%', exerciseFreq: '4-6', activityLevel: 'moderate',
+  liftingExp: 'intermediate', cardioExp: 'beginner',
+  dietary: [], equipment: 'full_gym',
+  availableDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+  injuries: [],
+  goals: ['hypertrophy', 'fat_loss'],
+  goal: 'build',
+  focusMuscles: ['chest', 'back', 'quads'],
+};
+
+export function OnboardingFlow({ demoMode = false, onComplete }) {
+  const [step, setStep]           = useState(0);
+  const [data, setData]           = useState(demoMode ? { ...DEMO_PROFILE } : {});
+  const [direction, setDirection] = useState('forward');
+  const [transKey, setTransKey]   = useState(0);
+  const [rubberBand, setRubberBand] = useState(null);
+  const lock = useTransitionLock(demoMode ? 50 : 340);
+  const { completeOnboarding } = useUser();
+
+  const TOTAL = 8;
+  // Demo mode: abbreviated [Welcome=0, Goals=4, TDEE=6, Ready=7]
+  const DEMO_STEPS = [0, 4, 6, 7];
+  const [demoIdx, setDemoIdx] = useState(0);
+
+  const next = () => {
+    if (!lock()) return;
+    if (demoMode) {
+      const nextDemoIdx = demoIdx + 1;
+      if (nextDemoIdx >= DEMO_STEPS.length) return;
+      setDemoIdx(nextDemoIdx);
+      setDirection('forward'); setTransKey(k => k + 1); setStep(DEMO_STEPS[nextDemoIdx]);
+      return;
+    }
+    if (step >= TOTAL - 1) {
+      setRubberBand('right');
+      setTimeout(() => setRubberBand(null), 400);
+      return;
+    }
+    setDirection('forward'); setTransKey(k => k + 1); setStep(s => s + 1);
+  };
+  const back = () => {
+    if (!lock()) return;
+    if (demoMode) {
+      if (demoIdx <= 0) return;
+      const prevDemoIdx = demoIdx - 1;
+      setDemoIdx(prevDemoIdx);
+      setDirection('back'); setTransKey(k => k + 1); setStep(DEMO_STEPS[prevDemoIdx]);
+      return;
+    }
+    if (step <= 0) {
+      setRubberBand('left');
+      setTimeout(() => setRubberBand(null), 400);
+      return;
+    }
+    setDirection('back'); setTransKey(k => k + 1); setStep(s => s - 1);
+  };
+  const props = { onNext: next, onBack: back, data, setData };
+
+  const handleReady = (d) => {
+    if (onComplete) onComplete(d);
+    else completeOnboarding(d);
+  };
+
+  // Demo auto-advance
+  useEffect(() => {
+    if (!demoMode) return;
+    const dwell = step === 0 ? 1800 : step === 4 ? 1500 : step === 6 ? 3500 : step === 7 ? 2500 : 1200;
+    const t = setTimeout(() => {
+      if (step === 7) {
+        handleReady(data);
+      } else {
+        next();
+      }
+    }, dwell);
+    return () => clearTimeout(t);
+  }, [demoMode, step, demoIdx]);
+
+  const steps = [
+    <OB_Welcome         key="welcome"  onNext={next}/>,
+    <OB_Sex             key="sex"      {...props}/>,
+    <OB_BodyMetrics     key="metrics"  {...props}/>,
+    <OB_Birthday        key="birthday" {...props}/>,
+    <OB_GoalsActivity   key="goals"    {...props}/>,
+    <OB_TrainingFreq    key="freq"     {...props}/>,
+    <OB_TDEE            key="tdee"     onNext={next} onBack={back} data={data}/>,
+    <OB_Ready           key="ready"    data={data} onComplete={onComplete ? handleReady : undefined}/>,
   ];
 
   const rubberStyle = rubberBand

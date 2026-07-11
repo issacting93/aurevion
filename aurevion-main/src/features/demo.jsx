@@ -197,7 +197,6 @@ function Sidebar({ groups, currentId, onPick }) {
                 padding: '10px 24px',
                 background: active ? 'rgba(255,110,80,0.10)' : 'transparent',
                 border: 'none', cursor: 'pointer',
-                borderLeft: active ? `2px solid ${D.accent}` : '2px solid transparent',
                 color: active ? D.text : D.dim,
                 fontFamily: '"Geist", system-ui, sans-serif',
                 display: 'flex', alignItems: 'center', gap: 12,

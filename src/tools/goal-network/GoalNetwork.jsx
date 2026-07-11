@@ -119,9 +119,9 @@ export default function GoalNetwork() {
             <circle cx={550} cy={400} r={390} fill="none" stroke={Color.borderSoft} strokeWidth="0.5" strokeDasharray="4 8" />
 
             {/* Ring labels */}
-            <text x={550} y={400 - 110 + 8} textAnchor="middle" fontFamily={Font.mono} fontSize="9" letterSpacing="1.5" fill={Color.faint}>CALORIC STATE</text>
-            <text x={550} y={400 + 260 + 6} textAnchor="middle" fontFamily={Font.mono} fontSize="9" letterSpacing="1.5" fill={Color.faint}>MODALITIES</text>
-            <text x={550} y={400 + 390 + 6} textAnchor="middle" fontFamily={Font.mono} fontSize="9" letterSpacing="1.5" fill={Color.faint}>GOALS</text>
+            <text x={550} y={400 - 110 + 8} textAnchor="middle" fontFamily={Font.mono} fontSize="10" letterSpacing="1.5" fill={Color.faint}>CALORIC STATE</text>
+            <text x={550} y={400 + 260 + 6} textAnchor="middle" fontFamily={Font.mono} fontSize="10" letterSpacing="1.5" fill={Color.faint}>MODALITIES</text>
+            <text x={550} y={400 + 390 + 6} textAnchor="middle" fontFamily={Font.mono} fontSize="10" letterSpacing="1.5" fill={Color.faint}>GOALS</text>
 
             {/* Edges */}
             {visibleEdges.map((edge, i) => {
@@ -177,7 +177,7 @@ export default function GoalNetwork() {
                 <text x={tooltipPos.x} y={tooltipPos.y - 44} textAnchor="middle" fontFamily={Font.sans} fontSize="10" fill={Color.text} fontWeight="500">
                   {tooltipNode.label}
                 </text>
-                <text x={tooltipPos.x} y={tooltipPos.y - 32} textAnchor="middle" fontFamily={Font.mono} fontSize="9" fill={Color.mute} letterSpacing="0.8">
+                <text x={tooltipPos.x} y={tooltipPos.y - 32} textAnchor="middle" fontFamily={Font.mono} fontSize="10" fill={Color.mute} letterSpacing="0.8">
                   {CATEGORIES[tooltipNode.category].label.toUpperCase()}
                 </text>
               </g>
@@ -202,7 +202,7 @@ export default function GoalNetwork() {
               <FTag tone={selectedNode.category === 'fitness_goal' ? 'accent' : selectedNode.category === 'nutrition_goal' ? 'green' : 'mute'} size="sm">
                 {CATEGORIES[selectedNode.category].label.toUpperCase()}
               </FTag>
-              {selectedNode.group && <FMono size={8} color={Color.mute}>{selectedNode.group}</FMono>}
+              {selectedNode.group && <FMono size={9} color={Color.mute}>{selectedNode.group}</FMono>}
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: Space[3], marginBottom: Space[3] }}>
@@ -221,7 +221,7 @@ export default function GoalNetwork() {
             </p>
 
             {/* Connections */}
-            <FLabel size={9} mb={10} letter={1.2}>
+            <FLabel size={10} mb={10} letter={1.2}>
               CONNECTIONS ({selectedConnections.filter(c => visibleNodeIds.has(c.node.id)).length})
             </FLabel>
 
@@ -255,7 +255,7 @@ export default function GoalNetwork() {
                       <div style={{ ...Type.bodySm, fontWeight: 500, color: Color.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {node.label}
                       </div>
-                      <FMono size={8} color={Color.mute}>{cat.label}</FMono>
+                      <FMono size={9} color={Color.mute}>{cat.label}</FMono>
                     </div>
 
                     {/* Strength */}
@@ -271,19 +271,19 @@ export default function GoalNetwork() {
             <div style={{ marginTop: Space[6], paddingTop: Space[4], borderTop: `1px solid ${Color.borderSoft}` }}>
               <div style={{ display: 'flex', gap: Space[4] }}>
                 <div>
-                  <FMono size={9} color={Color.mute}>EDGES</FMono>
+                  <FMono size={10} color={Color.mute}>EDGES</FMono>
                   <div style={{ ...Type.headingMd, color: CATEGORIES[selectedNode.category].color, marginTop: 2 }}>
                     {getConnectedEdges(selectedId).length}
                   </div>
                 </div>
                 <div>
-                  <FMono size={9} color={Color.mute}>STRONG</FMono>
+                  <FMono size={10} color={Color.mute}>STRONG</FMono>
                   <div style={{ ...Type.headingMd, color: Color.text, marginTop: 2 }}>
                     {getConnectedEdges(selectedId).filter(e => e.strength === 'strong').length}
                   </div>
                 </div>
                 <div>
-                  <FMono size={9} color={Color.mute}>CATEGORIES</FMono>
+                  <FMono size={10} color={Color.mute}>CATEGORIES</FMono>
                   <div style={{ ...Type.headingMd, color: Color.text, marginTop: 2 }}>
                     {new Set(selectedConnections.map(c => c.node.category)).size}
                   </div>

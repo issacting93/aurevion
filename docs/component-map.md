@@ -115,7 +115,7 @@ Timer: `setInterval(1000ms)` with pause flag, `Math.max(0, rem - 1)` countdown.
 
 | File | Purpose |
 |---|---|
-| `fitness-data.js` | 48 exercises, equipment mapping, goal→modality, `generateProgram()` |
+| `fitness-data.js` | 72 exercises, equipment mapping, goal→modality, `generateProgram()` (with exercise grouping + goalSources), `MODALITY_COLORS`, `getProgramPhase(week)`, `flattenSessionExercises()`, `computeAvgRIR()`, `suggestLoadAdjustment()` |
 | `goal-network-data.js` | 32 nodes, 65 edges, concentric ring layout, connection helpers |
 | `Onboarding.jsx` | Goal taxonomies (`OB_FITNESS_GOALS`, `OB_NUTRITION_GOALS`), TDEE/macro computation |
 
@@ -123,6 +123,38 @@ Timer: `setInterval(1000ms)` with pause flag, `Math.max(0, rem - 1)` countdown.
 
 | Context | Purpose | Key Methods |
 |---|---|---|
-| `UserContext` | Global state with localStorage persistence | `completeOnboarding`, `logWorkout`, `logMeal`, `logCheckin`, `regeneratePlan`, `markSessionComplete` |
+| `UserContext` | Global state with localStorage persistence | `completeOnboarding`, `logWorkout`, `logMeal`, `logCheckin`, `regeneratePlan`, `advanceWeek`, `markSessionComplete`, `swapExercise`, `getCompletedWorkouts` |
 | `NavigationContext` | Tab + detail stack navigation | `switchTab`, `pushDetail(screen, title, data)`, `popDetail` |
 | `DemoContext` | Presentation demo state | Demo flow control |
+
+---
+
+## Detail Page Content Grouping
+
+Detail pages group content by user question, not data type. This determines section order.
+
+### Goal Detail
+| Question | Sections | Weight |
+|----------|----------|--------|
+| What's the deal? | Hero (flat) + caloric state + divider | Hero |
+| How do I eat? | Macro split card + meal prep approach | Primary (card) + Secondary (flat) |
+| How do I train? | Modalities (S=card, M=pills, W=text) + linked sessions | Primary + Secondary |
+| Is this right for me? | Body profile | Tertiary (muted text) |
+
+### Exercise Detail
+| Question | Sections | Weight |
+|----------|----------|--------|
+| What is this? | Icon circle + name + category + muscles | Hero (flat + icon) |
+| How do I do it? | Form cue | Primary (tinted card) |
+| How much? | Prescriptions (sets × reps per modality) | Secondary (type + dividers) |
+| Where does it fit? | Goal pills + injury cautions | Secondary + Tertiary |
+| Can I change it? | Swap alternatives | Action zone |
+
+### Workout Template
+| Question | Sections | Weight |
+|----------|----------|--------|
+| What's the protocol? | Title + objective + caloric anchor + divider | Hero (flat) |
+| What does a week look like? | Frequency + split (inline stat row) | Secondary (type + dividers) |
+| What does a day look like? | Sample session exercises | Secondary (type + dividers) |
+| How does it adapt? | Protocol note | Tertiary (dashed border) |
+| What can I do? | Start + customize | Action zone |

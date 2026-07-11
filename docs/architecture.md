@@ -25,17 +25,17 @@ src/
 │   └── screens/               # All app screens (30+ files)
 │       ├── Onboarding.jsx     # 12-step onboarding flow
 │       ├── Dashboard.jsx      # Personalized tile grid
-│       ├── fitness-data.js    # Exercise database + program generator
-│       ├── ProgramOverview.jsx # Weekly training plan
-│       ├── Training.jsx       # Active session (review → execute → summary)
-│       ├── GoalDetail.jsx     # Goal cascade (caloric, macros, modalities, prep)
-│       ├── ExerciseBrowser.jsx # Filter + browse 48 exercises
+│       ├── fitness-data.js    # 72 exercises + program generator + grouping + RIR helpers
+│       ├── ProgramOverview.jsx # Weekly plan with goal tags + superset indicators
+│       ├── Training.jsx       # Active session (review → execute w/ RPE+RIR+load adjust+groups → summary)
+│       ├── GoalDetail.jsx     # Goal cascade + linked sessions from plan
+│       ├── ExerciseBrowser.jsx # Filter + browse 72 exercises
 │       ├── ExerciseDetail.jsx # Form cues, muscles, injuries, goals
 │       ├── WorkoutTemplateDetail.jsx # Sample session + protocol
 │       ├── MealPrep.jsx       # Cook mode (merge → timeline → active)
 │       ├── PlanCalendar.jsx   # Month/week/day calendar
 │       ├── CheckIn.jsx        # Weekly weigh-in + decision engine
-│       ├── tiles.jsx          # 9 dashboard tile components
+│       ├── tiles.jsx          # 10 dashboard tile components (incl. WaterTile)
 │       └── index.js           # Screen registry (55 screens)
 ├── context/
 │   ├── UserContext.jsx        # Global state: profile, targets, plans, activity log
@@ -95,10 +95,14 @@ state = {
   },
   workoutPlan: {             // auto-generated from goals + constraints
     splitLabel,              // 'Full Body' / 'Upper / Lower' / 'Push / Pull / Legs'
+    programName,             // e.g. 'Upper / Lower · Hypertrophy + HIIT'
     modalities: [],          // active training modalities
     sessions: [],            // training sessions with exercises
     schedule: [],            // full week (sessions + rest days)
     goals: [],               // goals that generated this plan
+    totalWeeks: 12,          // program duration (fixed for prototype)
+    currentWeek: 1,          // current week (incremented by advanceWeek)
+    phase: 'Base',           // current phase: 'Base' (1-4), 'Build' (5-8), 'Peak' (9-12)
   },
   preferences: { layout },  // dashboard preset (balanced/nutrition/training)
   onboarded: boolean,
@@ -142,16 +146,17 @@ generateProgram({ goals, equipment, availableDays, injuries, experience })
   3. For each day: filter exercises by equipment + injuries + modality
   4. Assign sets/reps/load by modality config
   5. Add warmup + cooldown
-  6. Return { sessions, schedule, splitLabel }
+  6. Return { sessions, schedule, splitLabel, programName, totalWeeks, currentWeek, phase }
 ```
 
 ### 3. Active Session
 
 ```
 ProgramOverview → tap "Start" → pushDetail('active-session', session)
-  → Review phase: exercise list preview
-  → Execute phase: set-by-set logging (reps, load, RPE) + rest timer
-  → Summary phase: computed volume, avg RPE, exercise breakdown
+  → Review phase: exercise list + goal source tags + superset/circuit grouping preview
+  → Execute phase: set-by-set logging (reps, load, RPE + RIR) + load adjustment suggestions
+    + group-aware flow (no rest between superset exercises) + rest timer
+  → Summary phase: computed volume, avg RPE, avg RIR, load progressions, exercise breakdown
   → logWorkout() → activityLog
   → markSessionComplete() → workoutPlan
 ```
@@ -164,6 +169,16 @@ CheckIn (weekly)
   → computeDecision(checkins, targets)
   → if weight loss > threshold → addIntervention('adjust deficit')
   → updates profile.weight → recomputes macros
+```
+
+### 6. Week Advancement
+
+```
+advanceWeek()
+  → increment workoutPlan.currentWeek (max totalWeeks)
+  → recalculate phase via getProgramPhase(newWeek)
+  → reset all session.completed and schedule.completed flags
+  → persist to localStorage
 ```
 
 ### 5. Behavioral Metrics (derived)

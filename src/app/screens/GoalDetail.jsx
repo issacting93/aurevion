@@ -1,11 +1,11 @@
 // ════════════════════════════════════════════════════════════
-// Goal Detail — what a selected fitness goal activates
-// Shows: caloric state, macro split, training modalities,
-// meal prep approach, body profile recommendations.
+// Goal Detail — R1–R7 compliant
+// Contract hero, macro bar chart (kept), weighted modalities,
+// flat secondary sections, icon-card actions.
 // ════════════════════════════════════════════════════════════
 
-import { Color, Font, Space, Radius, Type } from '../../ui/tokens'
-import { ICONS, FSurface, FNavBar, FLabel, FMono, FNum, FIcon, FTag, FTexBar, FBtn, FListRow, Phone } from '../../ui/components'
+import { Color, Font, Space, Radius, Type, alpha } from '../../ui/tokens'
+import { ICONS, FSurface, FNavBar, FLabel, FMono, FNum, FIcon, FTag, FBtn, Phone } from '../../ui/components'
 import { MACRO_RATIOS, GOAL_CALORIC_STATE, CALORIC_PREP, BODY_FAT_RANGES, SOMATOTYPES, GOAL_META, WORKOUT_TEMPLATES } from '../../tools/ontology/ontology-data'
 import { useNav } from '../../context/NavigationContext'
 import { useUser } from '../../context/UserContext'
@@ -25,8 +25,6 @@ const MODALITY_MATRIX = {
   overall_wellness: [['Zone 2 Cardio', 'M'], ['Mobility / Yoga', 'M'], ['Circuits', 'W']],
 }
 
-const STRENGTH_COLORS = { S: Color.accent, M: Color.blue, W: Color.faint }
-
 export function GoalDetailContent({ goalKey: propGoalKey, data }) {
   const goalKey = propGoalKey || data?.goalKey || 'hypertrophy'
   const { pushDetail } = useNav()
@@ -39,123 +37,217 @@ export function GoalDetailContent({ goalKey: propGoalKey, data }) {
   const modalities = MODALITY_MATRIX[goalKey] || []
   const suitableBodies = BODY_FAT_RANGES.filter(r => r.goals.includes(goalKey))
   const suitableSomato = Object.entries(SOMATOTYPES).filter(([, s]) => s.bestGoals.includes(goalKey))
+  const goalColor = meta?.color || Color.accent
+
+  const strong = modalities.filter(([, s]) => s === 'S')
+  const moderate = modalities.filter(([, s]) => s === 'M')
+  const weak = modalities.filter(([, s]) => s === 'W')
 
   return (
     <div style={{ flex: 1, padding: '20px 24px 40px', overflowY: 'auto' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
-        <div style={{ width: 40, height: 40, borderRadius: Radius.lg, background: `${meta?.color || Color.accent}15`, display: 'grid', placeItems: 'center' }}>
-          <FIcon path={ICONS.goal} size={20} color={meta?.color || Color.accent} />
+
+      {/* ── Hero — flat label + title + caloric anchor ── */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ ...Type.labelSm, color: goalColor, marginBottom: 6 }}>{meta?.group?.toUpperCase()}</div>
+        <div style={{ fontFamily: Font.sans, fontSize: 28, fontWeight: 300, letterSpacing: -1, color: Color.text, lineHeight: 1.1, marginBottom: 6 }}>
+          {meta?.label || goalKey}
         </div>
-        <div>
-          <div style={{ ...Type.headingLg }}>{meta?.label || goalKey}</div>
-          <FMono size={10} color={Color.mute}>{meta?.group}</FMono>
-        </div>
+        {template && (
+          <div style={{ ...Type.bodyMd, color: Color.dim, lineHeight: 1.5, marginBottom: 12 }}>
+            {template.objective}
+          </div>
+        )}
+        {caloric && (
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+            <span style={{
+              fontFamily: Font.sans, fontSize: 26, fontWeight: 500,
+              color: caloric.modifier >= 0 ? Color.green : Color.accent,
+            }}>
+              {caloric.modifier >= 0 ? '+' : ''}{caloric.modifier}
+            </span>
+            <span style={{ ...Type.labelSm, color: Color.mute }}>kcal</span>
+            <span style={{ ...Type.bodySm, color: Color.mute, marginLeft: 4 }}>·</span>
+            <span style={{ ...Type.bodySm, color: Color.dim, marginLeft: 4 }}>{caloric.state}</span>
+          </div>
+        )}
+        <div style={{ height: 1, background: Color.borderSoft, marginTop: 16 }} />
       </div>
 
-      {/* Caloric state */}
-      <FSurface style={{ marginTop: 20 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <FLabel size={9} mb={4}>CALORIC STATE</FLabel>
-            <div style={{ ...Type.headingMd }}>{caloric?.state}</div>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <FNum size={28} weight={300} color={caloric?.modifier >= 0 ? Color.green : Color.red}>
-              {caloric?.modifier >= 0 ? '+' : ''}{caloric?.modifier}
-            </FNum>
-            <FMono size={9} color={Color.mute}>KCAL / DAY</FMono>
-          </div>
-        </div>
-      </FSurface>
-
-      {/* Macro split */}
+      {/* ── Macro split card ── */}
       {macros && (
-        <FSurface style={{ marginTop: 12 }}>
-          <FLabel size={9} mb={10}>MACRO SPLIT</FLabel>
-          <div style={{ display: 'flex', height: 20, borderRadius: 4, overflow: 'hidden', marginBottom: 10 }}>
+        <div style={{
+          background: Color.surface, borderRadius: Radius.lg,
+          border: `1px solid ${Color.borderSoft}`,
+          padding: 16, marginBottom: 16,
+          display: 'flex', flexDirection: 'column', gap: 6,
+        }}>
+          <div style={{ fontFamily: Font.mono, fontSize: 8, fontWeight: 500, letterSpacing: 1, textTransform: 'uppercase', color: Color.mute }}>MACRO SPLIT</div>
+          <div style={{ display: 'flex', height: 16, borderRadius: 4, overflow: 'hidden' }}>
             <div style={{ width: `${(macros.protein[0] + macros.protein[1]) / 2}%`, background: MACRO_COLORS.protein }} />
             <div style={{ width: `${(macros.carbs[0] + macros.carbs[1]) / 2}%`, background: MACRO_COLORS.carbs }} />
             <div style={{ width: `${(macros.fat[0] + macros.fat[1]) / 2}%`, background: MACRO_COLORS.fat }} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <FMono size={10} color={MACRO_COLORS.protein}>P {macros.protein[0]}-{macros.protein[1]}%</FMono>
-            <FMono size={10} color={MACRO_COLORS.carbs}>C {macros.carbs[0]}-{macros.carbs[1]}%</FMono>
-            <FMono size={10} color={MACRO_COLORS.fat}>F {macros.fat[0]}-{macros.fat[1]}%</FMono>
+            <span style={{ fontFamily: Font.mono, fontSize: 8, letterSpacing: 0.8, color: MACRO_COLORS.protein }}>P {macros.protein[0]}-{macros.protein[1]}%</span>
+            <span style={{ fontFamily: Font.mono, fontSize: 8, letterSpacing: 0.8, color: MACRO_COLORS.carbs }}>C {macros.carbs[0]}-{macros.carbs[1]}%</span>
+            <span style={{ fontFamily: Font.mono, fontSize: 8, letterSpacing: 0.8, color: MACRO_COLORS.fat }}>F {macros.fat[0]}-{macros.fat[1]}%</span>
           </div>
-          <div style={{ marginTop: 8, paddingTop: 8, borderTop: `1px solid ${Color.borderSoft}` }}>
-            <FMono size={9} color={Color.dim}>PROTEIN TARGET: {macros.gPerKg}g/kg lean body mass</FMono>
-            <FMono size={9} color={Color.faint} style={{ marginTop: 4, display: 'block' }}>{macros.notes}</FMono>
+          <div style={{ fontFamily: Font.sans, fontSize: 10, color: Color.dim, lineHeight: 1.4 }}>
+            Protein {macros.gPerKg}g/kg LBM{macros.notes ? ` · ${macros.notes.toLowerCase()}` : ''}
           </div>
-        </FSurface>
+        </div>
       )}
 
-      {/* Training modalities */}
-      <div style={{ marginTop: 20 }}>
-        <FLabel size={9} mb={10}>TRAINING MODALITIES</FLabel>
-        {modalities.map(([name, strength]) => (
-          <FListRow key={name}
-            leading={
-              <span style={{
-                display: 'inline-flex', width: 22, height: 22, borderRadius: 4,
-                background: `${STRENGTH_COLORS[strength]}15`, color: STRENGTH_COLORS[strength],
-                fontFamily: Font.mono, fontSize: 11, fontWeight: 600,
-                alignItems: 'center', justifyContent: 'center',
-              }}>{strength}</span>
-            }
-            title={name}
-            subtitle={strength === 'S' ? 'Primary driver' : strength === 'M' ? 'Supporting' : 'Supplementary'}
-            divider
-          />
+      {/* ── Training modalities — no section label ── */}
+      <div style={{ marginBottom: 16 }}>
+        {/* Strong — tinted card row */}
+        {strong.map(([name]) => (
+          <div key={name} style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            padding: '12px 14px', borderRadius: Radius.lg,
+            background: alpha(goalColor, 0.06), marginBottom: 6,
+          }}>
+            <div style={{
+              width: 28, height: 28, borderRadius: 6, flexShrink: 0,
+              background: goalColor, display: 'grid', placeItems: 'center',
+            }}>
+              <FIcon path={ICONS.flame} size={14} color={Color.bg} stroke={2} />
+            </div>
+            <div>
+              <div style={{ ...Type.bodyMd, fontWeight: 500, color: Color.text }}>{name}</div>
+              <div style={{ ...Type.bodySm, color: goalColor, marginTop: 1 }}>Primary</div>
+            </div>
+          </div>
         ))}
+
+        {/* Moderate — dot-label pills */}
+        {moderate.length > 0 && (
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: strong.length > 0 ? 6 : 0, marginBottom: weak.length > 0 ? 6 : 0 }}>
+            {moderate.map(([name]) => (
+              <span key={name} style={{
+                display: 'flex', alignItems: 'center', gap: 5,
+                fontSize: 12, fontFamily: Font.sans,
+                padding: '4px 10px', borderRadius: 999,
+                background: alpha(Color.blue, 0.10), color: Color.blue,
+              }}>
+                <span style={{ width: 5, height: 5, borderRadius: '50%', background: Color.blue, flexShrink: 0 }} />
+                {name}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Weak — muted inline text */}
+        {weak.length > 0 && (
+          <div style={{ ...Type.bodySm, color: Color.mute, marginTop: 6 }}>
+            Supplementary: {weak.map(([n]) => n).join(', ')}
+          </div>
+        )}
       </div>
 
-      {/* Meal prep */}
+      {/* ── Meal prep — flat label + content ── */}
       {mealPrep && (
-        <FSurface style={{ marginTop: 20 }}>
-          <FLabel size={9} mb={8}>MEAL PREP APPROACH</FLabel>
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ ...Type.labelMd, color: Color.mute, marginBottom: 8 }}>MEAL PREP APPROACH</div>
           <div style={{ ...Type.headingSm, color: Color.green, marginBottom: 4 }}>{mealPrep.primary}</div>
-          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 8 }}>
-            {mealPrep.supporting.map(s => <FTag key={s} tone="mute" size="sm">{s}</FTag>)}
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 6 }}>
+            {mealPrep.supporting.map(s => (
+              <span key={s} style={{
+                display: 'flex', alignItems: 'center', gap: 5,
+                fontSize: 12, fontFamily: Font.sans,
+                padding: '4px 10px', borderRadius: 999,
+                background: alpha(Color.green, 0.10), color: Color.green,
+              }}>
+                <span style={{ width: 5, height: 5, borderRadius: '50%', background: Color.green, flexShrink: 0 }} />
+                {s}
+              </span>
+            ))}
           </div>
-          <FMono size={9} color={Color.dim}>{mealPrep.timing}</FMono>
-        </FSurface>
+          <div style={{ ...Type.bodySm, color: Color.mute }}>{mealPrep.timing}</div>
+        </div>
       )}
 
-      {/* Recommended body profile */}
-      <div style={{ marginTop: 20 }}>
-        <FLabel size={9} mb={10}>RECOMMENDED FOR</FLabel>
-        {suitableBodies.map((r, i) => (
-          <FListRow key={i}
-            title={r.label}
-            subtitle={`Men ${r.men[0]}-${r.men[1] === 99 ? '∞' : r.men[1]}% · Women ${r.women[0]}-${r.women[1] === 99 ? '∞' : r.women[1]}%`}
-            divider={i > 0}
-          />
-        ))}
-        {suitableSomato.map(([, s]) => (
-          <FListRow key={s.label}
-            leading={<div style={{ width: 10, height: 10, borderRadius: 5, background: s.color }} />}
-            title={`${s.label} tendency`}
-            subtitle={s.training}
-            divider
-          />
-        ))}
-        {suitableBodies.length === 0 && suitableSomato.length === 0 && (
-          <FMono size={10} color={Color.faint}>Suitable for all body types</FMono>
-        )}
-      </div>
+      {/* ── Body profile — muted text ── */}
+      {(suitableBodies.length > 0 || suitableSomato.length > 0) && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ ...Type.labelMd, color: Color.mute, marginBottom: 4 }}>RECOMMENDED FOR</div>
+          <div style={{ ...Type.bodySm, color: Color.mute, lineHeight: 1.5 }}>
+            {suitableBodies.map(r => r.label).join(', ')}{suitableBodies.length > 0 && suitableSomato.length > 0 ? ' · ' : ''}
+            {suitableSomato.map(([, s]) => `${s.label} tendency`).join(', ')}
+          </div>
+        </div>
+      )}
 
-      {/* Actions */}
-      <div style={{ marginTop: 24, display: 'flex', gap: 8 }}>
+      {/* ── Linked sessions — compact list-in-card ── */}
+      <LinkedSessions goalKey={goalKey} goalColor={goalColor} />
+
+      {/* ── Quick actions ── */}
+      <div style={{ marginTop: 24, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
         {template && (
-          <FBtn variant="ghost" size="sm" icon={ICONS.dumb} onClick={() => pushDetail('workout-template', template.label, { goalKey })} data-stay="true">
-            View template
-          </FBtn>
+          <FSurface onClick={() => pushDetail('workout-template', template.label, { goalKey })} style={{
+            padding: '12px 14px', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: 10,
+          }}>
+            <div style={{
+              width: 28, height: 28, borderRadius: 6, flexShrink: 0,
+              background: alpha(Color.text, 0.04), display: 'grid', placeItems: 'center',
+            }}>
+              <FIcon path={ICONS.dumb} size={14} color={Color.dim} stroke={1.8} />
+            </div>
+            <FMono size={10} color={Color.dim}>Training plan</FMono>
+          </FSurface>
         )}
-        <FBtn variant="ghost" size="sm" icon={ICONS.search} onClick={() => pushDetail('exercises', 'Exercises', { goalKey })} data-stay="true">
-          Browse exercises
-        </FBtn>
+        <FSurface onClick={() => pushDetail('exercises', 'Exercises', { goalKey })} style={{
+          padding: '12px 14px', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', gap: 10,
+        }}>
+          <div style={{
+            width: 28, height: 28, borderRadius: 6, flexShrink: 0,
+            background: alpha(Color.text, 0.04), display: 'grid', placeItems: 'center',
+          }}>
+            <FIcon path={ICONS.search} size={14} color={Color.dim} stroke={1.8} />
+          </div>
+          <FMono size={10} color={Color.dim}>Browse exercises</FMono>
+        </FSurface>
       </div>
+    </div>
+  )
+}
+
+function LinkedSessions({ goalKey, goalColor }) {
+  const { workoutPlan } = useUser()
+  const { pushDetail } = useNav()
+  if (!workoutPlan?.sessions) return null
+  const linked = workoutPlan.sessions.filter(s => s.goalSources?.includes(goalKey))
+  if (linked.length === 0) return null
+
+  return (
+    <div style={{
+      padding: '16px 16px 12px', borderRadius: Radius.lg,
+      background: Color.surface2, border: `1px solid ${Color.borderSoft}`,
+      marginBottom: 4,
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <div style={{ ...Type.labelSm, color: Color.mute }}>YOUR SESSIONS</div>
+        <div style={{ ...Type.labelSm, color: Color.mute }}>{linked.length}</div>
+      </div>
+      {linked.map((s, i) => (
+        <div key={s.id} onClick={() => pushDetail('active-session', s.name, { session: s })} style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '10px 0', cursor: 'pointer',
+          borderTop: i > 0 ? `1px solid ${Color.borderSoft}` : 'none',
+        }}>
+          <FMono color={goalColor} size={11}>{s.day.toUpperCase()}</FMono>
+          <div style={{ flex: 1, ...Type.bodyMd, color: Color.text }}>{s.name}</div>
+          <div style={{
+            padding: '3px 8px', borderRadius: 6,
+            background: alpha(goalColor, 0.10),
+          }}>
+            <FMono size={10} color={goalColor}>{s.modalityLabel.toUpperCase()}</FMono>
+          </div>
+          <FIcon path={ICONS.fwd} size={10} color={Color.faint} />
+        </div>
+      ))}
     </div>
   )
 }

@@ -1,18 +1,38 @@
 // ════════════════════════════════════════════════════════════
-// Workout Template Detail — sample session for a goal
-// Shows objective, protocol, frequency, rep range,
-// and sample exercises with sets, rest, and injury alts.
+// Workout Template Detail — Brief-style card layout
+// R1: tinted hero with caloric contract
+// R2: compact session rows (name + sets badge only)
+// R4: 2×2 stat grid, weighted sections
+// R6/R7: Start/Customize action zone at bottom
 // ════════════════════════════════════════════════════════════
 
-import { Color, Font, Space, Radius, Type } from '../../ui/tokens'
-import { ICONS, FSurface, FNavBar, FLabel, FMono, FNum, FIcon, FTag, FListRow, Phone } from '../../ui/components'
+import { Color, Font, Space, Radius, Type, alpha } from '../../ui/tokens'
+import { ICONS, FNavBar, FLabel, FMono, FNum, FIcon, FBtn, Phone } from '../../ui/components'
 import { WORKOUT_TEMPLATES, GOAL_META, GOAL_CALORIC_STATE } from '../../tools/ontology/ontology-data'
+import { EXERCISES } from './fitness-data'
+import { useNav } from '../../context/NavigationContext'
+import { useUser } from '../../context/UserContext'
 
 export function WorkoutTemplateContent({ data }) {
   const goalKey = data?.goalKey || 'hypertrophy'
   const template = WORKOUT_TEMPLATES[goalKey]
   const meta = GOAL_META[goalKey]
   const caloric = GOAL_CALORIC_STATE[goalKey]
+  const goalColor = meta?.color || Color.accent
+  const { pushDetail } = useNav()
+  const { workoutPlan } = useUser()
+
+  const handleStart = () => {
+    const session = workoutPlan?.schedule?.find(s => !s.isRest && !s.completed && s.goalSources?.includes(goalKey))
+      || workoutPlan?.schedule?.find(s => !s.isRest && !s.completed)
+    if (session) pushDetail('active-session', session.name, { session })
+    else pushDetail('exercises', 'Exercises', { goalKey })
+  }
+
+  const handleExerciseTap = (exerciseName) => {
+    const match = EXERCISES.find(e => exerciseName.toLowerCase().includes(e.name.toLowerCase()) || e.name.toLowerCase().includes(exerciseName.toLowerCase()))
+    if (match) pushDetail('exercise-detail', match.name, { exercise: match })
+  }
 
   if (!template) {
     return (
@@ -23,81 +43,126 @@ export function WorkoutTemplateContent({ data }) {
     )
   }
 
+  /* Parse frequency number for hero display */
+  const freqMatch = template.frequency.match(/(\d[\d-]*)/)
+  const freqNum = freqMatch ? freqMatch[1] : template.frequency
+
   return (
     <div style={{ flex: 1, padding: '20px 24px 40px', overflowY: 'auto' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
-        <div style={{ width: 40, height: 40, borderRadius: Radius.lg, background: `${meta?.color || Color.accent}15`, display: 'grid', placeItems: 'center' }}>
-          <FIcon path={ICONS.dumb} size={20} color={meta?.color || Color.accent} />
+
+      {/* ── Hero — flat label + title + caloric anchor ── */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ ...Type.labelSm, color: goalColor, marginBottom: 6 }}>{meta?.group?.toUpperCase()}</div>
+        <div style={{ fontFamily: Font.sans, fontSize: 28, fontWeight: 300, letterSpacing: -1, color: Color.text, lineHeight: 1.1, marginBottom: 6 }}>
+          {template.label}
         </div>
+        <div style={{ ...Type.bodyMd, color: Color.dim, lineHeight: 1.5, marginBottom: 12 }}>
+          {template.objective}
+        </div>
+
+        {caloric && (
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+            <span style={{
+              fontFamily: Font.sans, fontSize: 26, fontWeight: 500,
+              color: caloric.modifier >= 0 ? Color.green : Color.accent,
+            }}>
+              {caloric.modifier >= 0 ? '+' : ''}{caloric.modifier}
+            </span>
+            <span style={{ ...Type.labelSm, color: Color.mute }}>kcal</span>
+            <span style={{ ...Type.bodySm, color: Color.mute, marginLeft: 4 }}>·</span>
+            <span style={{ ...Type.bodySm, color: Color.dim, marginLeft: 4 }}>{caloric.state}</span>
+          </div>
+        )}
+      </div>
+
+      {/* ── Stats — two rows of two ── */}
+      <div style={{
+        display: 'flex', justifyContent: 'space-between',
+        padding: '14px 0',
+        borderTop: `1px solid ${Color.borderSoft}`,
+        borderBottom: `1px solid ${Color.borderSoft}`,
+      }}>
         <div>
-          <div style={{ ...Type.headingLg }}>{template.label}</div>
-          <FMono size={10} color={Color.mute}>{meta?.group}</FMono>
+          <div style={{ ...Type.labelSm, color: Color.mute, marginBottom: 6 }}>FREQUENCY</div>
+          <div style={{ fontFamily: Font.sans, fontSize: 15, fontWeight: 500, color: Color.text }}>{freqNum}</div>
+          <div style={{ ...Type.bodySm, color: Color.mute, marginTop: 2 }}>days/wk</div>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ ...Type.labelSm, color: Color.mute, marginBottom: 6 }}>SPLIT</div>
+          <div style={{ fontFamily: Font.sans, fontSize: 15, fontWeight: 500, color: Color.text }}>{template.split}</div>
         </div>
       </div>
 
-      {/* Objective */}
-      <div style={{ ...Type.bodyMd, color: Color.dim, lineHeight: 1.6, marginTop: 12, marginBottom: 16 }}>
-        {template.objective}
-      </div>
-
-      {/* Tags */}
-      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
-        <FTag tone="accent" size="sm">{template.frequency}</FTag>
-        <FTag tone="mute" size="sm">{template.split}</FTag>
-        <FTag tone="mute" size="sm">{template.repRange}</FTag>
-      </div>
-
-      {/* Protocol */}
-      <FSurface>
-        <FLabel size={9} mb={6}>CALORIC PROTOCOL</FLabel>
-        <div style={{ ...Type.bodyMd, color: Color.blue }}>{template.protocol}</div>
-        <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
-          <div>
-            <FMono size={10} color={Color.faint}>STATE</FMono>
-            <FMono size={10} color={Color.text}>{caloric?.state}</FMono>
-          </div>
-          <div>
-            <FMono size={10} color={Color.faint}>MODIFIER</FMono>
-            <FMono size={10} color={caloric?.modifier >= 0 ? Color.green : Color.red}>
-              {caloric?.modifier >= 0 ? '+' : ''}{caloric?.modifier} kcal
-            </FMono>
-          </div>
+      <div style={{
+        display: 'flex', justifyContent: 'space-between',
+        padding: '14px 0', marginBottom: 24,
+      }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ ...Type.labelSm, color: Color.mute, marginBottom: 6 }}>REP RANGE</div>
+          <div style={{ fontFamily: Font.sans, fontSize: 15, fontWeight: 500, color: Color.text }}>{template.repRange}</div>
         </div>
-      </FSurface>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ ...Type.labelSm, color: Color.mute, marginBottom: 6 }}>PROTOCOL</div>
+          <div style={{ fontFamily: Font.sans, fontSize: 15, fontWeight: 500, color: Color.text }}>{caloric?.label || '—'}</div>
+        </div>
+      </div>
 
-      {/* Sample session */}
+      {/* ── Sample session — open rows, no container ── */}
       {template.sampleSession.length > 0 && (
-        <div style={{ marginTop: 20 }}>
-          <FLabel size={9} mb={12}>SAMPLE SESSION</FLabel>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {template.sampleSession.map((row, i) => (
-              <FSurface key={i} style={{ padding: 14 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
-                  <div style={{ ...Type.headingSm }}>{row.exercise}</div>
-                  <FMono size={10} color={Color.accent}>{row.sets}</FMono>
-                </div>
-                <FMono size={9} color={Color.dim}>{row.focus}</FMono>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
-                  <FMono size={9} color={Color.faint}>REST: {row.rest}</FMono>
-                  {row.injuryAlt && (
-                    <FMono size={10} color={Color.red}>ALT: {row.injuryAlt}</FMono>
+        <div style={{ marginBottom: 28 }}>
+          <div style={{ ...Type.labelSm, color: Color.mute, marginBottom: 6 }}>
+            SESSION{' '}<span style={{ color: Color.faint }}>·</span>{' '}{template.sampleSession.length} EXERCISES
+          </div>
+
+          {template.sampleSession.map((row, i) => {
+            const isFeatured = i === 0
+            return (
+              <div key={i} onClick={() => handleExerciseTap(row.exercise)} style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: isFeatured ? '14px 0' : '11px 0',
+                borderTop: `1px solid ${Color.borderSoft}`,
+                cursor: 'pointer',
+              }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{
+                    ...(isFeatured ? Type.headingSm : Type.bodyMd),
+                    color: Color.text,
+                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                  }}>{row.exercise}</div>
+                  {isFeatured && (
+                    <div style={{ ...Type.bodySm, color: Color.mute, marginTop: 2 }}>{row.focus}</div>
                   )}
                 </div>
-              </FSurface>
-            ))}
-          </div>
+                <span style={{ fontFamily: Font.mono, fontSize: 11, color: goalColor, fontWeight: 500, letterSpacing: 0.5, flexShrink: 0, marginLeft: 12 }}>
+                  {row.sets}
+                </span>
+              </div>
+            )
+          })}
         </div>
       )}
 
       {template.sampleSession.length === 0 && (
-        <FSurface style={{ marginTop: 20, textAlign: 'center', padding: 24 }}>
-          <FIcon path={ICONS.dumb} size={24} color={Color.faint} />
-          <FMono size={10} color={Color.mute} style={{ marginTop: 8, display: 'block' }}>
-            Sample session coming soon
-          </FMono>
-        </FSurface>
+        <div style={{ padding: '20px 0', textAlign: 'center', marginBottom: 20 }}>
+          <FMono size={10} color={Color.mute}>Sample session coming soon</FMono>
+        </div>
       )}
+
+      {/* ── Protocol note — dashed border ── */}
+      <div style={{
+        padding: 16, borderRadius: Radius.lg,
+        border: `1px dashed ${Color.borderSoft}`, marginBottom: 28,
+      }}>
+        <div style={{ ...Type.bodyMd, color: Color.dim, lineHeight: 1.5 }}>
+          {template.protocol}. Volume adjusts weekly based on your recovery.
+        </div>
+      </div>
+
+      {/* ── R6/R7: Action zone — visible without scrolling past session ── */}
+      <div style={{ display: 'flex', gap: 10 }}>
+        <FBtn variant="ghost" size="lg" onClick={() => pushDetail('exercises', 'Exercises', { goalKey })}>Swap exercises</FBtn>
+        <FBtn variant="split" full iconLeading={ICONS.play} onClick={handleStart}>Start workout</FBtn>
+      </div>
     </div>
   )
 }

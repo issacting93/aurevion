@@ -90,16 +90,17 @@ export const MODALITY_COLORS = {
   Cardio:      '#4ade80',
   Power:       '#a78bfa',
   Mobility:    '#F59E0B',
-  Endurance:   '#4ade80',
+  Endurance:   '#34d399',
   Rest:        'rgba(255,255,255,0.06)',
 }
 
 /* ── Program phases ── */
 
 export function getProgramPhase(week) {
-  if (week <= 4)  return { name: 'Base',  description: 'Foundation building, moderate intensity', weeks: '1–4' }
-  if (week <= 8)  return { name: 'Build', description: 'Progressive overload, increasing volume', weeks: '5–8' }
-  return                  { name: 'Peak',  description: 'Intensity peaks, taper in final week', weeks: '9–12' }
+  const w = Math.max(1, Math.min(week || 1, 12))
+  if (w <= 4)  return { name: 'Base',  description: 'Foundation building, moderate intensity', weeks: '1–4' }
+  if (w <= 8)  return { name: 'Build', description: 'Progressive overload, increasing volume', weeks: '5–8' }
+  return                { name: 'Peak',  description: 'Intensity peaks, taper in final week', weeks: '9–12' }
 }
 
 /* ── Modality config ── */
@@ -114,20 +115,9 @@ const MODALITY_CONFIG = {
   endurance:   { sets: [3, 4], reps: [12, 20],rest: 45,  exerciseCount: 5,  label: 'Endurance',       estimateMins: 40 },
 }
 
-/* ── Goal → modality mapping ── */
+/* ── Goal → modality mapping (derived from goal network) ── */
 
-const GOAL_MODALITIES = {
-  hypertrophy:      ['hypertrophy'],
-  fat_loss:         ['hiit', 'strength', 'cardio'],
-  recomposition:    ['hypertrophy', 'hiit'],
-  max_strength:     ['strength', 'power'],
-  cardio_endurance: ['cardio', 'endurance'],
-  power:            ['power', 'strength'],
-  agility:          ['hiit', 'power'],
-  flexibility:      ['mobility'],
-  balance:          ['mobility', 'endurance'],
-  overall_wellness: ['cardio', 'mobility', 'hypertrophy'],
-}
+import { deriveModalities, deriveMealTiming, getGoalsForModality } from '../../context/goalEngine'
 
 /* ── Split templates ── */
 
@@ -188,14 +178,9 @@ export function generateProgram({ goals = [], equipment = 'full_gym', availableD
   const injurySet = new Set((injuries || []).map(i => i.toLowerCase().replace(/ /g, '_')))
   const dayCount = availableDays.length || 4
 
-  // 1. Determine modalities from goals
-  const modalitySet = new Set()
-  for (const goal of goals) {
-    const mods = GOAL_MODALITIES[goal]
-    if (mods) mods.forEach(m => modalitySet.add(m))
-  }
-  if (modalitySet.size === 0) modalitySet.add('hypertrophy') // fallback
-  const modalities = [...modalitySet]
+  // 1. Determine modalities from goals (derived from goal network edges)
+  const modalities = deriveModalities(goals)
+  if (modalities.length === 0) modalities.push('hypertrophy') // fallback
 
   // 2. Pick split based on day count
   const splitType = dayCount <= 3 ? 'full_body' : dayCount <= 4 ? 'upper_lower' : 'ppl'
@@ -244,12 +229,13 @@ export function generateProgram({ goals = [], equipment = 'full_gym', availableD
     const compounds = shuffled.filter(e => e.category === 'compound' || e.category === 'hiit' || e.category === 'cardio')
     const accessories = shuffled.filter(e => e.category === 'isolation' || e.category === 'core' || e.category === 'mobility')
 
+    const targetCount = Math.min(config.exerciseCount, sessionPool.length)
     for (const ex of [...compounds, ...accessories]) {
-      if (picked.length >= config.exerciseCount) break
+      if (picked.length >= targetCount) break
       // Avoid too many exercises hitting the same primary muscle
       const primary = ex.muscles[0]
       const groupCount = [...usedMuscleGroups].filter(m => m === primary).length
-      if (groupCount >= 2) continue
+      if (groupCount >= 2 && picked.length < targetCount - 1) continue
       picked.push(ex)
       ex.muscles.forEach(m => usedMuscleGroups.add(m))
     }
@@ -276,8 +262,8 @@ export function generateProgram({ goals = [], equipment = 'full_gym', availableD
       }
     })
 
-    // Add warmup + cooldown for resistance sessions
-    if (modality !== 'mobility' && modality !== 'cardio') {
+    // Add warmup + cooldown for all sessions except pure mobility
+    if (modality !== 'mobility') {
       exercises.unshift({
         exerciseId: '_warmup',
         name: 'Warm-up',
@@ -296,16 +282,54 @@ export function generateProgram({ goals = [], equipment = 'full_gym', availableD
       })
     }
 
+    // ── Apply exercise grouping based on modality ──
+    const coreOnly = exercises.filter(e => e.category !== 'warmup' && e.category !== 'cooldown')
+    const warmup = exercises.filter(e => e.category === 'warmup')
+    const cooldown = exercises.filter(e => e.category === 'cooldown')
+
+    let groupedExercises
+    if ((modality === 'hypertrophy' || modality === 'strength') && coreOnly.length >= 4) {
+      // Pair last 2 isolation exercises as a superset
+      const isolations = coreOnly.filter(e => e.category === 'isolation' || e.category === 'core')
+      if (isolations.length >= 2) {
+        const supersetPair = isolations.slice(-2)
+        const rest = coreOnly.filter(e => !supersetPair.includes(e))
+        groupedExercises = [
+          ...warmup,
+          ...rest,
+          { groupType: 'superset', label: 'A', items: supersetPair, restAfter: config.rest, rounds: 1 },
+          ...cooldown,
+        ]
+      } else {
+        groupedExercises = exercises
+      }
+    } else if (modality === 'hiit' || modality === 'endurance') {
+      // Wrap core exercises in a circuit
+      groupedExercises = [
+        ...warmup,
+        { groupType: 'circuit', label: '1', items: coreOnly, restAfter: 60, rounds: 3 },
+        ...cooldown,
+      ]
+    } else {
+      groupedExercises = exercises
+    }
+
+    // Track which goals drove this session's modality
+    const goalSources = getGoalsForModality(modality, goals)
+
     sessions.push({
+      id: `${day}-${i}`,
       day,
       dayIndex: ALL_DAYS.indexOf(day),
       modality,
       modalityLabel: config.label,
       name: `${sd.label} · ${config.label}`,
       focus: sd.focus,
-      exercises,
+      exercises: groupedExercises,
       estimatedMins: config.estimateMins,
+      mealTiming: deriveMealTiming(modality),
       completed: false,
+      goalSources,
     })
   }
 
@@ -339,7 +363,7 @@ export function generateProgram({ goals = [], equipment = 'full_gym', availableD
 
 /* ── Load estimation (rough, based on experience) ── */
 
-function estimateLoad(exercise, experience) {
+export function estimateLoad(exercise, experience) {
   const base = {
     back_squat: 80, front_squat: 60, deadlift: 100, bench_press: 60,
     ohp: 40, barbell_row: 60, rdl: 70,
@@ -390,8 +414,121 @@ export function countPRs(loggedSets, previousBests = {}) {
   return prs
 }
 
+export function computeAvgRIR(loggedSets) {
+  let sum = 0, count = 0
+  for (const ex of loggedSets) {
+    for (const set of (ex.logged || [])) {
+      if (set.rir != null) { sum += set.rir; count++ }
+    }
+  }
+  return count > 0 ? Math.round(sum / count * 10) / 10 : null
+}
+
+/* ── Flatten grouped exercises into a linear array ──
+   Each item gets _groupId and _isLastInGroup annotations.
+   Screens that don't care about grouping can use this. */
+export function flattenSessionExercises(exercises) {
+  const flat = []
+  let groupCounter = 0
+  for (const item of exercises) {
+    if (item.groupType) {
+      groupCounter++
+      const gid = `${item.groupType}-${item.label}-${groupCounter}`
+      item.items.forEach((ex, idx) => {
+        flat.push({
+          ...ex,
+          _groupId: gid,
+          _groupType: item.groupType,
+          _groupLabel: item.label,
+          _groupRounds: item.rounds || 1,
+          _restAfterGroup: item.restAfter,
+          _isLastInGroup: idx === item.items.length - 1,
+          _posInGroup: idx,
+          _groupSize: item.items.length,
+        })
+      })
+    } else {
+      flat.push({ ...item, _groupId: null })
+    }
+  }
+  return flat
+}
+
+/* ── Cross-session load recommendation (based on RIR history) ── */
+export function deriveLoadRecommendation(history, currentLoad) {
+  // Need at least 2 sessions of history
+  if (!history || history.length < 2) return null
+  const recent = history.slice(-2)
+  const avgRir = recent.reduce((s, h) => s + h.rir, 0) / recent.length
+
+  if (avgRir >= 3) {
+    // Too easy — suggest increase
+    const bump = currentLoad >= 100 ? 5 : currentLoad >= 40 ? 2.5 : 1
+    return {
+      recommended: currentLoad + bump,
+      direction: 'up',
+      rationale: `Avg RIR ${avgRir.toFixed(1)} over last 2 sessions — room to push harder`,
+    }
+  }
+  if (avgRir <= 1) {
+    // Too hard — suggest decrease
+    const drop = currentLoad >= 100 ? 5 : currentLoad >= 40 ? 2.5 : 1
+    return {
+      recommended: Math.max(0, currentLoad - drop),
+      direction: 'down',
+      rationale: `Avg RIR ${avgRir.toFixed(1)} over last 2 sessions — dial it back for quality reps`,
+    }
+  }
+  return { recommended: currentLoad, direction: 'maintain', rationale: 'On track' }
+}
+
+/* ── RIR-based load suggestion ── */
+export function suggestLoadAdjustment(currentLoad, rir) {
+  if (rir == null || currentLoad === 0) return null
+  if (rir >= 3) {
+    // Too easy — suggest +5%
+    return Math.round((currentLoad * 1.05) / 2.5) * 2.5
+  }
+  if (rir === 0) {
+    // Too hard — suggest -5%
+    return Math.round((currentLoad * 0.95) / 2.5) * 2.5
+  }
+  return null // RIR 1-2 is the sweet spot
+}
+
 export function formatTime(sec) {
   const m = Math.floor(sec / 60)
   const s = sec % 60
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+}
+
+/* ── Swap candidates — ranked alternatives for an exercise ── */
+export function getSwapCandidates(exercise, sessionExercises, userProfile) {
+  const { equipment, injuries, goals } = userProfile
+  const availableEquip = EQUIPMENT_MAP[equipment] || EQUIPMENT_MAP.full_gym
+  const injurySet = new Set((injuries || []).map(i => i.toLowerCase().replace(/ /g, '_')))
+  const sessionIds = new Set(sessionExercises.map(e => e.exerciseId || e.id))
+  const primaryMuscle = exercise.muscles?.[0]
+  const goalMods = goals ? deriveModalities(goals) : []
+
+  return EXERCISES
+    .filter(ex => {
+      if (ex.id === exercise.id) return false
+      if (sessionIds.has(ex.id)) return false
+      if (!availableEquip.includes(ex.equipment)) return false
+      if (ex.injury_exclude?.some(inj => injurySet.has(inj))) return false
+      if (!ex.muscles?.includes(primaryMuscle)) return false
+      return true
+    })
+    .map(ex => {
+      let score = 0
+      if (ex.category === exercise.category) score += 1
+      const modMatch = ex.modality?.filter(m => exercise.modality?.includes(m)).length || 0
+      score += modMatch * 3
+      const goalMatch = ex.modality?.filter(m => goalMods.includes(m)).length || 0
+      score += goalMatch
+      return { ...ex, _swapScore: score }
+    })
+    .sort((a, b) => b._swapScore - a._swapScore)
+    .slice(0, 6)
 }

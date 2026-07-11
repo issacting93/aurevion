@@ -11,6 +11,105 @@ import { ICONS, Phone, FNavBar, FLabel, FMono, FNum, FTexBar, FScale, FIcon, FTa
 import { MacroBlock, MacroRow, ShoppingRow, SetTracker, RecipeCard, InfoRow, CookStatus, MealListItem, UpNextCard, WeekPlanSummary, ExerciseTimeline } from './domain'
 import { LineChart } from '../ui/chart'
 import { SCREEN_ANATOMY, COMPONENT_CATALOG, SCREEN_STATES } from './handover-manifest'
+import { UserProvider } from '../context/UserContext'
+import { MOCK_PROFILE, MOCK_TARGETS, MOCK_WORKOUT_PLAN, MOCK_ACTIVITY_LOG, MOCK_CHECKINS, MOCK_MEAL_PREP } from '../context/mockUser'
+
+const DEMO_USER_STATE = {
+  profile: MOCK_PROFILE,
+  targets: MOCK_TARGETS,
+  workoutPlan: MOCK_WORKOUT_PLAN,
+  activityLog: MOCK_ACTIVITY_LOG,
+  checkins: MOCK_CHECKINS,
+  mealPrepApproach: MOCK_MEAL_PREP,
+  onboarded: true,
+  interventions: [],
+  preferences: { layout: 'balanced' },
+}
+
+const EMPTY_USER_STATE = {
+  profile: null, targets: null, workoutPlan: null,
+  mealPrepApproach: null, onboarded: false,
+  activityLog: [], checkins: [], interventions: [],
+  preferences: { layout: 'balanced' },
+}
+
+const ALL_DONE_PLAN = {
+  ...MOCK_WORKOUT_PLAN,
+  sessions: MOCK_WORKOUT_PLAN.sessions.map(s => ({ ...s, completed: true })),
+  schedule: MOCK_WORKOUT_PLAN.schedule.map(s => s.isRest ? s : { ...s, completed: true }),
+}
+
+/* Map (screenId, stateKey) → UserProvider override data.
+   States marked (B) in the audit are component-internal and just return default. */
+function getStateData(screenId, stateKey) {
+  if (stateKey === 'default') return DEMO_USER_STATE
+
+  // ── Universal empty / not-onboarded states ──
+  if (['empty', 'no-plan', 'no-contract', 'empty-month'].includes(stateKey))
+    return EMPTY_USER_STATE
+
+  // ── All-done / complete states ──
+  if (['complete', 'all-done', 'all-checked'].includes(stateKey))
+    return { ...DEMO_USER_STATE, workoutPlan: ALL_DONE_PLAN }
+
+  // ── Screen-specific data states ──
+  switch (`${screenId}:${stateKey}`) {
+    // Dashboard — over target
+    case 'dash-nut:over-target':
+      return { ...DEMO_USER_STATE, targets: { ...MOCK_TARGETS, target: MOCK_TARGETS.tdee + 200 } }
+
+    // Dashboard — rest day (make today a rest day in schedule)
+    case 'dash-trn:rest-day': {
+      const todayIdx = (new Date().getDay() + 6) % 7
+      return {
+        ...DEMO_USER_STATE,
+        workoutPlan: {
+          ...MOCK_WORKOUT_PLAN,
+          schedule: MOCK_WORKOUT_PLAN.schedule.map(s =>
+            s.dayIndex === todayIdx ? { id: s.id, day: s.day, dayIndex: s.dayIndex, isRest: true } : s
+          ),
+        },
+      }
+    }
+
+    // Program overview — mid-week is already the default data
+    case 'train-prog:mid-week':
+      return DEMO_USER_STATE
+
+    // Macros — deficit high
+    case 'macro-a:deficit-high':
+      return { ...DEMO_USER_STATE, targets: { ...MOCK_TARGETS, target: Math.round(MOCK_TARGETS.tdee * 0.7), protein: 200, carbs: 160, fat: 45 } }
+
+    // Macros — surplus
+    case 'macro-a:surplus':
+      return { ...DEMO_USER_STATE, targets: { ...MOCK_TARGETS, target: MOCK_TARGETS.tdee + 300, protein: 165, carbs: 340, fat: 70 } }
+
+    // Plan day — rest day
+    case 'plan-d:rest-day': {
+      const todayIdx2 = (new Date().getDay() + 6) % 7
+      return {
+        ...DEMO_USER_STATE,
+        workoutPlan: {
+          ...MOCK_WORKOUT_PLAN,
+          schedule: MOCK_WORKOUT_PLAN.schedule.map(s =>
+            s.dayIndex === todayIdx2 ? { id: s.id, day: s.day, dayIndex: s.dayIndex, isRest: true } : s
+          ),
+        },
+      }
+    }
+
+    // Workout history — empty
+    case 'wk-history:empty':
+      return { ...DEMO_USER_STATE, activityLog: [] }
+
+    // Plan week — all done
+    case 'plan-w:all-done':
+      return { ...DEMO_USER_STATE, workoutPlan: ALL_DONE_PLAN }
+
+    default:
+      return DEMO_USER_STATE
+  }
+}
 
 const merge = (...o) => Object.assign({}, ...o)
 
@@ -442,7 +541,7 @@ function ScreensSidebar({ screens, idx, onSelect }) {
           <button key={g.screen.id} onClick={() => onSelect(g.index)}
             style={{
               display: 'block', width: '100%', textAlign: 'left', background: active ? Color.accentDim : 'transparent',
-              border: 'none', borderLeft: active ? `3px solid ${Color.accent}` : '3px solid transparent',
+              border: 'none',
               padding: '8px 16px', cursor: 'pointer', color: active ? Color.text : Color.dim,
               fontFamily: Font.sans, fontSize: 13, fontWeight: active ? 500 : 400,
               transition: `background ${Duration.normal} ${Ease.default}`,
@@ -508,7 +607,7 @@ function ComponentsSidebar({ catalog, selectedId, onSelect }) {
                   style={{
                     display: 'block', width: '100%', textAlign: 'left',
                     background: active ? Color.accentDim : 'transparent',
-                    border: 'none', borderLeft: active ? `3px solid ${Color.accent}` : '3px solid transparent',
+                    border: 'none',
                     padding: '7px 16px 7px 32px', cursor: 'pointer',
                     color: active ? Color.text : Color.dim,
                     fontFamily: Font.mono, fontSize: 12, fontWeight: active ? 500 : 400,
@@ -537,7 +636,7 @@ function TokensSidebar({ onScrollTo }) {
         <button key={section} onClick={() => onScrollTo(section)}
           style={{
             display: 'block', width: '100%', textAlign: 'left',
-            background: 'transparent', border: 'none', borderLeft: '3px solid transparent',
+            background: 'transparent', border: 'none',
             padding: '8px 16px', cursor: 'pointer', color: Color.dim,
             fontFamily: Font.mono, fontSize: 12, fontWeight: 400,
             transition: `background ${Duration.normal} ${Ease.default}`,
@@ -694,30 +793,10 @@ function ScreensMain({ screens, idx, transition }) {
         {/* Phone preview */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, minWidth: 0 }}>
           <PhoneScaler>
-            <div style={{ opacity: transition ? 0 : 1, transition: 'opacity 0.18s ease', position: 'relative' }}>
-              <ScreenComponent />
-              {/* State overlay for non-default states */}
-              {selectedState !== 'default' && (
-                <div style={{
-                  position: 'absolute', inset: 0, borderRadius: 56,
-                  background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)',
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                  padding: 40, textAlign: 'center', gap: 16,
-                }}>
-                  <div style={{
-                    padding: '6px 14px', borderRadius: Radius.full,
-                    background: Color.accentDim, color: Color.accent,
-                    fontFamily: Font.mono, fontSize: 11, fontWeight: 600,
-                    letterSpacing: 1.2, textTransform: 'uppercase',
-                  }}>{states.find(s => s.key === selectedState)?.label}</div>
-                  <div style={merge(Type.bodySm, { color: Color.dim, maxWidth: 280, lineHeight: 1.6 })}>
-                    {states.find(s => s.key === selectedState)?.description}
-                  </div>
-                  <div style={merge(Type.dataSm, { color: Color.faint, marginTop: 8 })}>
-                    Screen state preview — implementation would swap data props
-                  </div>
-                </div>
-              )}
+            <div style={{ opacity: transition ? 0 : 1, transition: 'opacity 0.18s ease' }}>
+              <UserProvider _override={getStateData(screen.id, selectedState)}>
+                <ScreenComponent />
+              </UserProvider>
             </div>
           </PhoneScaler>
           <div style={merge(Type.dataSm, { color: Color.faint })}>
@@ -786,7 +865,7 @@ function ScreensMain({ screens, idx, transition }) {
                   <span key={name} style={{
                     padding: '2px 7px', borderRadius: Radius.full,
                     background: Color.accentDim, color: Color.accent,
-                    fontFamily: Font.mono, fontSize: 9, fontWeight: 600,
+                    fontFamily: Font.mono, fontSize: 10, fontWeight: 600,
                     letterSpacing: 0.4,
                   }}>{name}</span>
                 ))}

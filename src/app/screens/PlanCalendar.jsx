@@ -4,14 +4,22 @@
 // ════════════════════════════════════════════════════════════
 
 import { useState, useMemo } from 'react'
-import { Color, Font, Space, Radius, Type } from '../../ui/tokens'
+import { Color, Font, Space, Radius, Type, alpha } from '../../ui/tokens'
 import { ICONS, FSurface, FNavBar, FLabel, FMono, FNum, FIcon, FBtn, FTag, Phone } from '../../ui/components'
 import { useUser } from '../../context/UserContext'
-import { MODALITY_COLORS } from './fitness-data'
+import { MODALITY_COLORS, flattenSessionExercises } from './fitness-data'
+import { deriveMealTiming } from '../../context/goalEngine'
 
 // ── Date helpers ──
 
 const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
+// Count core exercises, handling grouped items
+function coreCount(exercises) {
+  const nonUtil = exercises.filter(e => e.category !== 'warmup' && e.category !== 'cooldown')
+  if (nonUtil.some(e => e.groupType)) return flattenSessionExercises(nonUtil).length
+  return nonUtil.length
+}
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
 function getTodayIndex() {
@@ -62,7 +70,7 @@ const ILLUSTRATIVE_CHECKINS = {
 
 // ── Month grid ──
 
-function MonthGrid({ plan, trainingDaySet, selected, onSelect }) {
+function MonthGrid({ trainingDaySet, selected, onSelect, setView }) {
   const now = new Date()
   const todayDate = now.getDate()
   const cells = useMemo(() => getMonthGrid(now.getFullYear(), now.getMonth()), [])
@@ -72,7 +80,7 @@ function MonthGrid({ plan, trainingDaySet, selected, onSelect }) {
 
   return (
     <>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 3, marginBottom: 8 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 3, marginBottom: Space[2] }}>
         {headers.map((h, i) => (
           <div key={i} style={{ textAlign: 'center', fontFamily: Font.mono, fontSize: 10, color: Color.mute, padding: '6px 0' }}>{h}</div>
         ))}
@@ -91,8 +99,8 @@ function MonthGrid({ plan, trainingDaySet, selected, onSelect }) {
               style={{
                 aspectRatio: '1 / 1.05',
                 borderRadius: 8,
-                border: `1px solid ${isSel ? Color.accent : (isToday ? 'rgba(255,255,255,0.06)' : Color.borderSoft)}`,
-                background: isSel ? 'rgba(255,110,80,0.10)' : (isToday ? 'rgba(255,110,80,0.04)' : 'transparent'),
+                border: `1px solid ${isSel ? Color.accent : (isToday ? Color.border : Color.borderSoft)}`,
+                background: isSel ? alpha(Color.accent, 0.1) : (isToday ? Color.accentFaint : 'transparent'),
                 padding: '5px 6px', cursor: c.mute ? 'default' : 'pointer',
                 display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
                 transition: 'background .12s, border-color .12s',
@@ -112,7 +120,7 @@ function MonthGrid({ plan, trainingDaySet, selected, onSelect }) {
       </div>
 
       {/* Selected day summary */}
-      <FSurface style={{ marginTop: 28, padding: 20, borderRadius: Radius.lg, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <FSurface style={{ marginTop: Space[7], display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <FLabel mb={4}>{MONTH_NAMES[now.getMonth()]} {selected}</FLabel>
           <FMono color={Color.text} size={11}>
@@ -128,7 +136,7 @@ function MonthGrid({ plan, trainingDaySet, selected, onSelect }) {
             })()}
           </FMono>
         </div>
-        <FBtn variant="ghost" size="sm" icon={ICONS.fwd} data-stay="true">View day</FBtn>
+        <FBtn variant="ghost" size="sm" icon={ICONS.fwd} data-stay="true" onClick={() => setView('D')}>View day</FBtn>
       </FSurface>
     </>
   )
@@ -152,8 +160,8 @@ function WeekGrid({ plan, onStartSession }) {
 
   const days = useMemo(() => {
     if (!plan?.schedule) return []
-    return plan.schedule.map((entry, i) => {
-      const date = weekDates[i]
+    return plan.schedule.map((entry) => {
+      const date = weekDates[entry.dayIndex]
       const events = []
 
       if (!entry.isRest) {
@@ -164,7 +172,7 @@ function WeekGrid({ plan, onStartSession }) {
           label: entry.name,
           t: '07:00',
           dur: `${entry.estimatedMins} m`,
-          sub: `${entry.modalityLabel} · ${entry.exercises.filter(e => e.category !== 'warmup' && e.category !== 'cooldown').length} exercises`,
+          sub: `${entry.modalityLabel} · ${coreCount(entry.exercises)} exercises`,
           done: entry.completed || false,
           session: entry,
         })
@@ -179,7 +187,7 @@ function WeekGrid({ plan, onStartSession }) {
 
       return {
         d: entry.day.toUpperCase().slice(0, 3),
-        n: date ? date.getDate() : i + 1,
+        n: date ? date.getDate() : entry.dayIndex + 1,
         today: entry.dayIndex === todayIdx,
         e: events,
       }
@@ -222,47 +230,33 @@ function WeekGrid({ plan, onStartSession }) {
             <div key={i}
               onClick={() => selectDay(i)}
               style={{
-                border: `1.5px solid ${dayActive || day.today ? Color.accent : 'transparent'}`,
-                background: dayActive || day.today ? 'rgba(255,110,80,0.03)' : 'transparent',
+                border: `1.5px solid ${dayActive ? Color.accent : (day.today ? Color.border : 'transparent')}`,
+                background: 'transparent',
                 borderRadius: 12, padding: '10px 4px',
-                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, minHeight: 130,
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: Space[2], minHeight: 90,
                 cursor: 'pointer',
                 transition: 'border-color .15s ease, background .15s ease',
               }}>
-              <div style={{ fontFamily: Font.mono, fontSize: 10, color: Color.mute, letterSpacing: 1 }}>{day.d}</div>
+              <FMono color={Color.mute} size={10}>{day.d}</FMono>
               <div style={{
                 fontFamily: Font.mono, fontSize: 16, fontWeight: day.today || dayActive ? 600 : 400,
                 color: day.today ? Color.accent : (isPast ? Color.dim : Color.text),
               }}>{day.n}</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 4 }}>
-                {day.e.map((ev, j) => {
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: Space[1], alignItems: 'center' }}>
+                {day.e.slice(0, 3).map((ev, j) => {
                   const active = sel.d === i && sel.e === j
                   return (
                     <button key={j}
                       onClick={(e) => { e.stopPropagation(); selectEvent(i, j) }}
                       style={{
-                        position: 'relative',
-                        width: 38, height: 38, borderRadius: 10,
+                        width: 24, height: 6, borderRadius: 3,
                         background: ev.c,
-                        display: 'grid', placeItems: 'center', cursor: 'pointer',
+                        cursor: 'pointer',
                         border: 'none', padding: 0,
-                        boxShadow: active ? `0 0 0 2px ${Color.bg}, 0 0 0 3.5px ${ev.c}` : 'none',
-                        transition: 'box-shadow .15s ease, transform .12s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                        transform: active ? 'scale(1.08)' : 'scale(1)',
-                        opacity: ev.done && !active ? 0.65 : 1,
-                      }}>
-                      <FIcon path={ev.i} size={18} color={Color.surface} stroke={1.8} />
-                      {ev.done && (
-                        <div style={{
-                          position: 'absolute', top: -3, right: -3,
-                          width: 14, height: 14, borderRadius: '50%',
-                          background: Color.green, border: `2px solid ${Color.bg}`,
-                          display: 'grid', placeItems: 'center',
-                        }}>
-                          <FIcon path={ICONS.check} size={8} color={Color.surface} stroke={3} />
-                        </div>
-                      )}
-                    </button>
+                        boxShadow: active ? `0 0 0 1.5px ${Color.bg}, 0 0 0 3px ${ev.c}` : 'none',
+                        transition: 'box-shadow .15s ease, opacity .12s ease',
+                        opacity: ev.done && !active ? 0.5 : 1,
+                      }} />
                   )
                 })}
               </div>
@@ -275,8 +269,8 @@ function WeekGrid({ plan, onStartSession }) {
       <div key={detailKey} style={{ animation: 'fStaggerIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both' }}>
         {selEvent ? (
           <FSurface style={{
-            marginTop: 36, padding: 20, borderRadius: Radius.lg,
-            display: 'flex', gap: 16, alignItems: 'flex-start',
+            marginTop: Space[8],
+            display: 'flex', gap: Space[4], alignItems: 'flex-start',
           }}>
             <div style={{
               width: 48, height: 48, borderRadius: 12, background: selEvent.c,
@@ -289,12 +283,12 @@ function WeekGrid({ plan, onStartSession }) {
                 <FLabel mb={2} color={selEvent.c}>{selDay.d} {selDay.n} · {selEvent.t}</FLabel>
                 <FMono color={Color.mute}>{selEvent.dur}</FMono>
               </div>
-              <div style={{ ...Type.headingMd, fontSize: 20, marginTop: 6 }}>
+              <div style={{ ...Type.headingMd, marginTop: Space[2] }}>
                 {selEvent.label}
-                {selEvent.done && <span style={{ marginLeft: 8 }}><FIcon path={ICONS.check} size={14} color={Color.green} stroke={2.4} /></span>}
+                {selEvent.done && <span style={{ marginLeft: Space[2] }}><FIcon path={ICONS.check} size={14} color={Color.green} stroke={2.4} /></span>}
               </div>
-              <div style={{ ...Type.bodyMd, color: Color.dim, marginTop: 4 }}>{selEvent.sub}</div>
-              <div style={{ marginTop: 16, display: 'flex', gap: Space[2], alignItems: 'center' }}>
+              <div style={{ ...Type.bodyMd, color: Color.dim, marginTop: Space[1] }}>{selEvent.sub}</div>
+              <div style={{ marginTop: Space[4], display: 'flex', gap: Space[2], alignItems: 'center' }}>
                 {selEvent.session && !selEvent.done && onStartSession ? (
                   <FBtn variant="primary" size="sm" icon={ICONS.play}
                     onClick={() => onStartSession(selEvent.session)} data-stay="true">
@@ -317,9 +311,9 @@ function WeekGrid({ plan, onStartSession }) {
           </FSurface>
         ) : (
           <div style={{
-            marginTop: 28, padding: 20, borderRadius: Radius.lg,
+            marginTop: Space[7], padding: Space[5], borderRadius: Radius.lg,
             background: Color.surface, border: `1px dashed ${Color.borderSoft}`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: Space[3],
           }}>
             <FIcon path={ICONS.plus} size={14} color={Color.mute} stroke={1.5} />
             <FMono color={Color.mute}>{selDay?.d} {selDay?.n} · REST DAY</FMono>
@@ -327,7 +321,7 @@ function WeekGrid({ plan, onStartSession }) {
         )}
       </div>
 
-      <FSurface style={{ marginTop: 28, padding: 18, borderRadius: Radius.lg, display: 'flex', gap: 20 }}>
+      <FSurface style={{ marginTop: Space[7], display: 'flex', gap: Space[5] }}>
         <Legend color={Color.accent} l="TRAIN" n={trainCount} />
         <Legend color={Color.blue} l="MEAL" n={mealCount} />
         <Legend color={Color.purple} l="CHECK-IN" n={checkinCount} />
@@ -356,7 +350,7 @@ function DayView({ plan, onStartSession }) {
       evs.push({
         l: todayEntry.name,
         time: '07:00',
-        sub: `${todayEntry.estimatedMins} MIN · ${todayEntry.exercises.filter(e => e.category !== 'warmup' && e.category !== 'cooldown').length} EXERCISES`,
+        sub: `${todayEntry.estimatedMins} MIN · ${coreCount(todayEntry.exercises)} EXERCISES`,
         c: MODALITY_COLORS[todayEntry.modalityLabel] || Color.accent,
         startH: 7,
         durH: todayEntry.estimatedMins / 60,
@@ -384,13 +378,13 @@ function DayView({ plan, onStartSession }) {
   return (
     <div>
       {/* Day hero */}
-      <FSurface accent={Color.accent} style={{ padding: 20, borderRadius: Radius.lg }}>
+      <FSurface accent={Color.accent}>
         <FMono color={Color.accent} size={10}>{dayLabel.toUpperCase()} · {MONTH_NAMES[now.getMonth()].toUpperCase()} {now.getDate()}</FMono>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, marginTop: 8 }}>
-          <FNum size={56} weight={200}>{now.getDate()}</FNum>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, marginTop: Space[2] }}>
+          <FNum size={40} weight={200}>{now.getDate()}</FNum>
           <div>
             <FMono color={Color.mute} size={10}>{events.length} EVENTS · {completedCount} DONE</FMono>
-            <div style={{ marginTop: 6 }}>
+            <div style={{ marginTop: Space[2] }}>
               <FMono color={completedCount > 0 ? Color.green : Color.dim} size={10}>
                 {completedCount > 0 ? 'ON PACE' : 'PENDING'}
               </FMono>
@@ -402,12 +396,12 @@ function DayView({ plan, onStartSession }) {
       {/* Up next */}
       {nextEv && (
         <FSurface style={{
-          marginTop: 28, padding: 20, borderRadius: Radius.lg,
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+          marginTop: Space[7],
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: Space[4],
         }}>
           <div style={{ minWidth: 0 }}>
             <FMono color={Color.mute} size={10}>UP NEXT · {nextEv.time}</FMono>
-            <div style={{ ...Type.headingMd, fontSize: 18, marginTop: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{nextEv.l}</div>
+            <div style={{ ...Type.headingMd, marginTop: Space[2], whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{nextEv.l}</div>
           </div>
           {nextEv.session && onStartSession ? (
             <FBtn variant="primary" style={{ width: 52, height: 52, borderRadius: '50%', padding: 0, minHeight: 0 }}
@@ -426,8 +420,8 @@ function DayView({ plan, onStartSession }) {
       )}
 
       {/* Timeline */}
-      <FSurface style={{ marginTop: 28, position: 'relative', height: HEIGHT,
-        borderRadius: Radius.lg, padding: '0 16px 0 48px', overflow: 'hidden',
+      <FSurface style={{ marginTop: Space[7], position: 'relative', height: HEIGHT,
+        padding: '0 16px 0 48px', overflow: 'hidden',
       }}>
         {hourLabels.map((h) => (
           <div key={h} style={{
@@ -441,7 +435,7 @@ function DayView({ plan, onStartSession }) {
           </div>
         ))}
 
-        {currentHour >= START_HOUR && currentHour <= END_HOUR && (
+        {currentHour >= START_HOUR && currentHour < END_HOUR + 1 && (
           <div style={{
             position: 'absolute', left: 34, right: 16,
             top: toY(currentHour), height: 2, background: Color.accent, zIndex: 2,
@@ -465,20 +459,26 @@ function DayView({ plan, onStartSession }) {
                 position: 'absolute', left: 48, right: 16,
                 top, height: h,
                 borderRadius: 8, padding: '8px 12px',
-                background: isActive ? `${ev.c}25` : `${ev.c}0f`,
+                background: isActive ? alpha(ev.c, 0.15) : alpha(ev.c, 0.06),
                 opacity: ev.done ? 0.45 : 1,
                 display: 'flex', flexDirection: 'column', justifyContent: 'center',
                 cursor: ev.session && !ev.done ? 'pointer' : 'default',
               }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: Space[2] }}>
                   <span style={{ width: 6, height: 6, borderRadius: '50%', background: ev.c, flexShrink: 0 }} />
                   <span style={{ fontSize: 13, fontWeight: 500, color: Color.text,
                                 textDecoration: ev.done ? 'line-through' : 'none' }}>{ev.l}</span>
                 </div>
                 {ev.done && <FIcon path={ICONS.check} size={12} color={Color.green} stroke={2.4} />}
               </div>
-              <FMono size={9} color={Color.mute} style={{ marginLeft: 14, marginTop: 2 }}>{ev.sub}</FMono>
+              <FMono size={10} color={Color.mute} style={{ marginLeft: 14, marginTop: 2 }}>{ev.sub}</FMono>
+              {ev.session && (() => {
+                const timing = deriveMealTiming(ev.session.modality || 'hypertrophy')
+                return timing.pre === 'Strong'
+                  ? <FMono size={10} color={Color.faint} style={{ marginLeft: 14, marginTop: 2 }}>EAT 1-3H BEFORE</FMono>
+                  : null
+              })()}
             </div>
           )
         })}
@@ -508,22 +508,22 @@ export function PlanCalendarContent({ initialView = 'M', onStartSession }) {
     <div style={{ flex: 1, padding: '24px 24px 48px', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
       {/* Hero header */}
       <FMono color={Color.mute} size={10}>PLAN HEALTH</FMono>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginTop: 8 }}>
-        <FNum size={56} weight={200}>{completedSessions}</FNum>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: Space[4], marginTop: Space[2] }}>
+        <FNum size={40} weight={200}>{completedSessions}</FNum>
         <div>
           <FMono color={Color.mute} size={11}>/ {totalSessions} SESSIONS</FMono>
-          <div style={{ marginTop: 6 }}>
+          <div style={{ marginTop: Space[2] }}>
             <FMono color={completedSessions === totalSessions ? Color.green : Color.dim} size={10}>
               {completedSessions === totalSessions ? 'ALL DONE' : completedSessions > 0 ? 'IN PROGRESS' : 'PENDING'}
             </FMono>
           </div>
         </div>
       </div>
-      <FMono color={Color.faint} size={10} style={{ marginTop: 8 }}>WEEK {currentWeek}</FMono>
+      <FMono color={Color.faint} size={10} style={{ marginTop: Space[2] }}>WEEK {currentWeek}</FMono>
 
       {/* View switch */}
-      <div style={{ marginTop: 36, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', gap: 6 }}>
+      <div style={{ marginTop: Space[8], display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', gap: Space[2] }}>
           {['M', 'W', 'D'].map(m => (
             <button key={m} onClick={() => setView(m)} style={{
               width: 36, height: 36, borderRadius: Radius.md,
@@ -535,7 +535,7 @@ export function PlanCalendarContent({ initialView = 'M', onStartSession }) {
             }}>{m}</button>
           ))}
         </div>
-        <div style={{ display: 'flex', gap: 6 }}>
+        <div style={{ display: 'flex', gap: Space[2] }}>
           <button style={{
             width: 36, height: 36, borderRadius: Radius.md, background: 'transparent',
             border: `1px solid ${Color.borderSoft}`, color: Color.dim, cursor: 'pointer',
@@ -549,8 +549,8 @@ export function PlanCalendarContent({ initialView = 'M', onStartSession }) {
         </div>
       </div>
 
-      <div style={{ marginTop: 20, flex: 1 }}>
-        {view === 'M' && <MonthGrid plan={plan} trainingDaySet={trainingDaySet} selected={selectedDate} onSelect={setSelectedDate} />}
+      <div style={{ marginTop: Space[5], flex: 1 }}>
+        {view === 'M' && <MonthGrid trainingDaySet={trainingDaySet} selected={selectedDate} onSelect={setSelectedDate} setView={setView} />}
         {view === 'W' && <WeekGrid plan={plan} onStartSession={onStartSession} />}
         {view === 'D' && <DayView plan={plan} onStartSession={onStartSession} />}
       </div>

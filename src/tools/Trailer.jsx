@@ -331,7 +331,7 @@ export default function Trailer() {
           </FMono>
         </div>
 
-        <FMono size={9} color={Color.faint}>
+        <FMono size={10} color={Color.faint}>
           SPACE to play/pause · R to restart
         </FMono>
       </div>
