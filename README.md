@@ -9,17 +9,19 @@ Aurevion is a unified system that connects goal setting, TDEE modeling, macro pl
 ## Repo structure
 
 ```
-landing.html              Landing page
+landing.html              Marketing landing page
 pitch-deck/               Investor pitch deck + app screenshots
-pages/                    Interactive demo, component audit, feature specs
 src/
-  system/                 Design tokens, motion system, base components
-  features/               8 feature modules (goal, TDEE, macros, calendar, training, prep, fridge, profile)
-    shared.jsx            Component library (Phone, FBtn, FTexBar, FTag, etc.)
-    tiles.jsx             Dashboard tile system (9 density-aware tiles)
-    demo.jsx              Presentation flow controller
-    app-shell.jsx         Interactive prototype shell
-assets/                   Screenshots, uploads, audit pages
+  app/                    App router, Shell layout, and core screens
+    Shell.jsx             Tab navigation router and details modal overlay manager
+    screens/              30+ React components representing app views (Today, Stats, Macros, etc.)
+  ui/
+    components.jsx        Shared component library (Phone, FBtn, FNum, FIcon, FWeightInput, etc.)
+  pages/                  Interactive demo flows and playgrounds
+    AppFlow.jsx           Flow selection control panel
+  tools/                  Showcases, journey mapping files, and handover manifests
+  context/                Mock user context providers and data definitions
+  index.css               Global CSS style definitions & color tokens
 ```
 
 ## Run locally
@@ -29,16 +31,17 @@ npm install
 npm run dev
 ```
 
-Opens on `http://localhost:3000`. Key pages:
+Key pages:
 
+- `/` — Interactive dashboard and landing explorer
+- `/app` — Full interactive prototype of the AUREVI0N mobile app
+- `/demo` — Dev handover and showcase dashboard
 - `/landing` — Marketing landing page
-- `/pages/demo` — Presentation demo (linear flow)
-- `/pages/app` — Interactive prototype (working navigation)
-- `/pitch-deck` — Investor pitch deck
+- `/journey` — Interactive visual roadmap and flow catalog
 
 ## Design system
 
-- **Dark-first**: `#000` background, `#FF6E50` accent
+- **Dark-first**: `#0c0d10` background, `#FF6E50` accent
 - **Typography**: Geist (sans) + Geist Mono
 - **Mono-instrumentation aesthetic**: monospace labels, hatching patterns, data as visual language
 - **Motion**: purposeful — fast entrance, invisible exit, stagger for hierarchy
@@ -47,15 +50,20 @@ Opens on `http://localhost:3000`. Key pages:
 
 | Module | What it does |
 |--------|-------------|
-| Goal Setting | Measurable target (body fat %), timeline, sustainability feedback |
-| TDEE Model | Adaptive energy expenditure with confidence bands |
-| Macros | Weekly targets, meal queue, auto-fit deviation tracking |
-| Plan Calendar | Month/week/day views coordinating meals, training, cooking |
-| Training | 7 modalities, Workout Mode, progressive overload |
-| Meal Prep | Batch cooking as Gantt chart, parallel timers, Cook Mode |
-| Fridge | Delta-first pantry — what's missing, not what you have |
-| Profile | Goal contract dashboard, check-ins, streaks |
+| Today (Home) | Interactive landing with workout streaks, scheduled sessions, dynamic missed-session recovery nudges, and quick actions. |
+| Progress (Dashboard) | Weekly overview monitoring body composition, workout volume progress, and detailed macronutrient split adherence. |
+| Check-in Flow | Simplified 2-step tracking wizard (Weight and Body Fat percentages) leveraging unified input fields. |
+| Calendar (Plan) | Coordinates month, week, and day schedules mapping training sessions and meal times. |
+| Nutrition (Eat) | Advanced hub displaying meal plans, fridge inventory status, pending batch/meal preps, and shopping lists. |
+| Body intelligence | Path-based muscle heatmap (`BodyMap` v2) indicating training intensity on anatomical diagrams. |
+| TDEE & Energy Model | Adaptive energy expenditure prediction charts and confidence intervals. |
+| Training | Real-time workout tracking, progressive overload guidance, and active-set logs. |
 
 ## Tech
 
-Static HTML + vanilla JS with React (via CDN) for the component system. Served with `serve`. Deployed on Vercel.
+- **Framework**: Vite + React 18
+- **Routing**: React Router DOM (v7)
+- **3D Graphics**: Three.js, React Three Fiber, React Three Drei
+- **Testing**: Playwright for end-to-end integration flows and screen captures
+- **Styling**: Tailored dark-mode CSS theme tokens with high-contrast accents
+
