@@ -528,7 +528,7 @@ export default function TemplateShowcase() {
             <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
               {['ALL', 'COMPOUND', 'ISOLATION', 'CORE'].map((cat, i) => (
                 <button key={cat} style={{
-                  padding: '5px 12px', borderRadius: 999, border: 'none', cursor: 'pointer',
+                  padding: '5px 12px', borderRadius: 999, cursor: 'pointer',
                   background: i === 0 ? `${Color.accent}15` : 'transparent',
                   color: i === 0 ? Color.accent : Color.mute,
                   fontFamily: Font.mono, fontSize: 10, fontWeight: 600,

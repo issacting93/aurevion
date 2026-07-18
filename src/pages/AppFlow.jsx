@@ -4,7 +4,7 @@ import { OnboardingFlow, FitnessOnboardingFlow } from '../app/screens/Onboarding
 import { AppShell } from '../app/Shell'
 import { NavigationProvider, useNav } from '../context/NavigationContext'
 import { ShellContent } from '../app/Shell'
-import { Phone } from '../ui/components'
+import { Phone, ICONS, FIcon } from '../ui/components'
 import { Color, Font, Space, Radius, alpha } from '../ui/tokens'
 import { DevModeOverlay } from '../app/screens/DevMode'
 import { PERSONAS } from '../context/personas'
@@ -129,6 +129,207 @@ function NavController({ target, onReady }) {
   return null
 }
 
+/* ── Icon Exporter Modal ── */
+
+function IconExporterModal({ isOpen, onClose }) {
+  const [copiedKey, setCopiedKey] = useState(null)
+  const [search, setSearch] = useState('')
+  
+  if (!isOpen) return null
+
+  const handleCopy = (text, key) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedKey(key)
+      setTimeout(() => setCopiedKey(null), 1500)
+    })
+  }
+
+  const filteredIcons = Object.entries(ICONS).filter(([name]) =>
+    name.toLowerCase().includes(search.toLowerCase())
+  )
+
+  const getSvgString = (path) => {
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">\n  <path d="${path}" />\n</svg>`
+  }
+
+  const getReactString = (name) => {
+    return `<FIcon path={ICONS.${name}} size={20} />`
+  }
+
+  const handleExportAllJSON = () => {
+    const jsonStr = JSON.stringify(ICONS, null, 2)
+    handleCopy(jsonStr, 'all-json')
+  }
+
+  const handleExportAllJS = () => {
+    const jsStr = `export const ICONS = {\n${Object.entries(ICONS)
+      .map(([name, path]) => `  ${name}: '${path}',`)
+      .join('\n')}\n}`
+    handleCopy(jsStr, 'all-js')
+  }
+
+  return (
+    <div style={{
+      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+      background: 'rgba(12, 13, 16, 0.9)',
+      backdropFilter: 'blur(16px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      zIndex: 10000,
+    }}>
+      <div style={{
+        width: 800, maxHeight: '90vh',
+        background: '#141519', border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: 12, padding: 32, display: 'flex', flexDirection: 'column',
+        boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+      }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 24 }}>
+          <div>
+            <span style={{ fontFamily: '"Geist Mono", monospace', fontSize: 10, letterSpacing: 1.5, color: Color.accent, textTransform: 'uppercase' }}>DEVELOPER TOOLS</span>
+            <h2 style={{ margin: '4px 0 0', fontFamily: Font.sans, fontSize: 24, fontWeight: 300, color: Color.text }}>Aurevion Icon Set</h2>
+          </div>
+          <button onClick={onClose} style={{
+            background: 'transparent', border: 'none', color: Color.mute, cursor: 'pointer',
+            padding: 8, display: 'flex', alignItems: 'center', outline: 'none',
+          }}>
+            <FIcon path={ICONS.close} size={18} />
+          </button>
+        </div>
+
+        {/* Toolbar */}
+        <div style={{ display: 'flex', gap: 12, marginBottom: 24, alignItems: 'center' }}>
+          {/* Search */}
+          <div style={{ position: 'relative', flex: 1 }}>
+            <input
+              type="text"
+              placeholder="Search icons..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{
+                width: '100%', padding: '10px 16px 10px 38px', borderRadius: 6,
+                background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
+                color: Color.text, fontFamily: Font.sans, fontSize: 14, outline: 'none',
+              }}
+            />
+            <div style={{ position: 'absolute', left: 14, top: 12, color: Color.mute }}>
+              <FIcon path={ICONS.search} size={14} />
+            </div>
+          </div>
+
+          {/* Bulk actions */}
+          <button
+            onClick={handleExportAllJS}
+            style={{
+              padding: '10px 16px', borderRadius: 6, background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.08)', color: Color.dim, cursor: 'pointer',
+              fontFamily: '"Geist Mono", monospace', fontSize: 10, letterSpacing: 0.8,
+              textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 6,
+              outline: 'none',
+            }}
+          >
+            <FIcon path={ICONS.sparkle} size={12} />
+            {copiedKey === 'all-js' ? 'Copied Module!' : 'Copy JS Module'}
+          </button>
+
+          <button
+            onClick={handleExportAllJSON}
+            style={{
+              padding: '10px 16px', borderRadius: 6, background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.08)', color: Color.dim, cursor: 'pointer',
+              fontFamily: '"Geist Mono", monospace', fontSize: 10, letterSpacing: 0.8,
+              textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 6,
+              outline: 'none',
+            }}
+          >
+            <FIcon path={ICONS.chart} size={12} />
+            {copiedKey === 'all-json' ? 'Copied JSON!' : 'Copy JSON'}
+          </button>
+        </div>
+
+        {/* Scrollable list */}
+        <div style={{ flex: 1, overflowY: 'auto', paddingRight: 6 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12 }}>
+            {filteredIcons.map(([name, path]) => (
+              <div key={name} style={{
+                background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)',
+                borderRadius: 8, padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'center',
+                position: 'relative',
+              }}>
+                <div style={{
+                  width: 44, height: 44, borderRadius: 6, background: 'rgba(255,255,255,0.02)',
+                  display: 'grid', placeItems: 'center', marginBottom: 12,
+                  border: '1px solid rgba(255,255,255,0.04)',
+                }}>
+                  <FIcon path={path} size={20} color={Color.text} stroke={1.8} />
+                </div>
+                
+                <span style={{
+                  fontFamily: '"Geist Mono", monospace', fontSize: 10, color: Color.dim,
+                  letterSpacing: 0.5, marginBottom: 12,
+                }}>{name}</span>
+
+                {/* Quick copy options */}
+                <div style={{ display: 'flex', width: '100%', gap: 4 }}>
+                  <button
+                    onClick={() => handleCopy(getSvgString(path), `${name}-svg`)}
+                    style={{
+                      flex: 1, padding: '4px 0', border: '1px solid rgba(255,255,255,0.06)',
+                      background: 'rgba(255,255,255,0.02)', color: Color.mute, borderRadius: 4,
+                      fontSize: 8, fontFamily: '"Geist Mono", monospace', cursor: 'pointer',
+                      outline: 'none',
+                    }}
+                  >
+                    {copiedKey === `${name}-svg` ? '✓ SVG' : 'SVG'}
+                  </button>
+                  <button
+                    onClick={() => handleCopy(getReactString(name), `${name}-react`)}
+                    style={{
+                      flex: 1, padding: '4px 0', border: '1px solid rgba(255,255,255,0.06)',
+                      background: 'rgba(255,255,255,0.02)', color: Color.mute, borderRadius: 4,
+                      fontSize: 8, fontFamily: '"Geist Mono", monospace', cursor: 'pointer',
+                      outline: 'none',
+                    }}
+                  >
+                    {copiedKey === `${name}-react` ? '✓ JSX' : 'JSX'}
+                  </button>
+                  <button
+                    onClick={() => handleCopy(path, `${name}-path`)}
+                    style={{
+                      flex: 1, padding: '4px 0', border: '1px solid rgba(255,255,255,0.06)',
+                      background: 'rgba(255,255,255,0.02)', color: Color.mute, borderRadius: 4,
+                      fontSize: 8, fontFamily: '"Geist Mono", monospace', cursor: 'pointer',
+                      outline: 'none',
+                    }}
+                  >
+                    {copiedKey === `${name}-path` ? '✓ Path' : 'PATH'}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Footer */}
+        <div style={{ marginTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 16 }}>
+          <span style={{ fontSize: 11, color: Color.mute }}>
+            Total {Object.keys(ICONS).length} icons · 24x24 viewBox · Stroke 1.8px
+          </span>
+          <button
+            onClick={onClose}
+            style={{
+              padding: '8px 20px', borderRadius: 6, background: Color.surface,
+              border: `1px solid ${Color.border}`, color: Color.text, cursor: 'pointer',
+              fontFamily: Font.sans, fontSize: 12, outline: 'none',
+            }}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* ── Main page ── */
 
 export default function AppFlow() {
@@ -138,6 +339,7 @@ export default function AppFlow() {
   const [activeId, setActiveId] = useState('tab:home')
   const [shellKey, setShellKey] = useState(0)
   const [onboardingData, setOnboardingData] = useState({})
+  const [showIconExporter, setShowIconExporter] = useState(false)
 
   // If onboarding completes externally (e.g. persona load), switch to app mode
   useEffect(() => {
@@ -285,6 +487,24 @@ export default function AppFlow() {
         {/* Footer actions */}
         <div style={{ padding: '12px 20px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: 8 }}>
           <button
+            onClick={() => setShowIconExporter(true)}
+            style={{
+              width: '100%', padding: '8px 12px', borderRadius: 6,
+              background: 'rgba(255, 110, 80, 0.1)', border: `1px solid ${Color.accent}30`,
+              cursor: 'pointer', fontFamily: '"Geist Mono", monospace',
+              fontSize: 10, letterSpacing: 1, color: Color.accent,
+              textTransform: 'uppercase',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              transition: 'background 0.2s',
+              outline: 'none',
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255, 110, 80, 0.18)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255, 110, 80, 0.1)'}
+          >
+            <FIcon path={ICONS.sparkle} size={12} color={Color.accent} />
+            <span>Export Icons</span>
+          </button>
+          <button
             onClick={handleReset}
             style={{
               width: '100%', padding: '8px 12px', borderRadius: 6,
@@ -292,6 +512,7 @@ export default function AppFlow() {
               cursor: 'pointer', fontFamily: '"Geist Mono", monospace',
               fontSize: 10, letterSpacing: 1, color: Color.mute,
               textTransform: 'uppercase',
+              outline: 'none',
             }}
           >
             Reset &amp; re-onboard
@@ -333,6 +554,8 @@ export default function AppFlow() {
           )}
         </PhoneScaler>
       </main>
+
+      <IconExporterModal isOpen={showIconExporter} onClose={() => setShowIconExporter(false)} />
     </div>
     </DevModeOverlay>
   )

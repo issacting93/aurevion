@@ -72,7 +72,7 @@ export function FoodLogContent() {
       <div style={{ display: 'flex', gap: 6, marginTop: 24, marginBottom: 16, overflowX: 'auto' }}>
         {MEAL_CATEGORIES.map(cat => (
           <button key={cat} onClick={() => setFilter(cat)} style={{
-            padding: '5px 12px', borderRadius: 999, border: 'none', cursor: 'pointer',
+            padding: '5px 12px', borderRadius: 999, cursor: 'pointer',
             background: filter === cat ? `${Color.accent}15` : 'transparent',
             color: filter === cat ? Color.accent : Color.mute,
             fontFamily: Font.mono, fontSize: 10, fontWeight: 600, flexShrink: 0,
