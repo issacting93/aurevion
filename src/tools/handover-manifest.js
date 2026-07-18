@@ -13,32 +13,13 @@ export const SCREEN_STATES = {
     { key: 'complete', label: 'All goals met', description: 'Every tile at 100%. Goal progress bar full, all meals logged, session done.' },
     { key: 'loading', label: 'Loading', description: 'Skeleton placeholders while API fetches dashboard data.' },
   ],
-  'dash-nut': [
-    { key: 'default', label: 'Default', description: 'Nutrition focus — macro and prep tiles at full density.' },
-    { key: 'over-target', label: 'Over target', description: 'User exceeded calorie target. Deficit shows positive, macro bars in red.' },
-  ],
-  'dash-trn': [
-    { key: 'default', label: 'Default', description: 'Training focus — session and check-in tiles promoted.' },
-    { key: 'rest-day', label: 'Rest day', description: 'No session scheduled. Session tile shows "REST DAY" with recovery focus.' },
-  ],
   'welcome': [
     { key: 'default', label: 'Default', description: 'Hero intro with jewel CTA. Static — no state variations.' },
-  ],
-  'goal-a': [
-    { key: 'default', label: 'Default', description: 'Slider at 15% BF target, 16-week timeline.' },
-    { key: 'aggressive', label: 'Aggressive pace', description: 'Target at 10% BF, 8-week timeline. Pace warning tag shows red.' },
-    { key: 'conservative', label: 'Conservative pace', description: 'Target at 18% BF, 24-week timeline. Pace tag shows green "SAFE".' },
-  ],
-  'goal-b': [
-    { key: 'default', label: 'Default', description: 'Contract summary with all fields populated.' },
   ],
   'tdee-a': [
     { key: 'default', label: 'Default', description: 'Segmented burn ring showing BMR + Activity arcs. 7-day trend sparkline. 74% model confidence.' },
     { key: 'early', label: 'Early days (Day 3)', description: 'Day 3 — ring barely filled, wide uncertainty. Sparkline has few data points.' },
     { key: 'converged', label: 'Fully converged', description: 'Ring complete (BMR + Activity = TDEE). 95%+ confidence. Sparkline flat and stable.' },
-  ],
-  'tdee-b': [
-    { key: 'default', label: 'Default', description: 'Side-by-side Day 3 vs Day 87 comparison.' },
   ],
   'plan-m': [
     { key: 'default', label: 'Default', description: 'Month view with mixed dot indicators, day 16 selected.' },
@@ -140,61 +121,11 @@ export const SCREEN_ANATOMY = {
       { component: 'FTabBar', props: { active: 2 } },
     ]},
   },
-  'dash-nut': {
-    notes: 'Nutrition-focused dashboard — macro and prep tiles promoted to full density.',
-    tree: { component: 'Phone', children: [
-      { component: 'FLabel' }, { component: 'DensityControl' },
-      { component: 'FTileGrid', children: [
-        { component: 'MacroTile', props: { density: 'full', span: 2 } },
-        { component: 'PrepTile', props: { density: 'full', span: 2 } },
-        { component: 'GoalTile', props: { density: 'compact', span: 2 } },
-        { component: 'CalendarTile', props: { density: 'compact', span: 2 } },
-        { component: 'SessionTile', props: { density: 'compact', span: 1 } },
-      ]},
-      { component: 'FTabBar', props: { active: 2 } },
-    ]},
-  },
-  'dash-trn': {
-    notes: 'Training-focused dashboard — session and check-in tiles promoted.',
-    tree: { component: 'Phone', children: [
-      { component: 'FLabel' }, { component: 'DensityControl' },
-      { component: 'FTileGrid', children: [
-        { component: 'SessionTile', props: { density: 'full', span: 2 } },
-        { component: 'CheckInTile', props: { density: 'full', span: 2 } },
-        { component: 'GoalTile', props: { density: 'compact', span: 2 } },
-        { component: 'CalendarTile', props: { density: 'compact', span: 2 } },
-      ]},
-      { component: 'FTabBar', props: { active: 2 } },
-    ]},
-  },
   'welcome': {
     notes: 'First-impression hero. No nav bar — intentionally open. Jewel CTA.',
     tree: { component: 'Phone', children: [
       { component: 'FMono', props: { children: 'V0.2' } },
       { component: 'FJewel', props: { glyph: 'ICONS.fwd', children: 'Begin' } },
-    ]},
-  },
-  'goal-a': {
-    notes: 'Interactive goal setting — slider for target BF%, timeline picker.',
-    tree: { component: 'Phone', children: [
-      { component: 'FNavBar', props: { title: 'Step 02 / 04' } },
-      { component: 'FLabel', props: { children: 'Where you are' } },
-      { component: 'FNum', props: { size: 84, unit: '%' } },
-      { component: 'FLabel', props: { children: 'Target body fat' } },
-      { component: 'FScale', props: { marks: [10,15,20,25,30], suffix: '%' } },
-      { component: 'input[range]', note: 'Interactive slider' },
-      { component: 'FBtn', props: { variant: 'editorial' } },
-    ]},
-  },
-  'goal-b': {
-    notes: 'Goal contract summary — confirms the brief before commitment.',
-    tree: { component: 'Phone', children: [
-      { component: 'FNavBar', props: { title: 'Your brief' } },
-      { component: 'FLabel', props: { children: 'The contract' } },
-      { component: 'FNum', props: { size: 42 } },
-      { component: 'Row', note: 'Multiple data rows with label/value/unit/tag' },
-      { component: 'FBtn', props: { variant: 'ghost' } },
-      { component: 'FBtn', props: { variant: 'split' } },
     ]},
   },
   'tdee-a': {
@@ -210,17 +141,6 @@ export const SCREEN_ANATOMY = {
         { component: 'FTexBar', props: { pct: 74, height: 10 } },
       ]},
       { component: 'FTabBar', props: { active: 3 } },
-    ]},
-  },
-  'tdee-b': {
-    notes: 'Confidence comparison: two rings side by side (Day 3 vs Now) with confidence trajectory sparkline.',
-    tree: { component: 'Phone', children: [
-      { component: 'FNavBar', props: { title: 'Confidence' } },
-      { component: 'FNum', props: { size: 48, children: 'Trust visible.' } },
-      { component: 'ConfidenceRing', note: 'Day 3: 18% confidence, thick stroke (±210 kcal), muted' },
-      { component: 'ConfidenceRing', note: 'Now: 74% confidence, thin stroke (±70 kcal), vibrant with glow' },
-      { component: 'Sparkline', note: 'Confidence trajectory 18% → 74% over time' },
-      { component: 'FSurface', note: 'What changed — 87 weigh-ins, 81 food logs' },
     ]},
   },
   'plan-m': {

@@ -173,8 +173,8 @@ Week 2 — THE LOOP
 ## Mode 1: Onboarding (SEED)
 
 **Entry**: First app open
-**Exit**: Fitness Summary → "Enter AUREVI0N" → App with generated program
-**Navigation**: Two sequential linear flows — general (8 steps) then fitness (9 steps)
+**Exit**: The Contract → "Sign on" → App with generated program
+**Navigation**: Two sequential linear flows — general (8 steps) then fitness (8 steps)
 **File**: `src/app/screens/Onboarding.jsx`
 **Journey phase**: `/journey/seed` (6-phase view covering both flows)
 
@@ -191,25 +191,24 @@ Week 2 — THE LOOP
 | 6 | TDEE Reveal | Computed TDEE | Animated ring + info bubbles |
 | 7 | Ready | Summary display | Daily target, macro split, stats → "Continue" |
 
-### Phase 2: Fitness Onboarding (9 steps)
+### Phase 2: Fitness Onboarding (8 steps)
 
 | Step | Screen | Data Collected | Interactions |
 |------|--------|----------------|-------------|
 | 0 | Fitness Intro | — | "Get Started" CTA |
-| 1 | Body Fat (front) | `bodyFat` (numeric %) | 3D body preview + slider (5–50%) |
-| 2 | Body Fat (back) | `bodyFat` (continued) | Back view of 3D model + same slider |
-| 3 | Target Body Fat | `targetBodyFat` (numeric %) | 3D preview at target + slider |
-| 4 | Training Experience | `liftingExp`, `cardioExp` | Grid buttons with visual experience bars |
-| 5 | Equipment Access | `equipment` | Equipment selection cards |
-| 6 | Focus Areas | `focusMuscles[]` | Interactive 3D muscle group picker |
-| 7 | Injuries | `injuries[]` | Multi-select grid (6 zones + None) |
-| 8 | Fitness Summary | Derived transformation | Current → target BF%, months, deficit, protein, sessions/wk → "Enter AUREVI0N" |
+| 1 | Body Composition | `bodyFat`, `targetBodyFat` | 3D body preview + current BF slider (OBSlider) + target BF drag slider (pointer-event handle with NOW marker and range fill) |
+| 2 | Timeline | `timelineWeeks` | Button group (8/12/16/20/24 WK) + pace preview (sustainable/moderate/aggressive) |
+| 3 | Training Experience | `liftingExp`, `cardioExp` | Grid buttons with visual experience bars |
+| 4 | Equipment Access | `equipment` | Equipment selection cards |
+| 5 | Focus Areas | `focusMuscles[]` | Interactive 3D muscle group picker |
+| 6 | Injuries | `injuries[]` | Multi-select grid (6 zones + None) |
+| 7 | The Contract | Derived transformation | BF% → target%, timeline, weekly training hrs, daily deficit (kcal + %TDEE), protein floor (g + g/kg LBM), sleep ≥ 7hr. "If you slip" reassurance card. "Edit" + "Sign on" CTAs |
 
 ### What Happens on Completion
 
 ```
 General onboarding completes → data passed to fitness onboarding
-Fitness onboarding completes → completeOnboarding(mergedProfile)
+Fitness onboarding completes ("Sign on") → completeOnboarding(mergedProfile)
   → computeTDEE(profile)          # Mifflin-St Jeor × activity multiplier
   → computeMacros(profile)        # TDEE + goal modifier → protein/fat/carbs
   → generateProgram(profile)      # goals + constraints → weekly training plan
@@ -219,12 +218,15 @@ Fitness onboarding completes → completeOnboarding(mergedProfile)
 
 Available days are auto-derived from training frequency (e.g. "3-4" → Mon/Wed/Fri/Sat).
 
+The Contract step (formerly "Fitness Summary") uses the same layout as the Goal Contract design — body fat transformation hero, metric rows with tags, "If you slip" reassurance, Edit/Sign on CTAs. All values are computed dynamically from onboarding data (LBM-based protein, deficit from fat delta, weekly hours from frequency). The standalone `GoalSetting.jsx` file was removed — onboarding is the single source of truth for goal+contract data.
+
 ### What's Missing
 
 - [ ] **Draft save**: Closing the app mid-onboarding loses all progress
 - [ ] **Account creation**: "I already have an account" link has no flow
-- [x] ~~**Body composition viewer integration**~~: 3D body preview embedded in fitness onboarding body fat steps
+- [x] ~~**Body composition viewer integration**~~: 3D body preview embedded in fitness onboarding body comp step
 - [x] ~~**Onboarding Mode in `/journey`**~~: `/journey/seed` shows both flows with live screen previews
+- [x] ~~**Goal contract consolidated**~~: `GoalSetting.jsx` deleted; contract layout merged into FOB_Summary; drag slider ported to FOB_BodyComp
 - [ ] **Re-onboarding flow**: No way to redo onboarding to change fundamental inputs (sidebar "Reset & re-onboard" exists for dev)
 
 ---
@@ -236,12 +238,22 @@ Available days are auto-derived from training frequency (e.g. "3-4" → Mon/Wed/
 **Files**: Today screen (to be built), `src/app/screens/Dashboard.jsx`
 **Journey phase**: Phase 02 · DECIDE in SODA loop
 
-### Today Screen (New — Primary Landing)
+### Today Screen (Primary Landing)
 
-The Today screen replaces the Dashboard as the default view. It answers "what should I do right now?" with a single directive based on context:
+The Today screen replaces the Dashboard as the default view. It answers "what should I do right now?" with a single directive based on context.
 
-- **Training day**: Session hero with name, time, equipment, last-time weights, Start CTA. Week strip + remaining sessions + daily trackers (water, macros) below.
-- **Rest day**: Recovery message, next session preview, daily trackers, meal prep CTA.
+**Layout (top to bottom):**
+1. **Greeting + avatar** — time-aware ("Good morning/afternoon/evening.") with user initials avatar
+2. **Streak + Active Contract** — side-by-side cards. Streak: flame icon + day count. Contract: current→target BF%, progress bar, week X/Y.
+3. **Date subheader** — "TODAY · THU 9 JUL"
+4. **Session hero** — training day: session name + duration + START SESSION (split button). Rest day: recovery message + next session preview. Completed: checkmark + next session.
+5. **Weekly schedule** — remaining sessions as rows (day label, name, play icon or DONE)
+6. **Goal section** — "GOAL" label (accent), goal name heading, description, deficit display (−150 KCAL · Recomp)
+7. **Macro Split card** — dark surface with 3-color stacked bar (P/C/F), percentage ranges, protein-per-kg note
+8. **Water + Target** — hydration and calorie tracker row
+9. **Quick actions** — Exercises, History, Check-in buttons (+ Train Now on rest/completed days)
+
+Additional context states:
 - **Check-in due**: Check-in prompt at top, above the regular content.
 - **Week transition**: Last week summary + this week's changes.
 
@@ -292,8 +304,8 @@ Dashboard renders active interventions from `UserContext.interventions`:
 **Entry**: Today screen → Start (1 tap). Also reachable via Train tab or Calendar.
 **Exit**: Workout summary → bridges to nutrition + next session preview → back to Today
 **Navigation**: Today screen → Execute → Summary. Side paths: Exercise Browser, History, Goals (all 1 tap from Today).
-**Files**: Today screen (to be built), `src/app/screens/Training.jsx`, `src/app/screens/ExerciseBrowser.jsx`, `src/app/screens/ExerciseDetail.jsx`, `src/app/screens/ProgramOverview.jsx`, `src/app/screens/fitness-data.js`
-**Journey phase**: Exercise Mode in `/journey/exercise`
+**Files**: `src/app/screens/Today.jsx`, `src/app/screens/Training.jsx`, `src/app/screens/ExerciseBrowser.jsx`, `src/app/screens/ExerciseDetail.jsx`, `src/app/screens/ProgramOverview.jsx`, `src/app/screens/GoalDetail.jsx`, `src/app/screens/TDEE.jsx`, `src/app/screens/fitness-data.js`
+**Journey phase**: Exercise Mode in `/journey/exercise` — 5 phases: ONBOARDING → PROGRAM (Today, Goal Detail, Program Overview, Exercise Browser/Detail, Workout Template) → TRAIN (Active Session, Summary) → TRACK (Check-in, Workout History, Macro Heatmap, Water Tracking) → SURPLUS (TDEE Model, TDEE Confidence)
 
 ### The Primary Path (Zero Decisions)
 
@@ -708,7 +720,7 @@ AppShell → NavigationProvider → Phone frame
 
 | Tile Tap | Detail Screen |
 |----------|---------------|
-| Goal | GoalInputContent |
+| Goal | GoalDetailContent |
 | TDEE | TDEEContent |
 | Macros | MacroTargetsContent |
 | Calendar | PlanCalendarContent |
@@ -1122,7 +1134,7 @@ The two ❌ edges that aren't just "missing button" but "missing data flow":
 
 | Tile | Target | Detail ID |
 |------|--------|-----------|
-| Goal | Goal Setting | `goal` |
+| Goal | Goal Detail | `goal-detail` |
 | TDEE | TDEE Model | `tdee` |
 | Macros | Macro Targets | `macros` |
 | Calendar | Plan Calendar | `plan` |

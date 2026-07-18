@@ -8,7 +8,7 @@
 import { useState, useEffect, useRef, useMemo, Suspense } from 'react'
 import { Color, Font, Space, Radius, Duration, Ease, Type } from '../../ui/tokens'
 import { useSpring, useTransitionLock, SpringPreset } from '../../ui/motion'
-import { ICONS, FRing, FBtn, FIcon, FNum, FTexBar, FScale, FLabel, FTag, FStagger, Phone, ErrorBoundary } from '../../ui/components'
+import { ICONS, FRing, FBtn, FIcon, FNum, FMono, FTexBar, FScale, FLabel, FTag, FStagger, FWeightInput, Phone, ErrorBoundary } from '../../ui/components'
 import { useUser } from '../../context/UserContext'
 import { deriveCaloricMod, deriveMacroSplit } from '../../context/goalEngine'
 import BodyPreview from '../../ui/BodyPreview'
@@ -648,12 +648,15 @@ export function OB_BodyMetrics({ onNext, onBack, data, setData }) {
             <OBUnitToggle value={wUnit} onChange={setWUnit}
               options={[{ value: 'kg', label: 'KG' }, { value: 'lbs', label: 'LBS' }]}/>
           </div>
-          <div style={{ textAlign: 'center', marginBottom: Space[3] }}>
-            <FNum size={40} weight={300} unit={wUnit === 'kg' ? 'KG' : 'LBS'}>{weightDisplay}</FNum>
-          </div>
-          <OBSlider min={wMin} max={wMax} step={0.5} value={wVal} onChange={setWVal}
-            ticks={{ count: 25, majorEvery: 6 }}/>
-          <FScale marks={[wMin, Math.round((wMin + wMax) / 2), wMax]}/>
+          <FWeightInput
+            value={wUnit === 'kg' ? wVal : Math.round(wVal * 2.205)}
+            onChange={v => setWVal(wUnit === 'kg' ? v : Math.round(v / 2.205 * 10) / 10)}
+            min={wUnit === 'kg' ? wMin : Math.round(wMin * 2.205)}
+            max={wUnit === 'kg' ? wMax : Math.round(wMax * 2.205)}
+            step={wUnit === 'kg' ? 0.5 : 1}
+            unit={wUnit}
+            size="lg"
+          />
         </div>
       </OBBody>
       <OBNextBtn onClick={onNext}/>
@@ -1575,7 +1578,6 @@ export function FOB_BodyComp({ onNext, onBack, data, setData }) {
   const [currentBf, setCurrentBf] = useState(data.bodyFat || 22);
   const [targetBf, setTargetBf]   = useState(data.targetBodyFat || 15);
   const [showTarget, setShowTarget] = useState(false);
-  const [activeThumb, setActiveThumb] = useState('current');
 
   const currentVariant = bodyFatToVariant(data.sex, currentBf);
   const targetVariant  = bodyFatToVariant(data.sex, targetBf);
@@ -1584,14 +1586,44 @@ export function FOB_BodyComp({ onNext, onBack, data, setData }) {
   useEffect(() => { setData(d => ({ ...d, bodyFat: currentBf })); }, [currentBf]);
   useEffect(() => { if (showTarget) setData(d => ({ ...d, targetBodyFat: targetBf })); }, [targetBf, showTarget]);
 
+  // Current BF slider
   const handleCurrentChange = (v) => {
     setCurrentBf(v);
-    setActiveThumb('current');
     if (!showTarget) {
       setShowTarget(true);
       setTargetBf(Math.max(8, v - 7));
     }
   };
+
+  // Drag slider refs + helpers for target BF
+  const trackRef = useRef(null);
+  const dragging = useRef(false);
+  const MIN = 5, MAX = 50;
+  const pctOf = (v) => ((v - MIN) / (MAX - MIN)) * 100;
+
+  const resolveTarget = (clientX) => {
+    const rect = trackRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = Math.max(0, Math.min(rect.width, clientX - rect.left));
+    const v = MIN + (x / rect.width) * (MAX - MIN);
+    setTargetBf(Math.max(MIN, Math.min(currentBf - 1, +v.toFixed(1))));
+  };
+
+  const onDown = (e) => {
+    dragging.current = true;
+    resolveTarget(e.clientX ?? e.touches?.[0]?.clientX);
+  };
+
+  useEffect(() => {
+    const onMove = (e) => { if (dragging.current) resolveTarget(e.clientX ?? e.touches?.[0]?.clientX); };
+    const onUp = () => { dragging.current = false; };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+    };
+  }, [currentBf]);
 
   return (
     <OBStep>
@@ -1615,16 +1647,68 @@ export function FOB_BodyComp({ onNext, onBack, data, setData }) {
           ticks={{ count: 19, majorEvery: 5 }} />
       </div>
 
-      {/* Target body fat slider — appears after first interaction */}
+      {/* Target body fat — drag slider with NOW marker and range fill */}
       {showTarget && (
-        <div style={{ padding: `${Space[3]}px ${OB_GUTTER} 0` }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: Space[1] }}>
-            <span style={{ fontFamily: Font.sans, fontSize: 16, fontWeight: 600, color: Color.text }}>TARGET BODY FAT</span>
-            <span style={{ fontFamily: Font.mono, fontSize: 20, fontWeight: 600, color: '#4ade80' }}>{targetBf.toFixed(1)}%</span>
+        <div style={{ padding: `${Space[4]}px ${OB_GUTTER} 0` }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: Space[3] }}>
+            <FLabel mb={0}>Target body fat</FLabel>
+            <FMono color={Color.accent}>{targetBf.toFixed(1)}%</FMono>
           </div>
-          <OBSlider min={5} max={45} step={0.5} value={targetBf}
-            onChange={v => { setTargetBf(v); setActiveThumb('target'); }}
-            ticks={{ count: 17, majorEvery: 4 }} />
+          <FScale marks={[5, 15, 25, 35, 45]} suffix="%" color={Color.mute}/>
+          <div
+            ref={trackRef}
+            role="slider"
+            tabIndex={0}
+            aria-label="Target body fat percentage"
+            aria-valuemin={MIN}
+            aria-valuemax={currentBf - 1}
+            aria-valuenow={targetBf}
+            onPointerDown={onDown}
+            onKeyDown={(e) => {
+              const step = e.shiftKey ? 1.0 : 0.5;
+              if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                setTargetBf(t => Math.max(MIN, +(t - step).toFixed(1)));
+              } else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                setTargetBf(t => Math.min(currentBf - 1, +(t + step).toFixed(1)));
+              }
+            }}
+            style={{ position: 'relative', height: 36, cursor: 'pointer', userSelect: 'none', touchAction: 'none', outline: 'none' }}>
+            {/* Track */}
+            <div style={{
+              position: 'absolute', top: 16, left: 0, right: 0, height: 4,
+              background: 'rgba(255,255,255,0.06)', borderRadius: Radius.full,
+            }}/>
+            {/* Range fill (target → current) */}
+            <div style={{
+              position: 'absolute', top: 16,
+              left: `${pctOf(targetBf)}%`,
+              width: `${pctOf(currentBf) - pctOf(targetBf)}%`,
+              height: 4,
+              background: `repeating-linear-gradient(135deg, rgba(0,0,0,0.22) 0 1.5px, transparent 1.5px 5px), ${Color.accent}`,
+              borderRadius: Radius.full,
+            }}/>
+            {/* NOW marker */}
+            <div style={{
+              position: 'absolute', top: 8, left: `${pctOf(currentBf)}%`,
+              width: 2, height: 20, background: Color.mute, borderRadius: 1,
+              transform: 'translateX(-50%)',
+            }}/>
+            <div style={{
+              position: 'absolute', top: -12, left: `${pctOf(currentBf)}%`,
+              transform: 'translateX(-50%)',
+              fontFamily: Font.mono, fontSize: 10, color: Color.mute, letterSpacing: 1,
+            }}>NOW</div>
+            {/* Target handle */}
+            <div style={{
+              position: 'absolute', top: 8, left: `${pctOf(targetBf)}%`,
+              width: 20, height: 20, borderRadius: '50%',
+              background: Color.accent, transform: 'translateX(-50%)',
+              boxShadow: '0 0 0 4px rgba(255,110,80,0.2)',
+              transition: dragging.current ? 'none' : 'left .12s ease',
+            }}/>
+          </div>
         </div>
       )}
 
@@ -1977,17 +2061,30 @@ export function FOB_Summary({ data, onComplete }) {
   const bf = data.bodyFat || 22;
   const targetBf = data.targetBodyFat || 15;
   const weight = data.weight || 70;
-  const { target, protein } = computeMacros(data);
+  const { tdee, target, protein } = computeMacros(data);
 
   // Derived transformation metrics
   const fatToLose = weight * (bf - targetBf) / 100;
-  const weeklyLoss = 0.5; // ~0.5 kg/week safe rate
-  const weeksNeeded = fatToLose > 0 ? Math.round(fatToLose / weeklyLoss) : 0;
-  const monthsNeeded = (weeksNeeded / 4.3).toFixed(1);
+  const weeklyLoss = 0.5;
+  const weeksNeeded = fatToLose > 0 ? Math.round(fatToLose / weeklyLoss) : 16;
   const dailyDeficit = fatToLose > 0 ? Math.round((fatToLose * 7700) / (weeksNeeded * 7)) : 0;
+  const deficitPct = tdee > 0 ? Math.round((dailyDeficit / tdee) * 100) : 0;
+
+  // LBM-based protein
+  const lbm = weight * (1 - targetBf / 100);
+  const proteinFloor = Math.round(lbm * 2.1);
+  const proteinPerKg = (proteinFloor / weight).toFixed(1);
 
   const freqNum = data.exerciseFreq === '7' ? 7 :
     data.exerciseFreq ? (parseInt(data.exerciseFreq) + parseInt(data.exerciseFreq.split('-')[1] || data.exerciseFreq)) / 2 : 4;
+  const liftDays = Math.round(freqNum * 0.7);
+  const z2Days = Math.round(freqNum * 0.3);
+  const weeklyHrs = (freqNum * 0.9).toFixed(1);
+
+  // End date
+  const endDate = new Date();
+  endDate.setDate(endDate.getDate() + weeksNeeded * 7);
+  const endLabel = `${String(endDate.getDate()).padStart(2, '0')} ${['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][endDate.getMonth()]}`;
 
   const handleComplete = () => {
     const fullData = {
@@ -1999,51 +2096,45 @@ export function FOB_Summary({ data, onComplete }) {
     else completeOnboarding(fullData);
   };
 
+  const Row = ({ label, value, unit, tag, tagTone }) => (
+    <div style={{ padding: '18px 0', borderBottom: `1px solid ${Color.borderSoft}` }}>
+      <FLabel mb={6}>{label}</FLabel>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 10 }}>
+        <FNum size={34} weight={200} unit={unit}>{value}</FNum>
+        <FTag tone={tagTone}>{tag}</FTag>
+      </div>
+    </div>
+  );
+
   return (
     <OBStep>
-      <div style={{ flex: 1, padding: `${Space[7]}px ${OB_GUTTER} ${OB_GUTTER}`, display: 'flex', flexDirection: 'column' }}>
-        <div style={{ textAlign: 'center', marginBottom: Space[6] }}>
-          <div style={{ ...Type.labelSm, color: Color.accent, letterSpacing: 2, marginBottom: Space[2] }}>YOUR PROGRAM</div>
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: Space[3] }}>
-            <FNum size={36} weight={200} unit="%">{bf.toFixed(1)}</FNum>
-            <FIcon path={ICONS.fwd} size={16} color={Color.mute}/>
-            <FNum size={36} weight={200} unit="%" color={Color.accent}>{targetBf.toFixed(1)}</FNum>
+      <div style={{ flex: 1, padding: `${Space[5]}px ${OB_GUTTER} ${OB_GUTTER}`, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+        <FLabel>The contract</FLabel>
+        <div style={{ marginTop: 8 }}>
+          <FNum size={42} weight={200}>{bf.toFixed(1)} → {targetBf.toFixed(1)}%</FNum>
+        </div>
+        <FLabel mt={8} mb={0} color={Color.mute}>BODY FAT · {weeksNeeded} WEEKS · ENDS {endLabel}</FLabel>
+
+        <div style={{ marginTop: 32, borderTop: `1px solid ${Color.borderSoft}` }}>
+          <Row label="Weekly training" value={weeklyHrs} unit="hr" tag={`${liftDays} LIFT · ${z2Days} Z2`} />
+          <Row label="Daily deficit" value={`−${dailyDeficit}`} unit="kcal" tag={`−${deficitPct}% TDEE`} tagTone="accent" />
+          <Row label="Protein floor" value={String(proteinFloor)} unit="g" tag={`${proteinPerKg} G/KG`} />
+          <Row label="Sleep" value="≥ 7" unit="hr" tag="NON-NEG" />
+        </div>
+
+        <div style={{ flex: 1 }} />
+
+        <div style={{ marginTop: 32, padding: 16, borderRadius: Radius.lg, border: `1px dashed ${Color.borderSoft}` }}>
+          <FLabel mb={6}>If you slip</FLabel>
+          <div style={{ ...Type.bodyMd, color: Color.dim }}>
+            The model re-fits weekly. Miss a day and the timeline shifts — not your standards.
           </div>
         </div>
 
-        <FStagger delay={80}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: Space[2], marginBottom: Space[3] }}>
-            <OBSurface>
-              <FNum size={28} weight={300}>{monthsNeeded}</FNum>
-              <div style={{ ...Type.labelSm, color: Color.mute, marginTop: Space[1] }}>MONTHS</div>
-            </OBSurface>
-            <OBSurface>
-              <FNum size={28} weight={300}>~{dailyDeficit}</FNum>
-              <div style={{ ...Type.labelSm, color: Color.mute, marginTop: Space[1] }}>DEFICIT</div>
-            </OBSurface>
-            <OBSurface>
-              <FNum size={28} weight={300}>{protein}</FNum>
-              <div style={{ ...Type.labelSm, color: Color.mute, marginTop: Space[1] }}>PROTEIN G</div>
-            </OBSurface>
-            <OBSurface>
-              <FNum size={28} weight={300}>{freqNum.toFixed(1)}</FNum>
-              <div style={{ ...Type.labelSm, color: Color.mute, marginTop: Space[1] }}>SESSIONS/WK</div>
-            </OBSurface>
-          </div>
-
-          <OBSurface style={{ display: 'flex', gap: Space[2], flexWrap: 'wrap' }}>
-            <FTag tone="accent">{(data.goal || 'maintain').toUpperCase()}</FTag>
-            {data.equipment && <FTag tone="mute">{data.equipment.replace('_', ' ').toUpperCase()}</FTag>}
-            {data.liftingExp && <FTag tone="mute">{data.liftingExp.toUpperCase()}</FTag>}
-            {(data.focusMuscles || []).length > 0 && <FTag tone="mute">{data.focusMuscles.length} FOCUS</FTag>}
-            {(data.injuries || []).length > 0 && <FTag tone="mute">{data.injuries.length} CAUTION</FTag>}
-          </OBSurface>
-        </FStagger>
-
-        <div style={{ flex: 1 }}/>
-      </div>
-      <div style={{ padding: `${Space[4]}px ${OB_GUTTER} ${Space[5]}px` }}>
-        <FBtn variant="split" full iconLeading={ICONS.fwd} onClick={handleComplete}>Enter AUREVI0N</FBtn>
+        <div style={{ display: 'flex', gap: 10, marginTop: 32, alignItems: 'stretch' }}>
+          <FBtn variant="ghost" size="lg">Edit</FBtn>
+          <FBtn variant="split" full onClick={handleComplete}>Sign on</FBtn>
+        </div>
       </div>
     </OBStep>
   );

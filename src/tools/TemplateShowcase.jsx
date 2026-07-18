@@ -591,7 +591,7 @@ export default function TemplateShowcase() {
         {/* ── 17: Multi-Step Flow ── */}
         <Section id="multi-step" num="17" title="Multi-Step Linear Flow"
           desc="Step indicator + one input per screen + forward/back. The progress bar answers 'how much is left?' which prevents abandonment."
-          files={['Onboarding.jsx', 'CheckIn.jsx', 'GoalSetting.jsx']}>
+          files={['Onboarding.jsx', 'CheckIn.jsx']}>
           <DemoBox label="STEP INDICATOR + CONTENT">
             <div style={{ display: 'flex', gap: 3, marginBottom: 16 }}>
               {Array.from({ length: 6 }).map((_, i) => (
@@ -611,7 +611,7 @@ export default function TemplateShowcase() {
               <FBtn variant="primary" size="sm" data-stay="true" style={{ flex: 1 }}>Next</FBtn>
             </div>
           </DemoBox>
-          <UsedBy screens={['Onboarding (13 steps)', 'CheckIn (4 steps)', 'GoalSetting']} />
+          <UsedBy screens={['Onboarding (13 steps)', 'CheckIn (4 steps)']} />
         </Section>
 
         {/* ── 18: Stat Card Grid ── */}

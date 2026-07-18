@@ -1,37 +1,14 @@
 // 08 Profile — account hub. Surfaces avatar, current goal state, recent check-ins, settings entry.
 
-import { Color, Font, Space, Radius } from '../../ui/tokens'
-import { ICONS, FNavBar, FLabel, FMono, FNum, FTexBar, FIcon, FBtn, FTabBar, FSection, FSurface, FListRow, FAvatar, Phone } from '../../ui/components'
+import { Color, Space, Radius } from '../../ui/tokens'
+import { ICONS, FNavBar, FMono, FIcon, FBtn, FTabBar, FSection, FListRow, FAvatar, Phone } from '../../ui/components'
 import { useUser } from '../../context/UserContext'
-import { useNav } from '../../context/NavigationContext'
-import { MOCK_BODY } from '../../context/mockUser'
 
 export function ProfileContent() {
-  const { checkins, profile } = useUser();
-  const nav = useNav();
-
-  const MOCK_CHECKINS = [
-    { d: 'Sat 23 May', sub: 'BODY FAT · WEIGHT', delta: '−0.4 kg', dtone: Color.green },
-    { d: 'Sat 16 May', sub: 'BODY FAT · WEIGHT', delta: '−0.6 kg', dtone: Color.green },
-    { d: 'Sat 09 May', sub: 'BODY FAT · WEIGHT', delta: '−0.2 kg', dtone: Color.green },
-    { d: 'Sat 02 May', sub: 'BODY FAT · WEIGHT', delta: '−0.3 kg', dtone: Color.green },
-  ];
-
-  const realCheckins = (checkins || []).slice(0, 4).map((c, i, arr) => {
-    const prev = arr[i + 1] || (checkins || [])[i + 1];
-    const delta = prev ? +(c.weight - prev.weight).toFixed(1) : null;
-    return {
-      d: c.date,
-      sub: c.bf ? 'BODY FAT · WEIGHT' : 'WEIGHT',
-      delta: delta !== null ? `${delta > 0 ? '+' : ''}${delta} kg` : '—',
-      dtone: delta !== null ? (delta <= 0 ? Color.green : Color.red) : Color.mute,
-    };
-  });
-  const displayCheckins = realCheckins.length > 0 ? realCheckins : MOCK_CHECKINS;
-  const streakCount = (checkins || []).length || 4;
+  const { profile } = useUser();
 
   return (
-    <div style={{ flex: 1, padding: '20px 24px 40px', overflowY: 'auto' }}>
+    <div style={{ flex: 1, padding: '20px 24px 100px', overflowY: 'auto' }}>
 
       {/* Avatar + name */}
       <div style={{ display: 'flex', alignItems: 'center', gap: Space[5], marginTop: 8 }}>
@@ -40,50 +17,6 @@ export function ProfileContent() {
           <div style={{ fontSize: 22, fontWeight: 400 }}>Daniel Lacayo</div>
           <FMono color={Color.mute}>JOINED · 12 APR 2026</FMono>
         </div>
-      </div>
-
-      {/* Active goal card */}
-      <FSurface accent={Color.accent} style={{ marginTop: 32 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-          <FLabel color={Color.accent}>Active contract</FLabel>
-          <FMono color={Color.accent}>W04 / 16</FMono>
-        </div>
-        <div style={{ marginTop: 8 }}>
-          <FNum size={36} weight={200}>{MOCK_BODY.currentBf} → {MOCK_BODY.targetBf}%</FNum>
-        </div>
-        <FMono color={Color.mute}>BODY FAT · ENDS 04 SEP</FMono>
-        <div style={{ marginTop: 18 }}>
-          <FTexBar pct={28} height={6}/>
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12 }}>
-          <FMono color={Color.mute} size={10}>28% COMPLETE</FMono>
-          <FMono color={Color.green} size={10}>−1.4 KG SO FAR</FMono>
-        </div>
-      </FSurface>
-
-      {/* Recent check-ins (data zone) */}
-      <FSection label="Recent check-ins" mt={32} mb={12}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-          <FNum size={26} weight={200}>{streakCount} wks</FNum>
-          <FMono color={Color.green}>STREAK</FMono>
-        </div>
-      </FSection>
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        {displayCheckins.map((row, i) => (
-          <FListRow key={i}
-            title={row.d}
-            subtitle={row.sub}
-            trailing={<FMono color={row.dtone}>{row.delta}</FMono>}
-          />
-        ))}
-      </div>
-
-      {/* Log check-in (interaction zone) */}
-      <div style={{ marginTop: 24 }}>
-        <FBtn variant="primary" full size="md"
-          onClick={() => nav?.pushDetail?.('checkin-flow', 'Check-in')}>
-          Log check-in
-        </FBtn>
       </div>
 
       {/* Settings — grouped by category (R4) */}

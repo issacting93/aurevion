@@ -18,7 +18,7 @@ export const ICONS = {
   person: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M4 20c0-4 4-7 8-7s8 3 8 7',
   meal: 'M3 11h18 M5 11V8a7 7 0 0 1 14 0v3 M4 21h16l-1-10H5l-1 10z',
   cart: 'M2 4h2l3 12h11l2-8H6 M9 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2 M17 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2',
-  chart: 'M3 3v18h18 M7 15l3-3 4 4 7-7',
+  chart: 'M4 20V10 M9 20V4 M14 20V14 M19 20V8',
   goal: 'M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0-18 0 M12 12m-5 0a5 5 0 1 0 10 0a5 5 0 1 0-10 0 M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0',
   timer: 'M12 8v4l3 2 M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20 M9 2h6',
   pause: 'M10 4h-2v16h2V4z M16 4h-2v16h2V4z',
@@ -33,6 +33,7 @@ export const ICONS = {
   swap: 'M7 16V4 M3 8l4-4 4 4 M17 8v12 M21 16l-4 4-4-4',
   sparkle: 'M12 3v3 M12 18v3 M3 12h3 M18 12h3 M5 5l2 2 M17 17l2 2 M5 19l2-2 M17 7l2-2',
   expand: 'M3 9V3h6 M21 9V3h-6 M3 15v6h6 M21 15v6h-6',
+  cal: 'M8 2v4 M16 2v4 M3 10h18 M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z',
 }
 
 // ── Surface card ──
@@ -397,6 +398,43 @@ function FToolbarCell({ cell: c }) {
       {c.icon && <FIcon path={c.icon} size={isP ? 16 : 14} stroke={isP ? 2.2 : 1.9} color={fg} />}
       <span style={{ fontFamily: Font.mono, fontSize: isP ? 12 : 11, letterSpacing: 1.4, color: fg, textTransform: 'uppercase', fontWeight: isP ? 700 : 600 }}>{c.label}</span>
     </button>
+  )
+}
+
+// ── FWeightInput — unified numeric spinner for weight/load values ──
+export function FWeightInput({ value, onChange, min = 0, max = 999, step = 0.5, unit, size = 'md', inline }) {
+  const adjust = (delta) => {
+    const next = Math.round((value + delta) * 10) / 10
+    if (next >= min && next <= max) onChange(next)
+  }
+  const sz = size === 'sm' ? { btn: 36, num: 28, gap: Space[3] } :
+             size === 'lg' ? { btn: 56, num: 56, gap: Space[7] } :
+                             { btn: 48, num: 48, gap: Space[6] }
+  const btnStyle = {
+    width: sz.btn, height: sz.btn, borderRadius: Radius.full,
+    border: `1px solid ${Color.border}`, background: Color.surface,
+    color: Color.text, cursor: 'pointer', display: 'grid', placeItems: 'center',
+    fontSize: sz.btn * 0.42, fontFamily: Font.sans, flexShrink: 0,
+  }
+  if (inline) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: Space[2] }}>
+        <button onClick={() => adjust(-step)} style={{ ...btnStyle, width: 32, height: 32, fontSize: 16 }}>−</button>
+        <FNum size={22} weight={300}>{value}</FNum>
+        {unit && <FMono size={10} color={Color.mute}>{unit}</FMono>}
+        <button onClick={() => adjust(step)} style={{ ...btnStyle, width: 32, height: 32, fontSize: 16 }}>+</button>
+      </div>
+    )
+  }
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: sz.gap }}>
+      <button onClick={() => adjust(-step)} style={btnStyle}>−</button>
+      <div style={{ textAlign: 'center', minWidth: 100 }}>
+        <FNum size={sz.num} weight={200}>{value}</FNum>
+        {unit && <div style={{ fontFamily: Font.mono, fontSize: 10, fontWeight: 500, letterSpacing: 1.2, color: Color.mute, textTransform: 'uppercase', marginTop: 4 }}>{unit}</div>}
+      </div>
+      <button onClick={() => adjust(step)} style={btnStyle}>+</button>
+    </div>
   )
 }
 

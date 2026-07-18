@@ -177,12 +177,12 @@ function GoalDecisionTree() {
 
   /* sub-goal data */
   const fitLeaves = [
-    { name: 'Body Composition', goals: 'Hypertrophy · Fat Loss · Recomp', flow: 'Goals → TDEE++ → Calendar → Training', track: 'Check-in, Macro Heatmap' },
-    { name: 'Performance', goals: 'Strength · Cardio · Power · Agility', flow: 'Goals → Calendar → Training', track: 'Check-in (PR focus)' },
-    { name: 'Functional', goals: 'Flexibility · Balance · Wellness', flow: 'Goals → Light Schedule → Training', track: 'Check-in' },
+    { name: 'Body Composition', goals: 'Hypertrophy · Fat Loss · Recomp', flow: 'Onboarding → Program → Train → Track', track: 'Check-in, Macro Heatmap' },
+    { name: 'Performance', goals: 'Strength · Cardio · Power · Agility', flow: 'Onboarding → Program → Train', track: 'Check-in (PR focus)' },
+    { name: 'Functional', goals: 'Flexibility · Balance · Wellness', flow: 'Onboarding → Program → Train', track: 'Check-in' },
   ]
   const bothLeaves = [
-    { name: 'Exercise Pipeline', flow: 'Goals → TDEE → Calendar → Train → Track' },
+    { name: 'Exercise Pipeline', flow: 'Onboarding → Program → Train → Track → Surplus' },
     { name: 'Cooking Pipeline', flow: 'Macros → Meals → Prep → Cook → Log' },
     { name: 'Most Common', goals: '"Recomp + Cook More"', flow: 'All tracking surfaces active', track: 'Full dashboard' },
   ]
@@ -220,7 +220,7 @@ function GoalDecisionTree() {
         <line x1={colR} y1={classifyY + 18} x2={colR} y2={dashY - 14} stroke={Color.faint} strokeWidth="1" />
 
         {/* ── Dashboard preset pills ── */}
-        <text x={colC} y={dashY - 20} textAnchor="middle" fontFamily={mono} fontSize="7.5" fill={Color.mute} letterSpacing="1.2">DASHBOARD PRESET</text>
+        <text x={colC} y={dashY - 20} textAnchor="middle" fontFamily={mono} fontSize="7.5" fill={Color.mute} letterSpacing="1.2">TODAY · FOCUS MODE</text>
         <DTPill x={colL} y={dashY} w={130} h={24} fill={fitColor} label="Training Focus" />
         <DTPill x={colC} y={dashY} w={130} h={24} fill={bothColor} label="Balanced" />
         <DTPill x={colR} y={dashY} w={130} h={24} fill={nutColor} label="Nutrition Focus" />

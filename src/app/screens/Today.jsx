@@ -1,16 +1,16 @@
 // ════════════════════════════════════════════════════════════
 // Today — the default landing screen. One directive per day.
-// Training day: session hero + Start. Rest day: recovery + next.
-// Replaces Dashboard as the first thing you see.
+// Greeting → stats → session hero → schedule → goal → macros → trackers → actions
 // ════════════════════════════════════════════════════════════
 
 import { useMemo } from 'react'
 import { Color, Font, Space, Radius, Type, alpha } from '../../ui/tokens'
-import { ICONS, FNavBar, FLabel, FMono, FNum, FIcon, FBtn, FTag, FTexBar, Phone } from '../../ui/components'
+import { ICONS, FMono, FIcon, FBtn, FAvatar, Phone } from '../../ui/components'
 import { useUser } from '../../context/UserContext'
 import { useNav } from '../../context/NavigationContext'
-import { MODALITY_COLORS, flattenSessionExercises, computeSessionVolume } from './fitness-data'
-import { MOCK_WATER } from '../../context/mockUser'
+import { flattenSessionExercises } from './fitness-data'
+import { BodyMap, musclesToIntensities } from './BodyMap'
+import { MOCK_WATER, MOCK_VOLUME_WEEKS, MOCK_HEATMAP } from '../../context/mockUser'
 
 function getTodayIndex() {
   const d = new Date().getDay()
@@ -18,6 +18,13 @@ function getTodayIndex() {
 }
 
 const DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
+
+function getGreeting() {
+  const h = new Date().getHours()
+  if (h < 12) return 'Good morning.'
+  if (h < 17) return 'Good afternoon.'
+  return 'Good evening.'
+}
 
 /* ── Last-time weights from activity log ── */
 function getLastTimeWeights(activityLog, sessionName) {
@@ -45,23 +52,40 @@ function getEquipmentList(session) {
   return [...equip]
 }
 
-/* ── Last session volume for comparison ── */
-function getLastVolume(activityLog, sessionName) {
-  if (!activityLog?.length || !sessionName) return null
-  const prev = [...activityLog]
-    .filter(e => e.type === 'workout' && e.data?.name === sessionName)
-    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0]
-  if (!prev?.data?.loggedSets) return null
-  return computeSessionVolume(prev.data.loggedSets)
-}
-
 export function TodayContent({ onStartSession }) {
-  const { workoutPlan: plan, targets, activityLog, checkins } = useUser()
+  const { workoutPlan: plan, activityLog, profile, markSessionComplete } = useUser()
   const { pushDetail } = useNav()
   const todayIndex = getTodayIndex()
 
-  // Water data (mock for now)
-  const water = MOCK_WATER
+  // ── Analytics signals ──
+  const volDelta = useMemo(() => {
+    if (MOCK_VOLUME_WEEKS.length < 2) return null
+    const cur = MOCK_VOLUME_WEEKS[MOCK_VOLUME_WEEKS.length - 1].value
+    const prev = MOCK_VOLUME_WEEKS[MOCK_VOLUME_WEEKS.length - 2].value
+    return Math.round(((cur - prev) / prev) * 100)
+  }, [])
+  const proteinHitDays = useMemo(() => {
+    const lastWeek = MOCK_HEATMAP.protein[MOCK_HEATMAP.protein.length - 1] || []
+    return lastWeek.filter(v => v >= 85).length
+  }, [])
+  const waterAvgStr = useMemo(() => {
+    const avg = MOCK_WATER.trend7d.reduce((a, b) => a + b, 0) / MOCK_WATER.trend7d.length
+    return (avg / 1000).toFixed(1)
+  }, [])
+
+  const missedSession = useMemo(() => {
+    if (!plan) return null
+    const yIdx = todayIndex === 0 ? 6 : todayIndex - 1
+    return plan.schedule.find(s => s.dayIndex === yIdx && !s.isRest && !s.completed) || null
+  }, [plan, todayIndex])
+
+  const todayIntensities = useMemo(() => {
+    if (!plan) return {}
+    const entry = plan.schedule.find(s => s.dayIndex === todayIndex)
+    if (!entry || entry.isRest) return {}
+    const flat = flattenSessionExercises(entry.exercises || [])
+    return musclesToIntensities(flat)
+  }, [plan, todayIndex])
 
   if (!plan) {
     return (
@@ -86,43 +110,57 @@ export function TodayContent({ onStartSession }) {
   const isRest = !todayEntry || todayEntry.isRest
   const isDone = todayEntry && !todayEntry.isRest && todayEntry.completed
   const nextTraining = plan.schedule.find(s => !s.isRest && s.dayIndex > todayIndex && !s.completed)
-  // Last-time weights
   const lastWeights = !isRest && todayEntry ? getLastTimeWeights(activityLog, todayEntry.name) : null
   const equipment = !isRest && todayEntry ? getEquipmentList(todayEntry) : []
-  const lastVolume = !isRest && todayEntry ? getLastVolume(activityLog, todayEntry.name) : null
-
-  // Core exercises for preview
-  const coreExercises = useMemo(() => {
-    if (isRest || !todayEntry?.exercises) return []
-    const nonUtil = todayEntry.exercises.filter(e => e.category !== 'warmup' && e.category !== 'cooldown')
-    const hasGroups = nonUtil.some(e => e.groupType)
-    return hasGroups ? flattenSessionExercises(nonUtil) : nonUtil
-  }, [todayEntry, isRest])
 
   const handleStart = (session) => {
     const target = session || todayEntry
     if (onStartSession && target) onStartSession(target)
   }
 
-  // Find the first available (unfinished, non-rest) session for "train now" fallback
   const nextAvailable = plan.schedule.find(s => !s.isRest && !s.completed)
   const showTrainNow = (isRest || isDone) && nextAvailable
 
+  // Initials for avatar
+  const initials = profile?.name ? profile.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : 'Z'
+
   return (
-    <div style={{ flex: 1, padding: '20px 24px 40px', overflowY: 'auto' }}>
+    <div style={{ flex: 1, padding: '20px 24px 100px', overflowY: 'auto' }}>
+
+      {/* ── Greeting + Avatar ── */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <div style={{ ...Type.displaySm, color: Color.text }}>{getGreeting()}</div>
+        <FAvatar initials={initials} size={36} />
+      </div>
+
       {/* ── Date header ── */}
       <FMono size={10} color={Color.mute}>
         TODAY · {DAY_NAMES[todayIndex].toUpperCase()} {new Date().getDate()} {['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][new Date().getMonth()]}
       </FMono>
 
+      {/* ── Body Map (training days only) ── */}
+      {!isRest && (
+        <div style={{ marginTop: 16, marginBottom: 16 }}>
+          <FMono size={9} color={Color.mute} style={{ display: 'block', marginBottom: 10, letterSpacing: 1 }}>
+            TODAY'S TARGET
+          </FMono>
+          <BodyMap intensities={todayIntensities} style={{ width: '50%', margin: '0 auto' }} />
+        </div>
+      )}
+
       {/* ── REST DAY ── */}
       {isRest && (
-        <div style={{ marginTop: 16 }}>
+        <div style={{ marginTop: 12 }}>
           <div style={{ fontFamily: Font.sans, fontSize: 28, fontWeight: 300, color: Color.text, lineHeight: 1.1, marginBottom: 8 }}>
             Rest day
           </div>
-          <div style={{ ...Type.bodyMd, color: Color.dim, lineHeight: 1.5, marginBottom: 20 }}>
+          <div style={{ ...Type.bodyMd, color: Color.dim, lineHeight: 1.5, marginBottom: 10 }}>
             Recovery is part of the program. Your body builds muscle during rest, not during the workout.
+          </div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 16 }}>
+            <FMono size={10} color={Color.dim}>Protein {proteinHitDays}/7 days</FMono>
+            <FMono size={10} color={Color.faint}>·</FMono>
+            <FMono size={10} color={Color.dim}>Water avg {waterAvgStr}L</FMono>
           </div>
           {nextTraining && (
             <div style={{
@@ -147,13 +185,18 @@ export function TodayContent({ onStartSession }) {
 
       {/* ── COMPLETED ── */}
       {isDone && (
-        <div style={{ marginTop: 16 }}>
+        <div style={{ marginTop: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
             <FIcon path={ICONS.check} size={20} color={Color.green} stroke={2.5} />
             <div style={{ fontFamily: Font.sans, fontSize: 28, fontWeight: 300, color: Color.text, lineHeight: 1.1 }}>Done</div>
           </div>
-          <div style={{ ...Type.bodyMd, color: Color.dim, marginBottom: 20 }}>
+          <div style={{ ...Type.bodyMd, color: Color.dim, marginBottom: 10 }}>
             {todayEntry.name} — session complete.
+          </div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 16 }}>
+            <FMono size={10} color={Color.dim}>Protein {proteinHitDays}/7 days</FMono>
+            <FMono size={10} color={Color.faint}>·</FMono>
+            <FMono size={10} color={Color.dim}>Water avg {waterAvgStr}L</FMono>
           </div>
           {nextTraining && (
             <div style={{
@@ -178,42 +221,42 @@ export function TodayContent({ onStartSession }) {
 
       {/* ── TRAINING DAY ── */}
       {!isRest && !isDone && todayEntry && (
-        <div style={{ marginTop: 16 }}>
-          {/* Session name */}
+        <div style={{ marginTop: 12 }}>
           <div style={{ fontFamily: Font.sans, fontSize: 28, fontWeight: 300, color: Color.text, lineHeight: 1.1, marginBottom: 4 }}>
             {todayEntry.name}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+          {/* Duration + equipment chips */}
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 6, marginBottom: 16 }}>
             <FMono size={10} color={Color.mute}>~{todayEntry.estimatedMins} min</FMono>
-            {equipment.length > 0 && (
-              <>
-                <FMono size={10} color={Color.faint}>·</FMono>
-                <FMono size={10} color={Color.mute}>{equipment.join(' · ')}</FMono>
-              </>
-            )}
+            {equipment.slice(0, 3).map(e => (
+              <FMono key={e} size={9} color={Color.faint} style={{
+                padding: '2px 7px', borderRadius: 4,
+                border: `1px solid ${Color.borderSoft}`,
+                textTransform: 'lowercase',
+              }}>{e.replace(/_/g, ' ')}</FMono>
+            ))}
           </div>
-
-          {/* Last time weights */}
-          {lastWeights && lastWeights.length > 0 && (
-            <div style={{ marginBottom: 16 }}>
-              <FMono size={10} color={Color.faint} style={{ marginBottom: 6, display: 'block' }}>LAST TIME</FMono>
-              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                {lastWeights.map((w, i) => (
-                  <FMono key={i} size={10} color={Color.dim}>{w.name} {w.load}kg × {w.reps}</FMono>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Start CTA */}
-          <FBtn variant="split" full iconLeading={ICONS.play} onClick={handleStart} data-stay="true" style={{ marginBottom: 20 }}>
+          <FBtn variant="split" full iconLeading={ICONS.play} onClick={handleStart} data-stay="true">
             Start session
           </FBtn>
+          {/* Signals: volume trend + last-time weights */}
+          <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {volDelta !== null && (
+              <FMono size={10} color={volDelta >= 0 ? Color.green : Color.accent}>
+                {volDelta >= 0 ? '↑' : '↓'}{Math.abs(volDelta)}% volume vs last week
+              </FMono>
+            )}
+            {lastWeights?.length > 0 && (
+              <FMono size={10} color={Color.faint}>
+                Last time · {lastWeights.map(w => `${w.name.split(' ')[0]} ${w.load}kg`).join(' · ')}
+              </FMono>
+            )}
+          </div>
         </div>
       )}
 
       {/* ── Remaining sessions ── */}
-      <div style={{ marginBottom: 20 }}>
+      <div style={{ marginTop: 20, marginBottom: missedSession ? 12 : 24 }}>
         {plan.schedule
           .filter(s => !s.isRest && s.dayIndex !== todayIndex)
           .map((entry, i, arr) => (
@@ -226,7 +269,7 @@ export function TodayContent({ onStartSession }) {
                 opacity: entry.completed ? 0.5 : 1,
                 cursor: entry.completed ? 'default' : 'pointer',
               }}>
-              <FMono size={10} color={Color.mute} style={{ width: 26, flexShrink: 0 }}>{entry.day.slice(0, 3).toUpperCase()}</FMono>
+              <FMono size={10} color={Color.mute} style={{ width: 30, flexShrink: 0 }}>{entry.day.slice(0, 3).toUpperCase()}</FMono>
               <div style={{ flex: 1, ...Type.bodySm, color: Color.text }}>{entry.name}</div>
               {entry.completed
                 ? <FMono size={10} color={Color.green}>DONE</FMono>
@@ -236,25 +279,53 @@ export function TodayContent({ onStartSession }) {
           ))}
       </div>
 
-      {/* ── Daily trackers ── */}
-      <div style={{
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '12px 0', borderTop: `1px solid ${Color.borderSoft}`,
-      }}>
-        <div>
-          <FMono size={10} color={Color.faint} style={{ display: 'block', marginBottom: 3 }}>WATER</FMono>
-          <FMono size={11} color={Color.dim}>{water.trend7d[6].toLocaleString()} / {water.target.toLocaleString()} ml</FMono>
-        </div>
-        {targets && (
-          <div style={{ textAlign: 'right' }}>
-            <FMono size={10} color={Color.faint} style={{ display: 'block', marginBottom: 3 }}>TARGET</FMono>
-            <FMono size={11} color={Color.dim}>{targets.target?.toLocaleString()} kcal</FMono>
+      {/* ── Missed session nudge ── */}
+      {missedSession && (
+        <div style={{
+          marginBottom: 24, padding: '8px 10px', borderRadius: Radius.md,
+          background: `${Color.amber}08`, border: `1px solid ${Color.amber}20`,
+          display: 'flex', alignItems: 'center', gap: 10,
+        }}>
+          <div style={{
+            width: 32, height: 32, borderRadius: '50%',
+            background: `${Color.amber}18`,
+            display: 'grid', placeItems: 'center', flexShrink: 0,
+          }}>
+            <FIcon path={ICONS.timer} size={14} color={Color.amber} stroke={2} />
           </div>
-        )}
-      </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <FMono size={10} color={Color.amber} style={{ display: 'block' }}>Missed</FMono>
+            <FMono size={9} color={Color.dim} style={{ display: 'block', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {missedSession.name}
+            </FMono>
+          </div>
+          <button
+            onClick={() => handleStart(missedSession)}
+            style={{
+              width: 32, height: 32, borderRadius: '50%',
+              background: `${Color.accent}18`, border: `1px solid ${Color.accent}30`,
+              display: 'grid', placeItems: 'center',
+              cursor: 'pointer', flexShrink: 0,
+            }}
+          >
+            <FIcon path={ICONS.play} size={12} color={Color.accent} stroke={2} />
+          </button>
+          <button
+            onClick={() => markSessionComplete(missedSession.id || missedSession.dayIndex)}
+            style={{
+              width: 32, height: 32, borderRadius: '50%',
+              background: 'rgba(255,255,255,0.04)', border: `1px solid ${Color.borderSoft}`,
+              display: 'grid', placeItems: 'center',
+              cursor: 'pointer', flexShrink: 0,
+            }}
+          >
+            <FIcon path={ICONS.close} size={12} color={Color.mute} stroke={2} />
+          </button>
+        </div>
+      )}
 
       {/* ── Quick actions ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
         {showTrainNow && (
           <button onClick={() => handleStart(nextAvailable)} style={{
             padding: '10px 12px', borderRadius: Radius.md,
@@ -280,14 +351,6 @@ export function TodayContent({ onStartSession }) {
         }}>
           <FIcon path={ICONS.timer} size={14} color={Color.dim} stroke={1.8} />
           <FMono size={10} color={Color.dim}>History</FMono>
-        </button>
-        <button onClick={() => pushDetail('checkin-flow', 'Check-in')} style={{
-          padding: '10px 12px', borderRadius: Radius.md,
-          background: Color.surface, border: `1px solid ${Color.borderSoft}`,
-          cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
-        }}>
-          <FIcon path={ICONS.chart} size={14} color={Color.dim} stroke={1.8} />
-          <FMono size={10} color={Color.dim}>Check-in</FMono>
         </button>
       </div>
     </div>

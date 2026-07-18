@@ -9,6 +9,7 @@ import { ICONS, FSurface, FNavBar, FLabel, FMono, FNum, FIcon, FBtn, FTag, FTexB
 import { useUser } from '../../context/UserContext'
 import { useNav } from '../../context/NavigationContext'
 import { getProgramPhase, flattenSessionExercises, formatTime } from './fitness-data'
+import { MOCK_ACTIVITY_LOG } from '../../context/mockUser'
 
 function getTodayIndex() {
   const d = new Date().getDay()
@@ -70,7 +71,7 @@ export function ProgramOverviewContent({ onStartSession }) {
   const todayEntry = plan.schedule.find(s => s.dayIndex === todayIndex)
 
   return (
-    <div style={{ flex: 1, padding: '24px 24px 48px', overflowY: 'auto' }}>
+    <div style={{ flex: 1, padding: '24px 24px 100px', overflowY: 'auto' }}>
 
       {/* ── Resume Banner ── */}
       {activeSession && (
@@ -226,6 +227,36 @@ export function ProgramOverviewContent({ onStartSession }) {
           <FMono color={Color.faint} size={10}>
             REST · {restDays.map(d => d.day.slice(0, 3).toUpperCase()).join(', ')}
           </FMono>
+        </div>
+      )}
+
+      {/* ── Recent Sessions ── */}
+      {MOCK_ACTIVITY_LOG.length > 0 && (
+        <div style={{ marginTop: Space[5] }}>
+          <FMono size={9} color={Color.mute} style={{ display: 'block', marginBottom: 12, letterSpacing: 1 }}>RECENT</FMono>
+          {MOCK_ACTIVITY_LOG.slice(0, 2).map((entry, i) => {
+            const d = entry.data
+            const vol = (d.loggedSets || []).reduce((total, ex) =>
+              total + (ex.logged || []).reduce((s, set) => s + (set.reps || 0) * (set.load || 0), 0), 0)
+            const date = new Date(entry.timestamp)
+            const dateStr = date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
+            const mins = Math.round(d.duration / 60)
+            return (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'center', gap: Space[3],
+                padding: `${Space[3]}px 0`,
+                borderTop: `1px solid ${Color.borderSoft}`,
+              }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ ...Type.bodySm, color: Color.text, marginBottom: 2 }}>{d.name}</div>
+                  <FMono size={9} color={Color.faint}>{dateStr} · {mins} min</FMono>
+                </div>
+                {vol > 0 && (
+                  <FMono size={10} color={Color.dim}>{vol.toLocaleString()} kg</FMono>
+                )}
+              </div>
+            )
+          })}
         </div>
       )}
 

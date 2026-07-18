@@ -6,7 +6,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Color, Font, Space, Radius, Type } from '../../ui/tokens'
-import { ICONS, FSurface, FNavBar, FLabel, FMono, FNum, FIcon, FBtn, FTag, FTexBar, FListRow, FToolbar, Phone } from '../../ui/components'
+import { ICONS, FSurface, FNavBar, FLabel, FMono, FNum, FIcon, FBtn, FTag, FTexBar, FListRow, FToolbar, FWeightInput, Phone } from '../../ui/components'
 import { useUser } from '../../context/UserContext'
 import { useNav } from '../../context/NavigationContext'
 import { formatTime, computeSessionVolume, computeAvgRPE, computeAvgRIR, flattenSessionExercises, suggestLoadAdjustment, deriveLoadRecommendation } from './fitness-data'
@@ -65,7 +65,10 @@ export function TrainingSessionContent({ session, onComplete, onBack, autoAdvanc
   const [resting, setResting] = useState(false)
   const [loadOverrides, setLoadOverrides] = useState({}) // { exIdx: adjustedLoad }
   const [loadSuggestion, setLoadSuggestion] = useState(null) // { suggested, current, exIdx }
+  const [loadEditing, setLoadEditing] = useState(false)
   const [showEndConfirm, setShowEndConfirm] = useState(false)
+
+  useEffect(() => { setLoadEditing(false) }, [currentExIdx])
 
   const currentEx = coreExercises[currentExIdx]
   const currentLog = loggedSets[currentExIdx]
@@ -373,6 +376,37 @@ export function TrainingSessionContent({ session, onComplete, onBack, autoAdvanc
             {currentEx?.muscles?.join(' · ').toUpperCase()}
           </FMono>
         </div>
+
+        {/* Load adjuster — tap to edit */}
+        {!resting && currentEx && effectiveLoad > 0 && (
+          loadEditing ? (
+            <div style={{
+              padding: '12px 16px', borderRadius: Radius.md,
+              background: Color.surface, border: `1px solid ${Color.accent}40`,
+              marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            }}>
+              <FWeightInput
+                value={effectiveLoad}
+                onChange={v => setLoadOverrides(prev => ({ ...prev, [currentExIdx]: v }))}
+                min={0} max={300} step={currentEx.load >= 20 ? 2.5 : 1}
+                unit="kg" size="sm" inline
+              />
+              <FBtn variant="primary" size="sm" onClick={() => setLoadEditing(false)} data-stay="true">Done</FBtn>
+            </div>
+          ) : (
+            <div
+              onClick={() => setLoadEditing(true)}
+              style={{
+                display: 'flex', alignItems: 'baseline', gap: 6,
+                marginBottom: 16, cursor: 'pointer', padding: '8px 0',
+              }}>
+              <FNum size={24} weight={300}>{effectiveLoad}</FNum>
+              <FMono size={10} color={Color.mute}>KG</FMono>
+              <FMono size={10} color={Color.faint}>· {currentEx.sets} × {currentEx.reps}</FMono>
+              <FIcon path={ICONS.swap} size={12} color={Color.faint} stroke={1.5} />
+            </div>
+          )
+        )}
 
         {/* Form cue */}
         {currentEx?.cue && !resting && (

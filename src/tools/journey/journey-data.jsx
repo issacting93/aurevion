@@ -125,15 +125,13 @@ export const PHASES = [
   {
     id: 'dashboard',
     phase: '02 \u00b7 DECIDE',
-    title: 'Dashboard Hub',
-    description: 'Decide(state, goals, constraints) \u2192 central navigation with personalised tile presets.',
+    title: 'Today Hub',
+    description: 'Decide(state, goals, constraints) \u2192 Today is the default landing. Dashboard is a secondary detail screen for the full tile overview.',
     color: Phase.decide,
     dataFlow: ['user_state', 'user_constraints', 'user_goal'],
     screens: [
-      { label: 'Today',           C: screenById('today'),    reads: ['user_state', 'user_constraints', 'user_goal'], writes: [] },
-      { label: 'Balanced',        C: screenById('dash-bal'), reads: ['user_state', 'user_constraints', 'user_goal'], writes: [] },
-      { label: 'Nutrition Focus', C: screenById('dash-nut'), reads: ['user_state', 'user_constraints', 'user_goal'], writes: [] },
-      { label: 'Training Focus',  C: screenById('dash-trn'), reads: ['user_state', 'user_constraints', 'user_goal'], writes: [] },
+      { label: 'Today',     C: screenById('today'),    reads: ['user_state', 'user_constraints', 'user_goal'], writes: [] },
+      { label: 'Dashboard', C: screenById('dash-bal'), reads: ['user_state', 'user_constraints', 'user_goal'], writes: [] },
     ],
   },
   {
@@ -144,11 +142,8 @@ export const PHASES = [
     color: Phase.plan,
     dataFlow: [],
     screens: [
-      { label: 'Set Goal',        C: screenById('goal-a'), reads: ['user_goal'], writes: ['user_goal', 'meal_prep_approach'] },
-      { label: 'Goal Contract',   C: screenById('goal-b'), reads: ['user_goal'], writes: ['user_goal', 'meal_prep_approach'] },
       { label: 'Goal Detail',     C: screenById('goal-det'), reads: ['user_goal', 'goal_engine'], writes: [] },
       { label: 'TDEE Model',      C: screenById('tdee-a'), reads: ['user_state', 'goal_engine'], writes: [] },
-      { label: 'TDEE Confidence', C: screenById('tdee-b'), reads: ['user_state', 'goal_engine'], writes: [] },
       { label: 'Macro Targets',   C: screenById('macro-a'), reads: ['user_state', 'user_goal', 'goal_engine'], writes: [] },
       { label: 'Meal Queue',      C: screenById('macro-b'), reads: ['user_state', 'user_goal', 'goal_engine'], writes: [] },
       { label: 'Batch Strategy',  C: screenById('batch-a'), reads: ['user_constraints'], writes: [] },
@@ -315,25 +310,10 @@ export const EXERCISE_PHASES = [
     ],
   },
   {
-    id: 'ex-goals',
-    phase: 'GOALS',
-    title: 'Goal Setting & TDEE',
-    description: 'Define fitness goals, sign the contract, compute TDEE model. Goals drive the entire downstream pipeline.',
-    color: Phase.plan,
-    dataFlow: ['user_goal'],
-    screens: [
-      { label: 'Goal Input',       C: screenById('goal-a'), reads: ['user_goal'], writes: ['user_goal'] },
-      { label: 'Goal Contract',    C: screenById('goal-b'), reads: ['user_goal'], writes: ['user_goal'] },
-      { label: 'Goal Detail',      C: screenById('goal-det'), reads: ['user_goal'], writes: [] },
-      { label: 'TDEE Model',       C: screenById('tdee-a'), reads: ['user_state'], writes: [] },
-      { label: 'TDEE Confidence',  C: screenById('tdee-b'), reads: ['user_state'], writes: [] },
-    ],
-  },
-  {
     id: 'ex-program',
     phase: 'PROGRAM',
     title: 'Program Generation',
-    description: 'Goals + constraints + equipment + injuries → weekly training plan. Browse exercises, view workout templates, customize the program.',
+    description: 'Today screen → generated program → exercise library. The entry point for daily training.',
     color: Phase.decide,
     dataFlow: ['user_goal', 'user_constraints'],
     screens: [
@@ -342,7 +322,6 @@ export const EXERCISE_PHASES = [
       { label: 'Exercise Browser',   C: screenById('ex-browse'), reads: ['user_constraints'], writes: [] },
       { label: 'Exercise Detail',    C: screenById('ex-detail'), reads: [], writes: [] },
       { label: 'Workout Template',   C: screenById('wk-template'), reads: ['user_goal'], writes: [] },
-      { label: 'Calendar Week',      C: screenById('plan-w'), reads: ['user_constraints'], writes: [] },
     ],
   },
   {
@@ -361,14 +340,25 @@ export const EXERCISE_PHASES = [
     id: 'ex-track',
     phase: 'TRACK',
     title: 'Progress Tracking',
-    description: 'Weekly check-ins feed the decision engine. Daily logging builds the macro heatmap. Behavioral metrics (workouts_7d, adherence) drive interventions.',
+    description: 'What the user logs and reviews. Check-ins feed the decision engine, macro heatmap shows adherence, workout history shows what you did.',
     color: Phase.observe,
     dataFlow: ['user_state'],
     screens: [
-      { label: 'Workout History',  C: screenById('wk-history'), reads: ['user_state'], writes: [] },
       { label: 'Check-in Flow',   C: screenById('checkin'), reads: [], writes: ['user_state'] },
+      { label: 'Workout History',  C: screenById('wk-history'), reads: ['user_state'], writes: [] },
       { label: 'Macro Heatmap',   C: screenById('macro-heat'), reads: ['user_state'], writes: ['user_state'] },
       { label: 'Water Tracking',  C: screenById('water'), reads: ['user_state'], writes: ['user_state'] },
+    ],
+  },
+  {
+    id: 'ex-surplus',
+    phase: 'SURPLUS',
+    title: 'Energy Model',
+    description: 'TDEE estimation and confidence tracking. TODAY | OVER TIME tabs in a single screen — uncertainty is shown, not hidden.',
+    color: Phase.observe,
+    dataFlow: ['user_state'],
+    screens: [
+      { label: 'TDEE (TODAY | OVER TIME)', C: screenById('tdee-a'), reads: ['user_state'], writes: [] },
     ],
   },
 ]
@@ -378,8 +368,6 @@ export const EXERCISE_FLOWS = {
     label: 'Create',
     description: 'Set a goal, generate a program, execute a workout, and log results.',
     screens: [
-      { id: 'goal-a', label: 'Goal Input' },
-      { id: 'goal-b', label: 'Goal Contract' },
       { id: 'tdee-a', label: 'TDEE Model' },
       { id: 'train-prog', label: 'Program Overview' },
       { id: 'plan-w', label: 'Calendar (schedule)' },
@@ -391,8 +379,6 @@ export const EXERCISE_FLOWS = {
     label: 'Edit',
     description: 'Modify an existing goal, regenerate program, or reschedule.',
     screens: [
-      { id: 'goal-a', label: 'Goal Input (modify)' },
-      { id: 'goal-b', label: 'Goal Contract (re-sign)' },
       { id: 'train-prog', label: 'Program Overview (adjust)' },
       { id: 'plan-w', label: 'Calendar (reschedule)' },
     ],
@@ -490,13 +476,24 @@ export const OBSERVE_COLOR = Phase.observe
 
 export const OBSERVE_PHASES = [
   {
+    id: 'obs-stats',
+    phase: 'STATS',
+    title: 'Progress Hub',
+    description: 'Unified analytics tab — body composition trends, TDEE model (progressive disclosure), training volume bars, and macro adherence (collapsible 8-week heatmap). Single entry point for all progress data.',
+    color: Phase.observe,
+    dataFlow: ['user_state'],
+    screens: [
+      { label: 'Stats',            C: screenById('stats'), reads: ['user_state'], writes: [] },
+    ],
+  },
+  {
     id: 'obs-checkin',
     phase: 'WEEKLY',
     title: 'Weekly Check-in',
     description: 'Weight, body fat, subjective rating → decision engine evaluation → intervention if needed.',
     color: Phase.observe,
     dataFlow: ['user_state'],
-    screens: [PHASES[4].screens[1]],
+    screens: [{ label: 'Check-in Flow', C: screenById('checkin'), reads: [], writes: ['user_state'] }],
   },
   {
     id: 'obs-daily',
@@ -505,16 +502,10 @@ export const OBSERVE_PHASES = [
     description: 'Meal tracking and hydration monitoring against computed targets.',
     color: Phase.act,
     dataFlow: ['user_state'],
-    screens: [PHASES[4].screens[3], PHASES[4].screens[4]],
-  },
-  {
-    id: 'obs-analytics',
-    phase: 'ANALYTICS',
-    title: 'Adherence Analytics',
-    description: '8-week × 7-day macro heatmap showing protein/carb/fat adherence patterns.',
-    color: Phase.plan,
-    dataFlow: ['user_state'],
-    screens: [PHASES[4].screens[2]],
+    screens: [
+      { label: 'Daily Food Log', C: screenById('food-log'), reads: ['user_state'], writes: ['user_state'] },
+      { label: 'Water Tracking', C: screenById('water'),    reads: ['user_state'], writes: ['user_state'] },
+    ],
   },
   {
     id: 'obs-profile',
@@ -523,7 +514,18 @@ export const OBSERVE_PHASES = [
     description: 'Account overview, streaks, and all user state in one view.',
     color: Phase.decide,
     dataFlow: ['user_state', 'user_constraints', 'user_goal'],
-    screens: [PHASES[4].screens[0]],
+    screens: [{ label: 'Profile Hub', C: screenById('profile'), reads: ['user_state', 'user_constraints', 'user_goal'], writes: [] }],
+  },
+  {
+    id: 'obs-surplus',
+    phase: 'SURPLUS',
+    title: 'Energy Model',
+    description: 'TDEE estimation and confidence tracking. The model narrows as the user logs more data — uncertainty is shown, not hidden.',
+    color: Phase.observe,
+    dataFlow: ['user_state'],
+    screens: [
+      { label: 'TDEE Model (tabbed)', C: screenById('tdee-a'), reads: ['user_state'], writes: [] },
+    ],
   },
 ]
 
@@ -539,7 +541,7 @@ export const MODE_CONFIG = {
     breadcrumb: 'Seed',
     titlePrefix: 'SEED',
     sectionLabel: 'ONBOARDING SCREENS BY PHASE',
-    description: 'Two-phase onboarding — general (8 steps: demographics, goals, TDEE) then fitness (9 steps: body composition, experience, equipment, focus, program).',
+    description: 'Two-phase onboarding — general (8 steps: demographics, goals, TDEE) then fitness (8 steps: body composition, timeline, experience, equipment, focus, contract).',
     routePrefix: '/journey/seed',
   },
   decide: {
@@ -550,8 +552,8 @@ export const MODE_CONFIG = {
     label: 'DECIDE MODE',
     breadcrumb: 'Decide',
     titlePrefix: 'DECIDE',
-    sectionLabel: 'DASHBOARD PRESETS',
-    description: 'Central decision hub — goal-driven tile layouts that adapt to the user\'s primary focus. Entry point to all modes.',
+    sectionLabel: 'TODAY HUB + DASHBOARD',
+    description: 'Today is the default landing — daily directive, session hero, schedule strip. Dashboard is a secondary detail screen with the full tile overview.',
     routePrefix: '/journey/decide',
   },
   cooking: {
@@ -574,8 +576,8 @@ export const MODE_CONFIG = {
     label: 'EXERCISE MODE',
     breadcrumb: 'Exercise',
     titlePrefix: 'EXERCISE',
-    sectionLabel: 'FITNESS MODE — GOALS → PROGRAM → TRAIN → TRACK',
-    description: 'Full fitness pipeline: fitness onboarding (body comp, experience, equipment, focus) → goals → program generation → session execution → progress tracking.',
+    sectionLabel: 'FITNESS MODE — ONBOARDING → PROGRAM → TRAIN → TRACK → SURPLUS',
+    description: 'Full fitness pipeline: onboarding (body comp, contract) → program (today, goal detail, exercises) → session execution → progress tracking → energy model.',
     routePrefix: '/journey/exercise',
   },
   observe: {
@@ -586,8 +588,8 @@ export const MODE_CONFIG = {
     label: 'OBSERVE MODE',
     breadcrumb: 'Observe',
     titlePrefix: 'OBSERVE',
-    sectionLabel: 'TRACKING SCREENS BY CADENCE',
-    description: 'Feedback loop — check-ins, daily food/water logging, and macro adherence analytics. Feeds data back to DECIDE for interventions.',
+    sectionLabel: 'TRACKING & ENERGY MODEL BY CADENCE',
+    description: 'Feedback loop — check-ins, daily food/water logging, macro adherence analytics, and TDEE energy model. Feeds data back to DECIDE for interventions.',
     routePrefix: '/journey/observe',
   },
 }

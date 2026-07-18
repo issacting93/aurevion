@@ -10,8 +10,7 @@ import { Phone, FIcon, ICONS, FMono } from '../ui/components'
 import { TodayContent } from './screens/Today'
 import { DashboardContent } from './screens/Dashboard'
 import { TDEEContent, TDEECompareContent } from './screens/TDEE'
-import { GoalInputContent, GoalContractContent } from './screens/GoalSetting'
-import { MacroTargetsContent, MacroMealsContent, ShoppingListContent } from './screens/Macros'
+import { NutritionHubContent, MacroTargetsContent, MacroMealsContent, ShoppingListContent } from './screens/Macros'
 import { TrainingSessionContent, SummaryPhase } from './screens/Training'
 import { ProgramOverviewContent } from './screens/ProgramOverview'
 import { PlanCalendarContent } from './screens/PlanCalendar'
@@ -19,6 +18,7 @@ import { FridgeContent } from './screens/Fridge'
 import { MealPrepMergeContent, MealPrepTimelineContent, MealPrepCookModeContent } from './screens/MealPrep'
 import { BatchPrepContent } from './screens/BatchPrep'
 import { ProfileContent } from './screens/Profile'
+import { StatsContent } from './screens/Stats'
 import { CheckInFlowContent } from './screens/CheckIn'
 import { GoalDetailContent } from './screens/GoalDetail'
 import { ExerciseBrowserContent } from './screens/ExerciseBrowser'
@@ -33,11 +33,11 @@ import { useUser } from '../context/UserContext'
 
 // ─── Tab definitions ─────────────────────────────────────
 const TABS = [
-  { id: 'home',  label: 'Home',  icon: 'M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3a1 1 0 001-1V10' },
-  { id: 'train', label: 'Train', icon: ICONS.dumb },
-  { id: 'eat',   label: 'Eat',   icon: ICONS.bowl },
-  { id: 'plan',  label: 'Plan',  icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
-  { id: 'you',   label: 'You',   icon: ICONS.goal },
+  { id: 'calendar', label: 'Calendar',  icon: ICONS.cal },
+  { id: 'eat',      label: 'Eat',       icon: ICONS.bowl },
+  { id: 'home',     label: 'Home',      icon: 'M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3a1 1 0 001-1V10' },
+  { id: 'stats',    label: 'Dashboard', icon: ICONS.chart },
+  { id: 'you',      label: 'You',       icon: ICONS.goal },
 ]
 
 // ─── Tile → Detail screen mapping ────────────────────────
@@ -68,12 +68,12 @@ function TabRouter({ tab }) {
   }
 
   switch (tab) {
-    case 'home':  return <TodayContent onStartSession={handleStartSession} />
-    case 'train': return <ProgramOverviewContent onStartSession={handleStartSession} />
-    case 'eat':   return <MacroTargetsContent />
-    case 'plan':  return <PlanCalendarContent onStartSession={handleStartSession} />
-    case 'you':   return <ProfileContent />
-    default:      return null
+    case 'home':     return <TodayContent onStartSession={handleStartSession} />
+    case 'calendar': return <PlanCalendarContent onStartSession={handleStartSession} />
+    case 'eat':      return <NutritionHubContent />
+    case 'stats':    return <StatsContent />
+    case 'you':      return <ProfileContent />
+    default:         return null
   }
 }
 
@@ -91,8 +91,6 @@ function DetailRouter({ screenId, data }) {
   }
 
   switch (screenId) {
-    case 'goal':    return <GoalInputContent />
-    case 'goal-contract': return <GoalContractContent />
     case 'tdee':    return <TDEEContent />
     case 'tdee-compare': return <TDEECompareContent />
     case 'macros':  return <MacroTargetsContent />
@@ -164,7 +162,7 @@ function ShellTabBar({ hidden }) {
             key={tab.id}
             onClick={() => switchTab(tab.id)}
             style={{
-              background: 'none', border: 'none', cursor: 'pointer',
+              background: 'none', border: 'none', outline: 'none', cursor: 'pointer',
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
               padding: '6px 10px', minWidth: 48,
               color: active ? Color.accent : Color.mute,

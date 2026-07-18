@@ -299,3 +299,12 @@ export const MOCK_DASHBOARD = {
   streak: { count: 14, best: 21 },
   water: { current: MOCK_WATER.trend7d[6] || 1250, target: MOCK_WATER.target, trend7d: MOCK_WATER.trend7d },
 }
+
+// ── Weekly training volume (for Stats screen) ────────────────────────
+
+export const MOCK_VOLUME_WEEKS = [
+  { label: 'W1', value: 8200 },
+  { label: 'W2', value: 9100 },
+  { label: 'W3', value: 9800 },
+  { label: 'W4', value: 7400 },
+]

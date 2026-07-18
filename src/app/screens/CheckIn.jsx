@@ -1,291 +1,363 @@
 // ════════════════════════════════════════════════════════════
-// Check-in Flow — 4-step weekly weigh-in that closes the SDAO loop
+// Check-in — Weekly progress overview
 // ════════════════════════════════════════════════════════════
 
 import { useState } from 'react'
-import { Color, Font, Space, Radius, Duration, Ease, Type } from '../../ui/tokens'
-import { ICONS, FBtn, FIcon, FNum, FLabel, FMono, FTag, FStagger, FSurface, FNavBar, Phone } from '../../ui/components'
+import { Color, Font, Space, Radius, Type } from '../../ui/tokens'
+import { FMono, FSurface, FBtn, FWeightInput, Phone } from '../../ui/components'
 import { useUser } from '../../context/UserContext'
+import { useNav } from '../../context/NavigationContext'
+import { MOCK_BODY, MOCK_VOLUME_WEEKS, MOCK_TARGETS } from '../../context/mockUser'
 
-/* ── Helpers ───────────────────────────────────────────── */
+/* ── Mock daily weight data (Mon → Sun) ───────────────────── */
+const DAILY_WEIGHTS = [82.4, 82.2, 82.5, 82.8, 82.9, 82.6, 82.1]
+const WEEK_DAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+const PREV_CHECKIN_WEIGHT = 82.5
 
-function CINav({ title, onBack }) {
-  return (
-    <FNavBar
-      title={title}
-      leading={onBack ? <FIcon path={ICONS.back} size={20} color={Color.text} onClick={onBack}/> : null}
-    />
-  );
-}
+/* ── 7-Day Weight Trend Chart ─────────────────────────────── */
+function WeightTrendChart({ weights, refWeight }) {
+  const W = 360, H = 116
+  const padX = 8, padY = 12
+  const innerW = W - padX * 2
+  const innerH = H - padY * 2
 
-/* Step dots inlined below */
+  const allVals = [...weights, refWeight]
+  const minV = Math.min(...allVals) - 0.35
+  const maxV = Math.max(...allVals) + 0.35
 
-function CINumberInput({ value, onChange, min, max, step = 0.1, unit }) {
-  const adjust = (delta) => {
-    const next = Math.round((value + delta) * 10) / 10;
-    if (next >= min && next <= max) onChange(next);
-  };
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: Space[6] }}>
-      <button onClick={() => adjust(-step)} style={{
-        width: 48, height: 48, borderRadius: Radius.full, border: `1px solid ${Color.border}`,
-        background: Color.surface, color: Color.text, cursor: 'pointer',
-        display: 'grid', placeItems: 'center', fontSize: 20, fontFamily: Font.sans,
-      }}>−</button>
-      <div style={{ textAlign: 'center', minWidth: 120 }}>
-        <FNum size={48} weight={200}>{value}</FNum>
-        {unit && <div style={{ ...Type.labelSm, color: Color.mute, letterSpacing: 1.4, marginTop: 4 }}>{unit}</div>}
-      </div>
-      <button onClick={() => adjust(step)} style={{
-        width: 48, height: 48, borderRadius: Radius.full, border: `1px solid ${Color.border}`,
-        background: Color.surface, color: Color.text, cursor: 'pointer',
-        display: 'grid', placeItems: 'center', fontSize: 20, fontFamily: Font.sans,
-      }}>+</button>
-    </div>
-  );
-}
+  const px = (i) => padX + (i / (weights.length - 1)) * innerW
+  const py = (v) => H - padY - ((v - minV) / (maxV - minV)) * innerH
 
-/* ── Decision logic ────────────────────────────────────── */
+  const pts = weights.map((w, i) => [px(i), py(w)])
 
-function computeDecision(checkins, targets) {
-  if (checkins.length < 2) return null;
-  const delta = checkins[0].weight - checkins[1].weight;
-  if (delta < -0.75) {
-    return {
-      type: 'deficit_too_aggressive',
-      title: 'Slow it down',
-      body: `You lost ${Math.abs(delta).toFixed(1)} kg this week. Consider increasing intake by ~200 kcal to preserve muscle.`,
-      tone: 'red',
-    };
+  // Smooth cubic bezier path
+  let linePath = `M ${pts[0][0]} ${pts[0][1]}`
+  for (let i = 1; i < pts.length; i++) {
+    const [x0, y0] = pts[i - 1]
+    const [x1, y1] = pts[i]
+    const cpx = (x0 + x1) / 2
+    linePath += ` C ${cpx} ${y0} ${cpx} ${y1} ${x1} ${y1}`
   }
-  if (delta > 0.3 && targets?.target < targets?.tdee) {
-    return {
-      type: 'deficit_not_working',
-      title: 'Deficit not tracking',
-      body: `Weight increased ${delta.toFixed(1)} kg despite a deficit. Review logging accuracy.`,
-      tone: 'accent',
-    };
-  }
-  return {
-    type: 'on_track',
-    title: 'On track',
-    body: 'Your progress is consistent with your targets. Keep going.',
-    tone: 'green',
-  };
-}
 
-/* ── Steps ─────────────────────────────────────────────── */
+  const areaPath = linePath +
+    ` L ${pts[pts.length - 1][0]} ${H} L ${pts[0][0]} ${H} Z`
 
-function CIWeight({ data, setData }) {
+  const refY = py(refWeight)
+
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 24px' }}>
-      <FLabel mb={Space[6]}>Current weight</FLabel>
-      <CINumberInput
-        value={data.weight}
-        onChange={w => setData({ ...data, weight: w })}
-        min={30} max={200} step={0.1}
-        unit="KG"
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ display: 'block', overflow: 'visible' }}>
+      <defs>
+        <linearGradient id="ci-wgr" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#FF6E50" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="#FF6E50" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      {/* Reference dashed line */}
+      <line
+        x1={padX} y1={refY} x2={W - padX} y2={refY}
+        stroke="rgba(255,255,255,0.16)" strokeWidth="1" strokeDasharray="4,4"
       />
-    </div>
-  );
+      {/* Area fill */}
+      <path d={areaPath} fill="url(#ci-wgr)" />
+      {/* Line */}
+      <path d={linePath} fill="none" stroke="#FF6E50" strokeWidth="2"
+        strokeLinecap="round" strokeLinejoin="round" />
+      {/* Dots */}
+      {pts.map(([x, y], i) => {
+        const isLast = i === pts.length - 1
+        return (
+          <circle key={i} cx={x} cy={y}
+            r={isLast ? 4 : 2.5}
+            fill={isLast ? '#FF6E50' : 'rgba(255,110,80,0.65)'}
+            stroke={isLast ? '#111' : 'none'}
+            strokeWidth={isLast ? 1.5 : 0}
+          />
+        )
+      })}
+    </svg>
+  )
 }
 
-function CIBodyFat({ data, setData, onSkip }) {
+/* ── Section label ────────────────────────────────────────── */
+function SectionLabel({ children }) {
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: Space[6] }}>
-        <FLabel>Body fat estimate</FLabel>
-        <button onClick={onSkip} style={{
-          background: 'transparent', border: 'none', cursor: 'pointer',
-          ...Type.labelSm, color: Color.dim,
-        }}>SKIP</button>
-      </div>
-      <CINumberInput
-        value={data.bf || 20}
-        onChange={bf => setData({ ...data, bf })}
-        min={3} max={50} step={0.5}
-        unit="% BF"
-      />
+    <div style={{
+      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+      fontFamily: Font.sans, fontSize: 14, fontWeight: 500, color: Color.text, marginBottom: 14,
+    }}>
+      {children}
+      <span style={{ color: Color.mute, fontSize: 16, lineHeight: 1 }}>›</span>
     </div>
-  );
+  )
 }
 
-function CIRating({ data, setData }) {
-  const options = [
-    { val: 1, label: 'Struggling' },
-    { val: 2, label: 'Off' },
-    { val: 3, label: 'Neutral' },
-    { val: 4, label: 'Good' },
-    { val: 5, label: 'Excellent' },
-  ];
+/* ── Main content ─────────────────────────────────────────── */
+export function CheckInOverviewContent({ onComplete }) {
+  const { checkins, workoutPlan } = useUser()
+  const { switchTab, pushDetail } = useNav()
+
+  /* Contract */
+  const { currentBf, targetBf, weeks, elapsed } = MOCK_BODY
+  const endDate = '04 SEP'
+
+  /* Body */
+  const latestWeight = DAILY_WEIGHTS[DAILY_WEIGHTS.length - 1]
+  const weeklyDelta = (latestWeight - PREV_CHECKIN_WEIGHT).toFixed(1)
+  const checkInCount = checkins?.length ?? 4
+
+  /* Training */
+  const schedule = workoutPlan?.schedule || []
+  const sessionsDone  = schedule.filter(s => !s.isRest && s.completed).length
+  const sessionsTotal = schedule.filter(s => !s.isRest).length
+
+  const currentVol = MOCK_VOLUME_WEEKS[MOCK_VOLUME_WEEKS.length - 1]
+  const prevVol    = MOCK_VOLUME_WEEKS[MOCK_VOLUME_WEEKS.length - 2]
+  const volDeltaPct = prevVol
+    ? Math.round(((currentVol.value - prevVol.value) / prevVol.value) * 100)
+    : 0
+
+  /* Nutrition */
+  const adherencePct = 88
+  const allOnTrack   = true
+
+  /* Macro split proportions (target ranges) */
+  const pPct = 0.375, cPct = 0.395, fPct = 0.23
+
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 24px' }}>
-      <FLabel mb={Space[4]}>How was your week?</FLabel>
-      <FStagger delay={40}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: Space[2] }}>
-          {options.map(o => {
-            const sel = data.rating === o.val;
-            return (
-              <button key={o.val} onClick={() => setData({ ...data, rating: o.val })} style={{
-                padding: `${Space[4]}px ${Space[1]}px`, borderRadius: Radius.lg,
-                background: sel ? Color.accentFaint : Color.surface,
-                border: `2px solid ${sel ? Color.accent : Color.border}`,
-                color: sel ? Color.accent : Color.text, cursor: 'pointer',
-                fontFamily: Font.sans, fontSize: 11, fontWeight: 500,
-                textAlign: 'center',
-                transition: `all ${Duration.normal} ${Ease.spring}`,
-              }}>
-                <div style={{ fontSize: 22, marginBottom: 4 }}>{o.val}</div>
-                {o.label}
-              </button>
-            );
-          })}
+    <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 100 }}>
+
+      {/* ── The Contract ── */}
+      <div style={{ padding: '24px 24px 28px' }}>
+        <FMono size={9} color={Color.mute} style={{ display: 'block', marginBottom: 10, letterSpacing: 1 }}>
+          THE CONTRACT
+        </FMono>
+        <div style={{ marginBottom: 8, lineHeight: 1 }}>
+          <span style={{
+            fontFamily: '"Geist Mono", ui-monospace, monospace',
+            fontSize: 46, fontWeight: 200, color: Color.text,
+            whiteSpace: 'nowrap', display: 'block',
+          }}>{currentBf}% → {targetBf}%</span>
         </div>
-      </FStagger>
-    </div>
-  );
-}
-
-function CISummary({ data, checkins, targets, onSave }) {
-  const prev = checkins[0];
-  const delta = prev ? +(data.weight - prev.weight).toFixed(1) : null;
-  const decision = prev ? computeDecision([data, ...checkins], targets) : null;
-
-  return (
-    <div style={{ flex: 1, padding: '0 24px', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
-      <FStagger delay={60}>
-        {/* Weight result */}
-        <FSurface style={{ marginBottom: Space[3] }}>
-          <FLabel>Weight</FLabel>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: Space[3], marginTop: Space[2] }}>
-            <FNum size={36} weight={200}>{data.weight}</FNum>
-            <FMono size={11} color={Color.mute}>KG</FMono>
-            {delta !== null && (
-              <FTag tone={delta < 0 ? 'green' : delta > 0 ? 'red' : 'neutral'}>
-                {delta > 0 ? '+' : ''}{delta} KG
-              </FTag>
-            )}
-          </div>
-          {prev && <FMono color={Color.mute} size={10}>PREV: {prev.weight} KG · {prev.date}</FMono>}
-        </FSurface>
-
-        {/* Body fat (if provided) */}
-        {data.bf && (
-          <FSurface style={{ marginBottom: Space[3] }}>
-            <FLabel>Body Fat</FLabel>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: Space[3], marginTop: Space[2] }}>
-              <FNum size={28} weight={200}>{data.bf}</FNum>
-              <FMono size={11} color={Color.mute}>%</FMono>
-            </div>
-          </FSurface>
-        )}
-
-        {/* Rating */}
-        <FSurface style={{ marginBottom: Space[3] }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <FLabel>Weekly rating</FLabel>
-            <FMono color={Color.accent}>{data.rating} / 5</FMono>
-          </div>
-        </FSurface>
-
-        {/* Decision card */}
-        {decision && (
-          <FSurface tone={decision.tone} icon={ICONS.sparkle} title={decision.title} style={{ marginBottom: Space[3] }}>
-            <div style={{ ...Type.bodyMd, color: Color.dim, lineHeight: 1.5 }}>
-              {decision.body}
-            </div>
-          </FSurface>
-        )}
-      </FStagger>
-
-      <div style={{ flex: 1 }}/>
-
-      <div style={{ padding: `${Space[4]}px 0 ${Space[5]}px` }}>
-        <FBtn variant="primary" full size="lg" onClick={onSave}>Save check-in</FBtn>
+        <FMono size={9} color={Color.mute} style={{ display: 'block', marginBottom: 10, letterSpacing: 0.8 }}>
+          BODY FAT · {weeks} WEEKS · ENDS {endDate}
+        </FMono>
+        <FMono size={11} color={Color.accent} style={{ display: 'block' }}>
+          WEEK {elapsed} OF {weeks}
+        </FMono>
       </div>
+
+      {/* ── Body ── */}
+      <section style={{ padding: '0 24px 24px', cursor: 'pointer' }} onClick={() => switchTab('stats')}>
+        <SectionLabel>BODY</SectionLabel>
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14,
+        }}>
+          <span style={{ fontFamily: Font.sans, fontSize: 18, color: Color.text, fontWeight: 300 }}>
+            {latestWeight} kg
+          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+            <div style={{ width: 6, height: 6, borderRadius: '50%', background: Color.amber }} />
+            <FMono size={10} color={Color.dim}>
+              {weeklyDelta} kg/wk · {checkInCount} check-ins
+            </FMono>
+          </div>
+        </div>
+        <FSurface style={{ padding: '16px 16px 12px' }}>
+          <div style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 14,
+          }}>
+            <FMono size={9} color={Color.mute} style={{ letterSpacing: 1 }}>7-DAY TREND</FMono>
+            <FMono size={9} color={Color.dim}>{latestWeight} KG</FMono>
+          </div>
+          <WeightTrendChart weights={DAILY_WEIGHTS} refWeight={PREV_CHECKIN_WEIGHT} />
+          <div style={{
+            display: 'flex', justifyContent: 'space-between', marginTop: 10, padding: '0 4px',
+          }}>
+            {WEEK_DAYS.map((d, i) => (
+              <FMono key={i} size={9} color={i === WEEK_DAYS.length - 1 ? Color.accent : Color.mute}>
+                {d}
+              </FMono>
+            ))}
+          </div>
+        </FSurface>
+      </section>
+
+      {/* ── Training ── */}
+      <section style={{ padding: '0 24px 24px', cursor: 'pointer' }} onClick={() => switchTab('train')}>
+        <SectionLabel>TRAINING</SectionLabel>
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14,
+        }}>
+          <span style={{ fontFamily: Font.sans, fontSize: 15, color: Color.text, fontWeight: 300 }}>
+            {sessionsDone}/{sessionsTotal} Sessions done
+          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+            <div style={{
+              width: 6, height: 6, borderRadius: '50%',
+              background: volDeltaPct < 0 ? Color.accent : Color.green,
+            }} />
+            <FMono size={10} color={Color.dim}>
+              {volDeltaPct > 0 ? '+' : ''}{volDeltaPct}% volume vs last week
+            </FMono>
+          </div>
+        </div>
+        <FSurface style={{ padding: 16 }}>
+          <FMono size={9} color={Color.mute} style={{ display: 'block', marginBottom: 10, letterSpacing: 1 }}>
+            TRAINING
+          </FMono>
+          <div style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10,
+          }}>
+            <FMono size={11} color={Color.text}>{sessionsDone} / {sessionsTotal} sessions</FMono>
+            <FMono size={11} color={volDeltaPct >= 0 ? Color.green : Color.accent}>
+              {volDeltaPct >= 0 ? '↑' : '↓'}{Math.abs(volDeltaPct)}% vol
+            </FMono>
+          </div>
+          <div style={{ display: 'flex', gap: 4, marginBottom: 12 }}>
+            {Array.from({ length: sessionsTotal || 4 }).map((_, i) => (
+              <div key={i} style={{
+                flex: 1, height: 4, borderRadius: 2,
+                background: i < sessionsDone ? Color.accent : Color.borderSoft,
+              }} />
+            ))}
+          </div>
+          <FMono size={10} color={Color.dim}>
+            {currentVol.value.toLocaleString()} kg total volume this week
+          </FMono>
+        </FSurface>
+      </section>
+
+      {/* ── Nutrition ── */}
+      <section style={{ padding: '0 24px 24px', cursor: 'pointer' }} onClick={() => switchTab('eat')}>
+        <SectionLabel>NUTRITION</SectionLabel>
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14,
+        }}>
+          <span style={{ fontFamily: Font.sans, fontSize: 15, color: Color.text, fontWeight: 300 }}>
+            {adherencePct}% on target
+          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+            <div style={{
+              width: 6, height: 6, borderRadius: '50%',
+              background: allOnTrack ? Color.green : Color.amber,
+            }} />
+            <FMono size={10} color={Color.dim}>
+              {allOnTrack ? 'all macros on track' : 'macros need attention'}
+            </FMono>
+          </div>
+        </div>
+        <FSurface style={{ padding: 16 }}>
+          <FMono size={9} color={Color.mute} style={{ display: 'block', marginBottom: 12, letterSpacing: 1 }}>
+            MACRO SPLIT
+          </FMono>
+          {/* Tri-color bar */}
+          <div style={{
+            display: 'flex', height: 8, borderRadius: 4, overflow: 'hidden', marginBottom: 10, gap: 2,
+          }}>
+            <div style={{ flex: pPct, background: Color.accent }} />
+            <div style={{ flex: cPct, background: Color.blue }} />
+            <div style={{ flex: fPct, background: Color.amber }} />
+          </div>
+          {/* Range labels */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+            <FMono size={9} color={Color.accent}>P 35–40%</FMono>
+            <FMono size={9} color={Color.blue}>C 35–45%</FMono>
+            <FMono size={9} color={Color.amber}>F 20–25%</FMono>
+          </div>
+          <FMono size={10} color={Color.dim}>
+            Protein 2.2g/kg LBM · balanced approach
+          </FMono>
+        </FSurface>
+      </section>
+
+      {/* ── Log CTA ── */}
+      <div style={{ padding: '8px 24px 32px' }}>
+        <FBtn variant="primary" full onClick={() => pushDetail('checkin-flow', 'Log Check-in')}>
+          Log this week
+        </FBtn>
+      </div>
+
     </div>
-  );
+  )
 }
 
-/* ── Flow ──────────────────────────────────────────────── */
-
+/* ── Entry form (pushed from Today banner + Progress LOG button) ── */
 export function CheckInFlowContent({ onComplete }) {
-  const { profile, targets, checkins, logCheckin, addIntervention } = useUser();
-  const [step, setStep] = useState(0);
+  const { checkins, targets, logCheckin } = useUser()
+  const [step, setStep] = useState(0)
   const [data, setData] = useState({
-    weight: checkins?.[0]?.weight || profile?.weight || 70,
-    bf: null,
-    rating: 3,
-  });
-
-  const next = () => setStep(s => Math.min(s + 1, 3));
-  const back = () => setStep(s => Math.max(s - 1, 0));
+    weight: checkins?.[0]?.weight || 82.1,
+    bf: checkins?.[0]?.bf || 20.1,
+  })
 
   const handleSave = () => {
-    const now = new Date();
-    const dateStr = now.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
-    const entry = { ...data, date: dateStr };
-    logCheckin(entry);
-
-    // Generate intervention if applicable
-    const allCheckins = [entry, ...(checkins || [])];
-    const decision = computeDecision(allCheckins, targets);
-    if (decision && decision.type !== 'on_track') {
-      addIntervention({
-        ...decision,
-        id: `checkin-${now.getTime()}`,
-      });
-    }
-
-    onComplete?.();
-  };
-
-  const skipBf = () => {
-    setData({ ...data, bf: null });
-    next();
-  };
-
-  const titles = ['Weight', 'Body Fat', 'Rating', 'Summary'];
+    const now = new Date()
+    const dateStr = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+    logCheckin({ ...data, date: dateStr })
+    onComplete?.()
+  }
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-      <CINav
-        title={titles[step]}
-        onBack={step > 0 ? back : undefined}
-      />
+      {/* Step dots */}
       <div style={{ display: 'flex', gap: 6, justifyContent: 'center', padding: '8px 0' }}>
-        {[0,1,2,3].map(i => (
+        {[0, 1].map(i => (
           <div key={i} style={{
             width: i === step ? 16 : 6, height: 6, borderRadius: 9999,
             background: i <= step ? Color.accent : Color.faint,
             transition: 'all 0.25s ease',
-          }}/>
+          }} />
         ))}
       </div>
 
-      {step === 0 && <CIWeight data={data} setData={setData}/>}
-      {step === 1 && <CIBodyFat data={data} setData={setData} onSkip={skipBf}/>}
-      {step === 2 && <CIRating data={data} setData={setData}/>}
-      {step === 3 && <CISummary data={data} checkins={checkins || []} targets={targets} onSave={handleSave}/>}
-
-      {step < 3 && (
-        <div style={{ padding: `${Space[4]}px 24px ${Space[5]}px`, flexShrink: 0 }}>
-          <FBtn variant="primary" full size="lg"
-            disabled={step === 2 && !data.rating}
-            onClick={next}>
-            {step === 1 ? 'Next' : 'Continue'}
-          </FBtn>
+      {/* Step 0: Weight */}
+      {step === 0 && (
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 24px' }}>
+          <FMono size={9} color={Color.mute} style={{ display: 'block', marginBottom: 24, letterSpacing: 1 }}>CURRENT WEIGHT</FMono>
+          <FWeightInput
+            value={data.weight}
+            onChange={w => setData({ ...data, weight: w })}
+            min={30} max={200} step={0.1}
+            unit="KG"
+          />
         </div>
       )}
+
+      {/* Step 1: Body fat */}
+      {step === 1 && (
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 24 }}>
+            <FMono size={9} color={Color.mute} style={{ letterSpacing: 1 }}>BODY FAT ESTIMATE</FMono>
+            <button onClick={() => handleSave()} style={{
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              fontFamily: Font.mono, fontSize: 10, color: Color.dim, letterSpacing: 0.8,
+            }}>SKIP</button>
+          </div>
+          <FWeightInput
+            value={data.bf}
+            onChange={bf => setData({ ...data, bf })}
+            min={3} max={50} step={0.5}
+            unit="% BF"
+          />
+        </div>
+      )}
+
+      {/* CTA */}
+      <div style={{ padding: `16px 24px 32px`, flexShrink: 0 }}>
+        {step === 0 ? (
+          <FBtn variant="primary" full size="lg" onClick={() => setStep(1)}>Continue</FBtn>
+        ) : (
+          <FBtn variant="primary" full size="lg" onClick={handleSave}>Save</FBtn>
+        )}
+      </div>
     </div>
-  );
+  )
 }
 
 export function CheckInFlowScreen() {
   return (
     <Phone label="Check-in" group="OBSERVE">
-      <FNavBar title="Weekly Check-in" leading={<FIcon path={ICONS.back} size={20} color={Color.text} />} />
-      <CheckInFlowContent />
+      <CheckInOverviewContent />
     </Phone>
   )
 }

@@ -1,8 +1,7 @@
 /* Screen Registry — single source of truth for Demo, Library, Journey, and AllScreens */
 
 import { WelcomeScreen } from './Welcome'
-import { GoalInputScreen, GoalContractScreen } from './GoalSetting'
-import { TDEEScreen, TDEECompareScreen } from './TDEE'
+import { TDEEScreen } from './TDEE'
 import { MacroTargetsScreen, MacroMealsScreen, ShoppingListScreen } from './Macros'
 import { FridgeScreen } from './Fridge'
 import { MealPrepMergeScreen, MealPrepTimelineScreen, MealPrepCookModeScreen } from './MealPrep'
@@ -19,23 +18,18 @@ import { CheckInScreen } from './CheckInScreen'
 import { FeatureCardMorphScreen } from './FeatureCardMorph'
 import { BatchPrepScreen } from './BatchPrep'
 import { CookSummaryScreen } from './CookSummary'
-import { DashboardScreen, DashboardNutritionScreen, DashboardTrainingScreen } from './Dashboard'
-import { MacroHeatmapScreen } from './MacroHeatmap'
+import { DashboardScreen } from './Dashboard'
 import { FoodLogScreen } from './FoodLog'
 import { WaterTrackingScreen } from './WaterTracking'
 import { WorkoutHistoryScreen } from './WorkoutHistory'
 import { TodayScreen } from './Today'
+import { StatsScreen } from './Stats'
 
 export const SCREENS = [
   { id: 'today',      feature: 'Home',         flow: '00', label: 'Today',               C: TodayScreen },
-  { id: 'dash-bal',   feature: 'Dashboard',    flow: '00', label: 'Balanced',            C: DashboardScreen },
-  { id: 'dash-nut',   feature: 'Dashboard',    flow: '00', label: 'Nutrition focus',     C: DashboardNutritionScreen },
-  { id: 'dash-trn',   feature: 'Dashboard',    flow: '00', label: 'Training focus',      C: DashboardTrainingScreen },
+  { id: 'dash-bal',   feature: 'Home',         flow: '00', label: 'Dashboard',           C: DashboardScreen },
   { id: 'welcome',    feature: 'Welcome',      flow: '01', label: 'Begin',               C: WelcomeScreen },
-  { id: 'goal-a',     feature: 'Goal Setting', flow: '02', label: 'Set the goal',        C: GoalInputScreen },
-  { id: 'goal-b',     feature: 'Goal Setting', flow: '02', label: 'The brief',           C: GoalContractScreen },
-  { id: 'tdee-a',     feature: 'TDEE Model',   flow: '03', label: 'Today',               C: TDEEScreen },
-  { id: 'tdee-b',     feature: 'TDEE Model',   flow: '03', label: 'Trust over time',     C: TDEECompareScreen },
+  { id: 'tdee-a',     feature: 'Analytics',    flow: '03', label: 'Energy model',        C: TDEEScreen },
   { id: 'plan-m',     feature: 'Plan',         flow: '04', label: 'Calendar \u00b7 month', C: PlanCalendarMonthScreen },
   { id: 'plan-w',     feature: 'Plan',         flow: '04', label: 'Calendar \u00b7 week',  C: PlanCalendarWeekScreen },
   { id: 'plan-d',     feature: 'Plan',         flow: '04', label: 'Calendar \u00b7 day',   C: PlanCalendarDayScreen },
@@ -58,8 +52,8 @@ export const SCREENS = [
   { id: 'prep-c',     feature: 'Meal Prep',    flow: '08', label: 'Active cook mode',    C: MealPrepCookModeScreen },
   { id: 'cook-sum',   feature: 'Meal Prep',    flow: '08', label: 'Cook summary',        C: CookSummaryScreen },
   { id: 'profile',    feature: 'Profile',      flow: '09', label: 'Account hub',         C: ProfileScreen },
-  { id: 'checkin',    feature: 'Feedback',     flow: '10', label: 'Weekly check-in',     C: CheckInScreen },
-  { id: 'food-log',   feature: 'Feedback',     flow: '10', label: 'Daily food log',      C: FoodLogScreen },
-  { id: 'water',      feature: 'Feedback',     flow: '10', label: 'Water tracking',      C: WaterTrackingScreen },
-  { id: 'macro-heat', feature: 'Analytics',    flow: '11', label: 'Macro adherence',     C: MacroHeatmapScreen },
+  { id: 'checkin',    feature: 'Tracking',     flow: '10', label: 'Check-in',           C: CheckInScreen },
+  { id: 'food-log',   feature: 'Tracking',     flow: '10', label: 'Food log',            C: FoodLogScreen },
+  { id: 'water',      feature: 'Tracking',     flow: '10', label: 'Water',               C: WaterTrackingScreen },
+  { id: 'stats',      feature: 'Analytics',    flow: '11', label: 'Progress',            C: StatsScreen },
 ]

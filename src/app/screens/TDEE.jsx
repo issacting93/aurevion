@@ -1,6 +1,6 @@
 // 02 TDEE — Ring Focus design across all TDEE screens.
 
-import { useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { Color, Font, Space, Radius, Type, Ease, alpha } from '../../ui/tokens'
 import { ICONS, FSurface, FNavBar, FLabel, FMono, FNum, FTexBar, FIcon, FBtn, FTabBar, Phone } from '../../ui/components'
 import { LineChart, Sparkline } from '../../ui/chart'
@@ -36,7 +36,7 @@ function ensureRingKf() {
 }
 
 // ── Segmented Burn Ring (Today screen) ──
-function TDEERing({ target, bmr, activity, size = 200, strokeWidth = 14 }) {
+export function TDEERing({ target, bmr, activity, size = 200, strokeWidth = 14 }) {
   ensureRingKf()
   const cx = size / 2, cy = size / 2
   const r = (size - strokeWidth) / 2
@@ -133,7 +133,7 @@ function ConfidenceRing({ label, confidence, bandHalf, size = 120, delay = 0.3 }
 }
 
 // ── Legend Item ──
-function LegendItem({ color, label, value, unit, sub }) {
+export function LegendItem({ color, label, value, unit, sub }) {
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
       <div style={{ width: 10, height: 10, borderRadius: '50%', background: color, marginTop: 2, flexShrink: 0 }} />
@@ -198,11 +198,23 @@ export function TDEEContent() {
 }
 
 export function TDEEScreen() {
+  const [view, setView] = useState('today')
   return (
-    <Phone label="TDEE · today" group="MODEL">
-      <FNavBar title="Expenditure" leading={<FIcon path={ICONS.back} size={20} color={Color.text} />} trailing={<FIcon path={ICONS.more} size={20} color={Color.text} />} />
-      <TDEEContent />
-      <FTabBar active={3} />
+    <Phone label="TDEE" group="ANALYTICS">
+      <FNavBar title="Expenditure" leading={<FIcon path={ICONS.back} size={20} color={Color.text} />} />
+      <div style={{ display: 'flex', borderBottom: `1px solid ${Color.borderSoft}` }}>
+        {[['today', 'TODAY'], ['trend', 'OVER TIME']].map(([id, label]) => (
+          <button key={id} onClick={() => setView(id)} style={{
+            flex: 1, padding: '10px 0',
+            fontFamily: Font.mono, fontSize: 10, letterSpacing: 1,
+            color: view === id ? Color.accent : Color.mute,
+            background: 'transparent', border: 'none', cursor: 'pointer',
+            borderBottom: `2px solid ${view === id ? Color.accent : 'transparent'}`,
+            transition: 'color 0.15s, border-color 0.15s',
+          }}>{label}</button>
+        ))}
+      </div>
+      {view === 'today' ? <TDEEContent /> : <TDEECompareContent />}
     </Phone>
   )
 }

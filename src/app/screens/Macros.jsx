@@ -5,7 +5,7 @@ import { Color, Font, Space, Radius, Type } from '../../ui/tokens'
 import { ICONS, FSurface, FNavBar, FLabel, FMono, FNum, FIcon, FCheckbox, FTag, FBtn, FTabBar, FSection, FToolbar, FListRow, Phone } from '../../ui/components'
 import { useUser } from '../../context/UserContext'
 import { useNav } from '../../context/NavigationContext'
-import { MOCK_TARGETS } from '../../context/mockUser'
+import { MOCK_TARGETS, MOCK_DASHBOARD, MOCK_HEATMAP } from '../../context/mockUser'
 import { computeShoppingList } from './nutrition-data'
 
 // ── Coach explainer used inside Macro Targets ──
@@ -61,6 +61,192 @@ function ExpandablePanelWhyWeek() {
   );
 }
 
+export function NutritionHubContent() {
+  const { pushDetail } = useNav()
+  const { targets: ctxTargets } = useUser()
+  const t = ctxTargets || MOCK_TARGETS
+  const prep = MOCK_DASHBOARD.prep
+  const fridge = MOCK_DASHBOARD.fridge
+
+  const totalKcal = t.target || 2270
+  const pPct = Math.round((t.protein * 4 / totalKcal) * 100)
+  const fPct = Math.round((t.fat * 9 / totalKcal) * 100)
+  const cPct = 100 - pPct - fPct
+  const deficit = t.tdee ? Math.abs(t.target - t.tdee) : 480
+
+  return (
+    <div style={{ flex: 1, overflowY: 'auto' }}>
+      {/* ── Kcal hero ── */}
+      <div style={{ padding: '20px 24px 0' }}>
+        <FNum size={60} weight={200} unit="kcal">{t.target.toLocaleString()}</FNum>
+        <FMono color={Color.mute} size={10}>DAILY · −{deficit} DEFICIT</FMono>
+
+        {/* Macro split bar */}
+        <div style={{ marginTop: 20, marginBottom: 6 }}>
+          <div style={{ display: 'flex', height: 6, borderRadius: 3, overflow: 'hidden', marginBottom: 6 }}>
+            <div style={{ width: `${pPct}%`, background: Color.accent }} />
+            <div style={{ width: `${cPct}%`, background: Color.blue }} />
+            <div style={{ width: `${fPct}%`, background: Color.amber }} />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <FMono size={10} color={Color.accent}>P {t.protein}g</FMono>
+            <FMono size={10} color={Color.blue}>C {t.carbs}g</FMono>
+            <FMono size={10} color={Color.amber}>F {t.fat}g</FMono>
+          </div>
+        </div>
+
+        <button
+          onClick={() => pushDetail('macros', 'Macro Targets')}
+          style={{
+            marginTop: 8, background: 'transparent', border: 'none',
+            padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+          }}
+        >
+          <FMono size={10} color={Color.dim}>FULL TARGETS</FMono>
+          <FIcon path={ICONS.fwd} size={12} color={Color.dim} />
+        </button>
+      </div>
+
+      {/* ── This week's adherence ── */}
+      <div style={{ padding: '24px 24px 0' }}>
+        <FMono size={10} color={Color.mute} style={{ display: 'block', marginBottom: 12 }}>THIS WEEK</FMono>
+        <FSurface style={{ padding: 16 }}>
+          {[
+            { label: 'P', data: MOCK_HEATMAP.protein[MOCK_HEATMAP.protein.length - 1], color: Color.accent },
+            { label: 'C', data: MOCK_HEATMAP.carbs[MOCK_HEATMAP.carbs.length - 1],   color: Color.blue },
+            { label: 'F', data: MOCK_HEATMAP.fat[MOCK_HEATMAP.fat.length - 1],       color: Color.amber },
+          ].map(({ label, data, color }) => {
+            const hitDays = data.filter(v => v >= 85).length
+            return (
+              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                <FMono size={9} color={Color.mute} style={{ width: 10 }}>{label}</FMono>
+                <div style={{ flex: 1, display: 'flex', gap: 3 }}>
+                  {data.map((v, i) => (
+                    <div key={i} style={{
+                      flex: 1, height: 5, borderRadius: 2,
+                      background: v >= 85 ? color : Color.borderSoft,
+                      opacity: v >= 85 ? Math.min(1, 0.4 + (v / 100) * 0.6) : 1,
+                    }} />
+                  ))}
+                </div>
+                <FMono size={9} color={hitDays >= 6 ? Color.green : hitDays >= 4 ? Color.dim : Color.amber}>
+                  {hitDays}/7
+                </FMono>
+              </div>
+            )
+          })}
+        </FSurface>
+      </div>
+
+      {/* ── Tonight's prep ── */}
+      <div style={{ padding: '24px 24px 0' }}>
+        <FMono size={10} color={Color.mute} style={{ display: 'block', marginBottom: 10 }}>TONIGHT'S PREP</FMono>
+        <FSurface style={{ padding: 0, overflow: 'hidden' }}>
+          {/* Ready bar */}
+          <div style={{ height: 3, background: Color.borderSoft }}>
+            <div style={{ height: '100%', width: `${prep.readyPct}%`, background: Color.green }} />
+          </div>
+          <div style={{ padding: '12px 16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12 }}>
+              <div style={{ ...Type.bodyMd, color: Color.text }}>3 recipes · {prep.totalTime}</div>
+              <FMono size={10} color={Color.green}>{prep.readyPct}% READY</FMono>
+            </div>
+            {prep.recipes.map((r, i) => (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                padding: '6px 0',
+                borderTop: i > 0 ? `1px solid ${Color.borderSoft}` : 'none',
+              }}>
+                <div style={{ width: 6, height: 6, borderRadius: 3, background: r.color, flexShrink: 0 }} />
+                <div style={{ flex: 1, ...Type.bodySm, color: Color.text }}>{r.name}</div>
+                <FMono size={10} color={Color.mute}>{r.portions}× · {r.time}</FMono>
+              </div>
+            ))}
+            <button
+              onClick={() => pushDetail('prep', 'Meal Prep')}
+              style={{
+                marginTop: 12, width: '100%', padding: '8px 12px',
+                borderRadius: Radius.md, background: `${Color.accent}0f`,
+                border: `1px solid ${Color.accent}30`, cursor: 'pointer',
+                fontFamily: Font.mono, fontSize: 10, letterSpacing: 1,
+                color: Color.accent, textTransform: 'uppercase',
+              }}
+            >Start prep session →</button>
+          </div>
+        </FSurface>
+      </div>
+
+      {/* ── Fridge status ── */}
+      <div style={{ padding: '16px 24px 0' }}>
+        <FMono size={10} color={Color.mute} style={{ display: 'block', marginBottom: 10 }}>FRIDGE STATUS</FMono>
+        <FSurface>
+          <div style={{ display: 'flex', gap: 0, marginBottom: 12 }}>
+            <div style={{ flex: 1, textAlign: 'center' }}>
+              <FNum size={28} weight={200}>{fridge.total}</FNum>
+              <FMono size={10} color={Color.mute} style={{ display: 'block', marginTop: 2 }}>TOTAL</FMono>
+            </div>
+            <div style={{ width: 1, background: Color.borderSoft }} />
+            <div style={{ flex: 1, textAlign: 'center' }}>
+              <FNum size={28} weight={200} color={fridge.missing > 0 ? Color.amber : Color.green}>{fridge.missing}</FNum>
+              <FMono size={10} color={Color.mute} style={{ display: 'block', marginTop: 2 }}>MISSING</FMono>
+            </div>
+            <div style={{ width: 1, background: Color.borderSoft }} />
+            <div style={{ flex: 1, textAlign: 'center' }}>
+              <FNum size={28} weight={200} color={fridge.expiring > 0 ? Color.accent : Color.green}>{fridge.expiring}</FNum>
+              <FMono size={10} color={Color.mute} style={{ display: 'block', marginTop: 2 }}>EXPIRING</FMono>
+            </div>
+          </div>
+          {fridge.topMissing?.slice(0, 2).map((item, i) => (
+            <div key={i} style={{
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              padding: '5px 0',
+              borderTop: `1px solid ${Color.borderSoft}`,
+            }}>
+              <div style={{ ...Type.bodySm, color: Color.dim }}>{item.name}</div>
+              <FMono size={10} color={Color.amber}>{item.amount}</FMono>
+            </div>
+          ))}
+          <button
+            onClick={() => pushDetail('fridge', 'Pantry')}
+            style={{
+              marginTop: 10, background: 'transparent', border: 'none',
+              padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+            }}
+          >
+            <FMono size={10} color={Color.dim}>VIEW PANTRY</FMono>
+            <FIcon path={ICONS.fwd} size={12} color={Color.dim} />
+          </button>
+        </FSurface>
+      </div>
+
+      {/* ── Action grid ── */}
+      <div style={{ padding: '16px 24px 100px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          {[
+            { icon: ICONS.meal,  label: 'Meal queue',  screen: 'meal-queue', title: 'Meals' },
+            { icon: ICONS.cart,  label: 'Shopping',    screen: 'shopping',   title: 'Shopping' },
+            { icon: ICONS.chart, label: 'Food log',    screen: 'food-log',   title: 'Food Log' },
+            { icon: ICONS.pan,   label: 'Batch prep',  screen: 'batch',      title: 'Batch Strategy' },
+          ].map(({ icon, label, screen, title }) => (
+            <button
+              key={screen}
+              onClick={() => pushDetail(screen, title)}
+              style={{
+                padding: '12px 14px', borderRadius: Radius.md,
+                background: Color.surface, border: `1px solid ${Color.borderSoft}`,
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10,
+              }}
+            >
+              <FIcon path={icon} size={16} color={Color.dim} stroke={1.8} />
+              <FMono size={10} color={Color.dim}>{label}</FMono>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function MacroTargetsContent() {
   const { pushDetail } = useNav()
   const { targets: ctxTargets, mealPlan } = useUser()
@@ -74,7 +260,29 @@ export function MacroTargetsContent() {
       <FNum size={68} weight={200} unit="kcal">{t.target.toLocaleString()}</FNum>
       <FMono color={Color.mute}>DAILY · −{deficit} DEFICIT · 16 WK PLAN</FMono>
 
-      <div style={{ marginTop: 32, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+      {/* ── Macro Split ── */}
+      {(() => {
+        const totalKcal = t.target || 2270
+        const pPct = Math.round((t.protein * 4 / totalKcal) * 100)
+        const fPct = Math.round((t.fat * 9 / totalKcal) * 100)
+        const cPct = 100 - pPct - fPct
+        return (
+          <div style={{ marginTop: 24, marginBottom: 8 }}>
+            <div style={{ display: 'flex', height: 8, borderRadius: 4, overflow: 'hidden', marginBottom: 8 }}>
+              <div style={{ width: `${pPct}%`, background: Color.accent }} />
+              <div style={{ width: `${cPct}%`, background: Color.blue }} />
+              <div style={{ width: `${fPct}%`, background: Color.amber }} />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <FMono size={10} color={Color.accent}>P {pPct}%</FMono>
+              <FMono size={10} color={Color.blue}>C {cPct}%</FMono>
+              <FMono size={10} color={Color.amber}>F {fPct}%</FMono>
+            </div>
+          </div>
+        )
+      })()}
+
+      <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
         <FSurface accent={Color.accent} style={{ padding: '12px 14px', borderRadius: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
           <div><FNum size={24} weight={300} unit="g">{t.protein}</FNum></div>
           <FMono color={Color.accent} size={10} style={{ display: 'block' }}>PROTEIN</FMono>

@@ -15,21 +15,23 @@ const FLOWS = [
   {
     group: 'Tabs',
     items: [
-      { id: 'tab:home',  label: 'Today',    type: 'tab', tab: 'home' },
-      { id: 'tab:train', label: 'Program',  type: 'tab', tab: 'train' },
-      { id: 'tab:eat',   label: 'Macros',   type: 'tab', tab: 'eat' },
-      { id: 'tab:plan',  label: 'Calendar', type: 'tab', tab: 'plan' },
-      { id: 'tab:you',   label: 'Profile',  type: 'tab', tab: 'you' },
+      { id: 'tab:calendar', label: 'Calendar',  type: 'tab', tab: 'calendar' },
+      { id: 'tab:eat',      label: 'Eat',       type: 'tab', tab: 'eat' },
+      { id: 'tab:home',     label: 'Home',      type: 'tab', tab: 'home' },
+      { id: 'tab:stats',    label: 'Dashboard', type: 'tab', tab: 'stats' },
+      { id: 'tab:you',      label: 'Profile',   type: 'tab', tab: 'you' },
     ],
   },
   {
     group: 'Training',
     items: [
-      { id: 'active-session', label: 'Active session',   type: 'detail', screen: 'active-session', title: 'Training', needsSession: true },
-      { id: 'exercises',      label: 'Exercise browser', type: 'detail', screen: 'exercises',      title: 'Exercises' },
-      { id: 'exercise-detail',label: 'Exercise detail',  type: 'detail', screen: 'exercise-detail',title: 'Exercise' },
-      { id: 'workout-history',label: 'Workout history',  type: 'detail', screen: 'workout-history',title: 'History' },
-      { id: 'workout-template',label:'Workout template', type: 'detail', screen: 'workout-template',title:'Template' },
+      { id: 'active-session',  label: 'Active session',   type: 'detail', screen: 'active-session',  title: 'Training', needsSession: true },
+      { id: 'exercises',       label: 'Exercise browser', type: 'detail', screen: 'exercises',       title: 'Exercises' },
+      { id: 'exercise-detail', label: 'Exercise detail',  type: 'detail', screen: 'exercise-detail', title: 'Exercise' },
+      { id: 'workout-history', label: 'Workout history',  type: 'detail', screen: 'workout-history', title: 'History' },
+      { id: 'workout-template',label: 'Workout template', type: 'detail', screen: 'workout-template',title: 'Template' },
+      { id: 'goal-detail',     label: 'Goal detail',      type: 'detail', screen: 'goal-detail',     title: 'Goal' },
+      { id: 'calendar',        label: 'Calendar',         type: 'detail', screen: 'plan',            title: 'Calendar' },
     ],
   },
   {
@@ -53,15 +55,11 @@ const FLOWS = [
     ],
   },
   {
-    group: 'Data',
+    group: 'Analytics',
     items: [
-      { id: 'goal',          label: 'Goal setting',    type: 'detail', screen: 'goal',          title: 'Goal' },
-      { id: 'goal-contract', label: 'Goal contract',   type: 'detail', screen: 'goal-contract', title: 'Contract' },
-      { id: 'goal-detail',   label: 'Goal detail',     type: 'detail', screen: 'goal-detail',   title: 'Goal' },
-      { id: 'tdee',          label: 'TDEE',            type: 'detail', screen: 'tdee',          title: 'Expenditure' },
-      { id: 'tdee-compare',  label: 'TDEE confidence', type: 'detail', screen: 'tdee-compare',  title: 'Confidence' },
-      { id: 'water',         label: 'Water tracking',  type: 'detail', screen: 'water',         title: 'Hydration' },
-      { id: 'checkin-flow',  label: 'Check-in',        type: 'detail', screen: 'checkin-flow',  title: 'Check-in' },
+      { id: 'tdee',         label: 'Energy model', type: 'detail', screen: 'tdee',         title: 'Expenditure' },
+      { id: 'checkin-flow', label: 'Check-in',     type: 'detail', screen: 'checkin-flow', title: 'Check-in' },
+      { id: 'water',        label: 'Water',        type: 'detail', screen: 'water',        title: 'Hydration' },
     ],
   },
   {
